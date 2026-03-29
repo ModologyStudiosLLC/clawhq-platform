@@ -1,52 +1,74 @@
-import { AlertCircle, CheckCircle, Info } from "lucide-react";
+"use client";
 
-const alerts = [
-  {
-    severity: "info",
-    title: "Firecrawl running",
-    desc: "Self-hosted at port 3002, 0 rate limits",
-    time: "2m ago",
-  },
-  {
-    severity: "warning",
-    title: "LinkedIn MCP",
-    desc: "Session may need re-auth",
-    time: "1h ago",
-  },
-  {
-    severity: "success",
-    title: "All cron jobs healthy",
-    desc: "8 jobs delivering to Discord #openclaw",
-    time: "5m ago",
-  },
-];
+import { useEffect, useState } from "react";
+import { CheckCircle, AlertCircle, XCircle, Loader2 } from "lucide-react";
 
-const config: Record<string, { icon: typeof Info; color: string; bg: string }> = {
-  info: { icon: Info, color: "var(--color-primary)", bg: "var(--color-primary-dim)" },
-  warning: { icon: AlertCircle, color: "var(--color-warning, #f6d969)", bg: "rgba(246, 217, 105, 0.12)" },
-  success: { icon: CheckCircle, color: "var(--color-secondary)", bg: "var(--color-secondary-dim)" },
-  error: { icon: AlertCircle, color: "var(--color-error, #ff6b6b)", bg: "rgba(255, 107, 107, 0.12)" },
+interface ServiceStatus {
+  name: string;
+  ok: boolean;
+  status: "healthy" | "degraded" | "offline";
+}
+
+interface HealthData {
+  services: ServiceStatus[];
+  allHealthy: boolean;
+}
+
+const config = {
+  healthy: { icon: CheckCircle, color: "var(--color-secondary)", bg: "var(--color-secondary-dim)" },
+  degraded: { icon: AlertCircle, color: "var(--color-warning, #f6d969)", bg: "rgba(246,217,105,0.12)" },
+  offline: { icon: XCircle, color: "var(--color-error, #ff6b6b)", bg: "rgba(255,107,107,0.12)" },
 };
 
 export function SystemAlerts() {
+  const [health, setHealth] = useState<HealthData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const poll = () => {
+      fetch("/api/health")
+        .then(r => r.json())
+        .then(d => { setHealth(d); setLoading(false); })
+        .catch(() => setLoading(false));
+    };
+    poll();
+    const interval = setInterval(poll, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
-      <h2 className="font-bold text-base mb-4" style={{ fontFamily: "var(--font-manrope, Manrope, sans-serif)" }}>System Status</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-manrope, Manrope)" }}>System Status</h2>
+        {loading && <Loader2 size={14} className="animate-spin" style={{ color: "var(--color-text-muted)" }} />}
+        {!loading && health && (
+          <span
+            className="text-xs px-2 py-0.5 rounded-full"
+            style={{
+              background: health.allHealthy ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
+              color: health.allHealthy ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
+            }}
+          >
+            {health.allHealthy ? "All systems go" : "Issues detected"}
+          </span>
+        )}
+      </div>
+
       <div className="space-y-3">
-        {alerts.map((alert, i) => {
-          const { icon: Icon, color, bg } = config[alert.severity];
+        {loading ? (
+          [...Array(3)].map((_, i) => (
+            <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: "var(--color-surface-2)" }} />
+          ))
+        ) : health?.services.map((svc) => {
+          const { icon: Icon, color, bg } = config[svc.status];
           return (
-            <div key={i} className="flex gap-3">
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                style={{ background: bg }}
-              >
+            <div key={svc.name} className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
                 <Icon size={13} style={{ color }} />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{alert.title}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{alert.desc}</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--color-text-subtle)" }}>{alert.time}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{svc.name}</p>
+                <p className="text-xs capitalize" style={{ color: "var(--color-text-muted)" }}>{svc.status}</p>
               </div>
             </div>
           );
