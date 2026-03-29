@@ -1,0 +1,126 @@
+name: clawhq
+
+services:
+
+  # ─── Database ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: clawhq
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: clawhq
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clawhq -d clawhq"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - clawhq
+
+  # ─── OpenClaw — agent gateway & channels ──────────────────────────────────
+  openclaw:
+    build:
+      context: ./services/openclaw
+      dockerfile: Dockerfile
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - openclaw-config:/home/node/.openclaw
+      - openclaw-workspace:/home/node/.openclaw/workspace
+    ports:
+      - "${OPENCLAW_PORT:-18789}:18789"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:18789/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - clawhq
+    command: ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789"]
+
+  # ─── OpenFang — autonomous agent OS (Rust) ────────────────────────────────
+  openfang:
+    build:
+      context: ./services/openfang
+      dockerfile: Dockerfile
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+    volumes:
+      - openfang-data:/data
+    ports:
+      - "${OPENFANG_PORT:-4200}:4200"
+    restart: unless-stopped
+    networks:
+      - clawhq
+
+  # ─── Paperclip — agent orchestration & org charts ─────────────────────────
+  paperclip:
+    build:
+      context: ./services/paperclip
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://clawhq:${POSTGRES_PASSWORD}@postgres:5432/clawhq
+      PORT: "3100"
+      SERVE_UI: "false"
+      PAPERCLIP_DEPLOYMENT_MODE: "authenticated"
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
+      PAPERCLIP_PUBLIC_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
+    volumes:
+      - paperclip-data:/paperclip
+    ports:
+      - "${PAPERCLIP_PORT:-3100}:3100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - clawhq
+
+  # ─── ClawHQ Dashboard ─────────────────────────────────────────────────────
+  dashboard:
+    build:
+      context: ./apps/dashboard
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_OPENCLAW_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/openclaw
+        NEXT_PUBLIC_PAPERCLIP_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/paperclip
+        NEXT_PUBLIC_OPENFANG_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/openfang
+    environment:
+      OPENCLAW_INTERNAL_URL: http://openclaw:18789
+      PAPERCLIP_INTERNAL_URL: http://paperclip:3100
+      OPENFANG_INTERNAL_URL: http://openfang:4200
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
+      NEXTAUTH_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
+    ports:
+      - "${CLAWHQ_PORT:-3500}:3500"
+    depends_on:
+      - openclaw
+      - openfang
+      - paperclip
+    restart: unless-stopped
+    networks:
+      - clawhq
+
+volumes:
+  pgdata:
+  openclaw-config:
+  openclaw-workspace:
+  openfang-data:
+  paperclip-data:
+
+networks:
+  clawhq:
+    driver: bridge

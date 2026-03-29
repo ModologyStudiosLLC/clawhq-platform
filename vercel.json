@@ -1,8 +1,8 @@
 {
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/.next",
-  "installCommand": "cd frontend && npm install",
-  "devCommand": "cd frontend && npm run dev",
+  "buildCommand": "cd apps/dashboard && npm run build",
+  "outputDirectory": "apps/dashboard/.next",
+  "installCommand": "cd apps/dashboard && npm install",
+  "devCommand": "cd apps/dashboard && npm run dev",
   "framework": "nextjs",
   "regions": ["iad1"]
 }
