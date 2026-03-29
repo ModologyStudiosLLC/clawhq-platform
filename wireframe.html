@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClawHQ Platform - Wireframe</title>
+    <style>
+        :root {
+            --primary: #3B82F6;
+            --secondary: #10B981;
+            --accent: #8B5CF6;
+            --background: #F9FAFB;
+            --surface: #FFFFFF;
+            --text: #111827;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+        }
+        
+        .logo {
+            padding: 0 24px 32px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #6B7280;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background-color: #F3F4F6;
+            color: var(--text);
+        }
+        
+        .nav-item.active {
+            background-color: #EFF6FF;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+        
+        /* Header */
+        .header {
+            height: 64px;
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .search {
+            flex: 1;
+            max-width: 400px;
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content {
+            padding: 32px;
+            flex: 1;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: #D1FAE5;
+            color: var(--success);
+        }
+        
+        .status-warning {
+            background-color: #FEF3C7;
+            color: var(--warning);
+        }
+        
+        .status-error {
+            background-color: #FEE2E2;
+            color: var(--error);
+        }
+        
+        .metric {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+        
+        .metric-change {
+            font-size: 14px;
+            color: var(--success);
+        }
+        
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-time {
+            color: #6B7280;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563EB;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #F3F4F6;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">ClawHQ</div>
+            <a href="#" class="nav-item active">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <span>🤖</span> Agents
+            </a>
+            <a href="#" class="nav-item">
+                <span>💰</span> Cost Intelligence
+            </a>
+            <a href="#" class="nav-item">
+                <span>🔒</span> Security Center
+            </a>
+            <a href="#" class="nav-item">
+                <span>🚀</span> Onboarding
+            </a>
+            <a href="#" class="nav-item">
+                <span>🛒</span> Marketplace
+            </a>
+            <a href="#" class="nav-item">
+                <span>⚙️</span> Settings
+            </a>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Header -->
+            <div class="header">
+                <input type="text" class="search" placeholder="Search agents, skills, or settings...">
+                <div class="user-menu">
+                    <span>🔔</span>
+                    <span>👤</span>
+                    <span>Michael Flanigan</span>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="content">
+                <h1 style="margin-bottom: 24px;">Dashboard Overview</h1>
+                
+                <!-- Top Metrics -->
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-title">System Health</div>
+                        <div class="status-item">
+                            <span>Paperclip</span>
+                            <span class="status status-success">✅ Healthy</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Nerve</span>
+                            <span class="status status-success">✅ Healthy</span>
+                        </div>
+                        <div class="status-item">
+                            <span>OpenFang</span>
+                            <span class="status status-warning">⚠️ Warning</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Active Agents</div>
+                        <div class="metric">8</div>
+                        <div class="status-item">
+                            <span>Running</span>
+                            <span>5</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Idle</span>
+                            <span>2</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Error</span>
+                            <span class="status status-error">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Cost Today</div>
+                        <div class="metric">$12.45</div>
+                        <div class="metric-change">↓ 23% from yesterday</div>
+                        <div style="margin-top: 16px;">
+                            <span class="status status-success">Budget OK</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Middle Section -->
+                <div class="grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="card">
+                        <div class="card-title">Recent Activity</div>
+                        <div class="activity-item">
+                            <span>🤖</span>
+                            <div>
+                                <div>Agent "Felix" completed task</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span>💰</span>
+                            <div>
+                                <div>Cost alert: Project X exceeded budget</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span>🛒</span>
+                            <div>
+                                <div>New skill installed: LinkedIn Automation</div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span>🔒</span>
+                            <div>
+                                <div>Security: Unusual login detected</div>
+                                <div class="activity-time">5 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Quick Actions</div>
+                        <div class="quick-actions">
+                            <button class="btn btn-primary">Add Agent</button>
+                            <button class="btn btn-secondary">View Reports</button>
+                            <button class="btn btn-secondary">Run Audit</button>
+                            <button class="btn btn-secondary">Invite Team</button>
+                        </div>
+                        
+                        <div class="card-title" style="margin-top: 24px;">System Stats</div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">45%</div>
+                                <div class="stat-label">CPU</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">2.3G</div>
+                                <div class="stat-label">Memory</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">7d</div>
+                                <div class="stat-label">Uptime</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">1k</div>
+                                <div class="stat-label">Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
