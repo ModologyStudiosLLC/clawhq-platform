@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, MessageCircle, Settings2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 interface Agent {
   id: string;
@@ -182,13 +183,14 @@ function AgentCard({ agent }: { agent: Agent }) {
       </div>
 
       <div className="flex gap-2 mt-auto">
-        <button
+        <Link
+          href={`/team/${agent.id}`}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition-colors"
           style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)" }}
         >
           <MessageCircle size={12} />
           Talk
-        </button>
+        </Link>
         <button
           className="flex items-center justify-center p-2 rounded-lg transition-colors"
           style={{ background: "var(--color-surface-2)", color: "var(--color-text-muted)" }}

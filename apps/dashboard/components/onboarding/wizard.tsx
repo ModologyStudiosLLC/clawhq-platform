@@ -259,7 +259,10 @@ export function OnboardingWizard() {
             Your agents are standing by. Head to your dashboard to get started.
           </p>
           <button
-            onClick={() => { window.location.href = "/home"; }}
+            onClick={() => {
+              document.cookie = "clawhq_setup=1; path=/; max-age=31536000";
+              window.location.href = "/home";
+            }}
             className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
             style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "#0e0e10" }}
           >
