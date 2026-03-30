@@ -458,10 +458,11 @@
 
     /* Fade-up animation */
     .fade-up {
-      opacity: 0; transform: translateY(20px);
+      opacity: 1; transform: translateY(0);
       transition: opacity 0.55s ease, transform 0.55s ease;
     }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .js-ready .fade-up { opacity: 0; transform: translateY(20px); }
+    .js-ready .fade-up.visible { opacity: 1; transform: translateY(0); }
 
     /* ── THE STACK ────────────────────────────────────────── */
     .stack-section { background: var(--bg); }
@@ -1116,6 +1117,9 @@
   </footer>
 
   <script>
+    // Mark JS as running — enables fade-up animations safely
+    document.documentElement.classList.add('js-ready');
+
     // ── THEME ─────────────────────────────────────────────
     const root = document.documentElement;
     const themeToggle = document.getElementById('themeToggle');
@@ -1211,13 +1215,15 @@
       navigator.clipboard.writeText(text).then(() => showToast('Copied ✓'));
     }
 
-    // Hero command button
-    document.getElementById('heroCmd').addEventListener('click', () => {
-      copyText('docker compose up -d');
-      const btn = document.getElementById('heroCmd');
-      btn.classList.add('copied');
-      setTimeout(() => btn.classList.remove('copied'), 2000);
-    });
+    // Hero command button (optional — element may not exist)
+    const heroCmd = document.getElementById('heroCmd');
+    if (heroCmd) {
+      heroCmd.addEventListener('click', () => {
+        copyText('docker compose up -d');
+        heroCmd.classList.add('copied');
+        setTimeout(() => heroCmd.classList.remove('copied'), 2000);
+      });
+    }
 
     // All code pills
     document.querySelectorAll('.code-pill[data-copy]').forEach(btn => {
