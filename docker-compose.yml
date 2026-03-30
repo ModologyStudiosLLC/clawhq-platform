@@ -100,8 +100,13 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      # Channel tokens intentionally omitted — OpenClaw owns all channel connections.
-      # Hermes is a cognitive/memory layer, not a channel gateway.
+      # Hermes is the conversational brain — it owns the primary channel connections.
+      # Use HERMES_* prefixed tokens so they are distinct from OpenClaw's bot tokens.
+      # Do NOT share the same token with OpenClaw; each service needs its own bot.
+      TELEGRAM_BOT_TOKEN: ${HERMES_TELEGRAM_BOT_TOKEN:-}
+      DISCORD_BOT_TOKEN: ${HERMES_DISCORD_BOT_TOKEN:-}
+      SLACK_BOT_TOKEN: ${HERMES_SLACK_BOT_TOKEN:-}
+      SLACK_APP_TOKEN: ${HERMES_SLACK_APP_TOKEN:-}
       HERMES_MODEL: ${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
       HERMES_HOME: /opt/data
     volumes:
