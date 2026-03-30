@@ -21,8 +21,9 @@ api_key_env = "ANTHROPIC_API_KEY"
 decay_rate = 0.05
 
 [network]
-# OFP peer-to-peer listen address — also must be 0.0.0.0 in Docker
-listen_addr = "0.0.0.0:4200"
+# OFP peer-to-peer listen address — must be a DIFFERENT port from api_listen.
+# Using 4201 to avoid a double-bind crash on startup.
+listen_addr = "0.0.0.0:4201"
 
 # Session compaction: keep context under control for long-running agents
 [compaction]

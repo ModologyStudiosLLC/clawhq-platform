@@ -66,7 +66,8 @@ services:
       - ./services/openfang/openfang.docker.toml:/data/config.toml:ro
     # Not exposed publicly — internal only
     expose:
-      - "4200"
+      - "4200"   # HTTP API
+      - "4201"   # OFP peer-to-peer network
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://127.0.0.1:4200/api/health"]
       interval: 30s
@@ -100,6 +101,12 @@ services:
     # Not exposed publicly — internal only
     expose:
       - "3100"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:3100/api/companies"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
@@ -172,7 +179,7 @@ services:
       openfang:
         condition: service_healthy
       paperclip:
-        condition: service_started
+        condition: service_healthy
       hermes:
         condition: service_started
     restart: unless-stopped
