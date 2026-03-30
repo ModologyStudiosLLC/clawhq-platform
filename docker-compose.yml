@@ -90,6 +90,11 @@ services:
       PAPERCLIP_DEPLOYMENT_EXPOSURE: "private"
       PAPERCLIP_PUBLIC_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}
+      # Bridge URL — Paperclip HTTP adapter calls this to trigger OpenFang agents
+      # Configure workflow HTTP actions to POST to:
+      #   http://dashboard:3500/api/bridge/agent-task
+      #   body: { "task": "...", "agentProfile": "research" }
+      CLAWHQ_BRIDGE_URL: http://dashboard:3500
     volumes:
       - paperclip-data:/paperclip
     # Not exposed publicly — internal only
@@ -123,6 +128,9 @@ services:
       SLACK_APP_TOKEN: ${HERMES_SLACK_APP_TOKEN:-}
       HERMES_MODEL: ${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
       HERMES_HOME: /opt/data
+      # Bridge URLs — Hermes uses these to delegate to OpenFang and Paperclip
+      OPENFANG_INTERNAL_URL: http://openfang:4200
+      PAPERCLIP_INTERNAL_URL: http://paperclip:3100
     volumes:
       - hermes-data:/opt/data
     # Not exposed publicly — dashboard queries via internal URL

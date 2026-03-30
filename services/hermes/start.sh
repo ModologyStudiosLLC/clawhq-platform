@@ -2,6 +2,8 @@
 set -euo pipefail
 
 HERMES_HOME="${HERMES_HOME:-/opt/data}"
+OPENFANG_URL="${OPENFANG_INTERNAL_URL:-http://openfang:4200}"
+PAPERCLIP_URL="${PAPERCLIP_INTERNAL_URL:-http://paperclip:3100}"
 
 # ── Bootstrap data dirs ─────────────────────────────────────────────────────
 mkdir -p \
@@ -11,9 +13,16 @@ mkdir -p \
   "${HERMES_HOME}/memory" \
   "${HERMES_HOME}/skills"
 
+# ── Copy coordination skills into Hermes skills directory ────────────────────
+# These allow Hermes to delegate tasks to OpenFang agents and trigger
+# Paperclip workflows. Skills are re-copied on every start so they stay
+# up to date when the container image is rebuilt.
+cp /opt/skills/delegate_to_agent.py "${HERMES_HOME}/skills/delegate_to_agent.py"
+cp /opt/skills/query_paperclip.py   "${HERMES_HOME}/skills/query_paperclip.py"
+
 # ── Write .env if not present ────────────────────────────────────────────────
-if [ ! -f "${HERMES_HOME}/.env" ]; then
-  cat > "${HERMES_HOME}/.env" << EOF
+# Always rewrite so env changes (new API keys) take effect on restart.
+cat > "${HERMES_HOME}/.env" << EOF
 ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
 OPENAI_API_KEY=${OPENAI_API_KEY:-}
 GROQ_API_KEY=${GROQ_API_KEY:-}
@@ -23,10 +32,12 @@ DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
 SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
 SLACK_APP_TOKEN=${SLACK_APP_TOKEN:-}
 HERMES_MODEL=${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
+# Bridge URLs — used by the delegation and Paperclip skills
+OPENFANG_INTERNAL_URL=${OPENFANG_URL}
+PAPERCLIP_INTERNAL_URL=${PAPERCLIP_URL}
 EOF
-fi
 
-# ── Write minimal config if not present ─────────────────────────────────────
+# ── Write config if not present ──────────────────────────────────────────────
 if [ ! -f "${HERMES_HOME}/config.yaml" ]; then
   cat > "${HERMES_HOME}/config.yaml" << EOF
 model: ${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
@@ -38,6 +49,9 @@ context_compression:
 memory:
   enabled: true
   max_chars: 50000
+skills:
+  directory: ${HERMES_HOME}/skills
+  autoload: true
 EOF
 fi
 
@@ -47,9 +61,11 @@ python3 /opt/health_server.py &
 HEALTH_PID=$!
 
 # ── Start hermes gateway ─────────────────────────────────────────────────────
-echo "[hermes] Starting gateway"
+echo "[hermes] Starting gateway (brain mode — OpenFang: ${OPENFANG_URL}, Paperclip: ${PAPERCLIP_URL})"
 cd /opt/hermes
 export HERMES_HOME
+export OPENFANG_INTERNAL_URL="${OPENFANG_URL}"
+export PAPERCLIP_INTERNAL_URL="${PAPERCLIP_URL}"
 hermes gateway start 2>&1 | tee "${HERMES_HOME}/logs/gateway.log" &
 GATEWAY_PID=$!
 

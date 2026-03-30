@@ -34,6 +34,11 @@ ENV HERMES_HOME=/opt/data
 COPY health_server.py /opt/health_server.py
 RUN /opt/venv/bin/pip install fastapi uvicorn[standard]
 
+# ── Coordination skills ──────────────────────────────────────────────────────
+# These skills let Hermes delegate tasks to OpenFang agents and trigger
+# Paperclip workflows. Copied to HERMES_HOME/skills/ at startup.
+COPY skills/ /opt/skills/
+
 # ── Startup ──────────────────────────────────────────────────────────────────
 COPY start.sh /opt/start.sh
 RUN chmod +x /opt/start.sh
