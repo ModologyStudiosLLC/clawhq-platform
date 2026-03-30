@@ -19,6 +19,11 @@ interface MetricsData {
   openfang_panics_total?: number;
 }
 
+interface Hand {
+  id: string;
+  active: boolean;
+}
+
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
@@ -57,15 +62,18 @@ function normalizeBadge(provider: string): { label: string; color: string; dot: 
 export function HomeDigest() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
+  const [hands, setHands] = useState<Hand[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/agents").then(r => r.json()).catch(() => []),
       fetch("/api/metrics").then(r => r.json()).catch(() => ({})),
-    ]).then(([a, m]) => {
+      fetch("/api/hands").then(r => r.json()).catch(() => []),
+    ]).then(([a, m, h]) => {
       setAgents(Array.isArray(a) ? a : []);
       setMetrics(m);
+      setHands(Array.isArray(h) ? h : []);
       setLoading(false);
     });
   }, []);
@@ -253,8 +261,8 @@ export function HomeDigest() {
           },
           {
             label: "Capabilities on",
-            value: "4",
-            sub: "of 8 available",
+            value: loading ? "—" : String(hands.filter(h => h.active).length),
+            sub: loading ? "" : `of ${hands.length} available`,
             color: "var(--color-accent)",
             bg: "var(--color-accent-dim)",
             gradientFrom: "rgba(172,138,255,0.08)",
