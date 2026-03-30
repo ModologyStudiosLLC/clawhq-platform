@@ -18,7 +18,7 @@ export async function GET() {
   const [openclaw, paperclip, openfang, hermes] = await Promise.all([
     check("OpenClaw", OPENCLAW, "/healthz"),
     check("Paperclip", PAPERCLIP, "/api/companies"),
-    check("OpenFang", OPENFANG, "/api/metrics"),
+    check("OpenFang", OPENFANG, "/api/health"),
     check("Hermes", HERMES, "/health"),
   ]);
 

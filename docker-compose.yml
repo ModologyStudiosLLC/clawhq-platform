@@ -55,13 +55,22 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
-      # Channel tokens intentionally omitted — OpenClaw owns all channel connections
-      # and routes messages to agents. Do NOT add TELEGRAM_BOT_TOKEN / DISCORD_BOT_TOKEN
-      # here; duplicate registrations cause conflicts.
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      # Channel tokens omitted — Hermes owns primary channel connections.
+      # OpenFang is the tool execution and agent runtime backend.
     volumes:
       - openfang-data:/data
+      # Mount Docker-specific config so OpenFang binds to 0.0.0.0 (required
+      # for the dashboard to reach it across the Docker bridge network).
+      - ./services/openfang/openfang.docker.toml:/data/config.toml:ro
     ports:
       - "${OPENFANG_PORT:-4200}:4200"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:4200/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
     networks:
       - clawhq
@@ -143,10 +152,14 @@ services:
     ports:
       - "${CLAWHQ_PORT:-3500}:3500"
     depends_on:
-      - openclaw
-      - openfang
-      - paperclip
-      - hermes
+      openclaw:
+        condition: service_started
+      openfang:
+        condition: service_healthy
+      paperclip:
+        condition: service_started
+      hermes:
+        condition: service_started
     restart: unless-stopped
     networks:
       - clawhq
