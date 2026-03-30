@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, MessageCircle, Settings2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { AddAgentModal } from "./add-agent-modal";
 
 interface Agent {
   id: string;
@@ -58,19 +59,29 @@ function agentEmoji(agent: Agent): string {
 export function TeamDirectory() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
 
-  useEffect(() => {
+  function loadAgents() {
     fetch("/api/agents")
       .then(r => r.json())
       .then(d => { setAgents(Array.isArray(d) ? d : []); setLoading(false); })
       .catch(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { loadAgents(); }, []);
 
   const active = agents.filter(a => a.state === "Running");
   const attention = agents.filter(a => a.state !== "Running");
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {showAdd && (
+        <AddAgentModal
+          onClose={() => setShowAdd(false)}
+          onCreated={loadAgents}
+        />
+      )}
+
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -79,6 +90,7 @@ export function TeamDirectory() {
           </span>
         </div>
         <button
+          onClick={() => setShowAdd(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
           style={{
             background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
@@ -191,12 +203,14 @@ function AgentCard({ agent }: { agent: Agent }) {
           <MessageCircle size={12} />
           Talk
         </Link>
-        <button
+        <Link
+          href={`/settings`}
           className="flex items-center justify-center p-2 rounded-lg transition-colors"
           style={{ background: "var(--color-surface-2)", color: "var(--color-text-muted)" }}
+          title="Settings"
         >
           <Settings2 size={13} />
-        </button>
+        </Link>
       </div>
     </div>
   );
