@@ -612,58 +612,6 @@
       max-width: var(--max-w); margin: 0 auto;
     }
 
-    /* ── QUICKSTART ───────────────────────────────────────── */
-    .quickstart-section { background: var(--bg); }
-    .quickstart-header { text-align: center; margin-bottom: 64px; }
-    .steps-row {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      max-width: var(--max-w); margin: 0 auto;
-      position: relative;
-    }
-    .steps-row::before {
-      content: '';
-      position: absolute;
-      top: 20px; left: calc(16.67% + 24px); right: calc(16.67% + 24px);
-      height: 1px; background: var(--border);
-    }
-    .step { text-align: center; }
-    .step-num {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 13px; font-weight: 500;
-      color: var(--primary);
-      position: relative; z-index: 1;
-    }
-    .step-title {
-      font-family: 'Newsreader', serif;
-      font-weight: 700; font-size: 20px;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
-    .code-pill {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 13px; color: var(--text);
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .code-pill:hover { background: var(--surface-2); border-color: rgba(105,218,255,0.25); }
-    [data-theme="light"] .code-pill:hover { border-color: rgba(0,87,217,0.25); }
-    .code-pill .cp-icon { opacity: 0.4; font-size: 12px; flex-shrink: 0; }
-    .code-pill .cp-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
-    .code-pill .cp-dollar { color: var(--secondary); margin-right: 6px; }
-
     /* ── FOOTER ───────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
@@ -742,27 +690,6 @@
       text-align: center;
     }
 
-    /* Coming-soon block in quickstart */
-    .coming-soon-block {
-      max-width: 540px; margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 48px 40px;
-      text-align: center;
-    }
-    .coming-soon-title {
-      font-family: 'Newsreader', serif;
-      font-weight: 700; font-size: 26px;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 10px;
-    }
-    .coming-soon-sub {
-      font-size: 15px; color: var(--text-muted);
-      line-height: 1.6; margin-bottom: 28px;
-    }
-
     @media (max-width: 520px) {
       .signup-form { flex-direction: column; }
       .btn-primary { width: 100%; }
@@ -838,7 +765,6 @@
         <span class="nav-by">by Modology Studios</span>
       </div>
       <div class="nav-links">
-        <a href="#quickstart">Docs</a>
         <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
@@ -1061,46 +987,6 @@
     </div>
   </section>
 
-  <!-- ── QUICKSTART ─────────────────────────────────────── -->
-  <section class="quickstart-section" id="quickstart">
-    <div class="container">
-      <div class="quickstart-header fade-up">
-        <p class="section-label">Quickstart</p>
-        <h2 class="section-title">Running in under 2 minutes.</h2>
-        <p class="section-sub" style="margin: 0 auto;">No accounts. No API keys to beg for. Just clone, configure, launch.</p>
-      </div>
-
-      <div class="steps-row">
-        <div class="step fade-up">
-          <div class="step-num">1</div>
-          <div class="step-title">Clone</div>
-          <button class="code-pill" data-copy="git clone https://github.com/ModologyStudiosLLC/clawhq-platform" title="Copy">
-            <span class="cp-text"><span class="cp-dollar">$</span>git clone …/clawhq-platform</span>
-            <span class="cp-icon">⧉</span>
-          </button>
-        </div>
-
-        <div class="step fade-up">
-          <div class="step-num">2</div>
-          <div class="step-title">Configure</div>
-          <button class="code-pill" data-copy="./install.sh" title="Copy">
-            <span class="cp-text"><span class="cp-dollar">$</span>./install.sh</span>
-            <span class="cp-icon">⧉</span>
-          </button>
-        </div>
-
-        <div class="step fade-up">
-          <div class="step-num">3</div>
-          <div class="step-title">Launch</div>
-          <button class="code-pill" data-copy="docker compose up -d" title="Copy">
-            <span class="cp-text"><span class="cp-dollar">$</span>docker compose up -d</span>
-            <span class="cp-icon">⧉</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ── FOOTER ─────────────────────────────────────────── -->
   <footer>
     <div class="footer-inner">
@@ -1111,7 +997,6 @@
       <div class="footer-links">
         <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
         <a href="#">Discord</a>
-        <a href="#quickstart">Docs</a>
       </div>
     </div>
   </footer>
