@@ -695,6 +695,78 @@
     }
     .footer-links a:hover { color: var(--text); }
 
+    /* ── SIGNUP FORM ─────────────────────────────────────── */
+    .signup-form {
+      display: flex; align-items: stretch; gap: 10px;
+      width: 100%; max-width: 480px;
+      margin: 0 auto;
+    }
+    .email-input {
+      flex: 1;
+      padding: 13px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      min-width: 0;
+    }
+    .email-input::placeholder { color: var(--text-subtle); }
+    .email-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-dim);
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 13px 22px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #0d0d0d;
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600;
+      white-space: nowrap;
+      transition: opacity 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+    .signup-note {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text-subtle);
+      letter-spacing: 0.02em;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* Coming-soon block in quickstart */
+    .coming-soon-block {
+      max-width: 540px; margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .coming-soon-title {
+      font-family: 'Newsreader', serif;
+      font-weight: 700; font-size: 26px;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .coming-soon-sub {
+      font-size: 15px; color: var(--text-muted);
+      line-height: 1.6; margin-bottom: 28px;
+    }
+
+    @media (max-width: 520px) {
+      .signup-form { flex-direction: column; }
+      .btn-primary { width: 100%; }
+    }
+
     /* ── TOAST ────────────────────────────────────────────── */
     .toast {
       position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -771,7 +843,7 @@
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
         <span id="themeIcon">☀</span>
       </button>
-      <a href="#quickstart" class="nav-cta">Get started →</a>
+      <a href="#waitlist-form" class="nav-cta">Join waitlist</a>
     </div>
   </nav>
 
@@ -802,15 +874,18 @@
       </p>
 
       <div class="hero-ctas fade-up">
-        <button class="btn-terminal" id="heroCmd" title="Copy command" aria-label="Copy docker compose command">
-          <span class="prompt">$</span>
-          <span id="typewriter"></span>
-          <span class="copy-icon">⧉</span>
-        </button>
+        <form class="signup-form" id="waitlist-form">
+          <input type="email" placeholder="your@email.com" required class="email-input" id="signup-email">
+          <button type="submit" class="btn-primary" id="signup-btn">Join the waitlist</button>
+        </form>
+      </div>
+      <div class="fade-up" style="margin-bottom: 8px;">
         <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="btn-ghost">
           View on GitHub →
         </a>
       </div>
+
+      <p class="signup-note fade-up">No spam. Launch updates only.</p>
 
       <p class="trust-strip fade-up">
         MIT Licensed

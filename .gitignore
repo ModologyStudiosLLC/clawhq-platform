@@ -1,0 +1,6 @@
+.env
+.env.local
+.env.*.local
+wrangler.lock
+.wrangler/
+node_modules/

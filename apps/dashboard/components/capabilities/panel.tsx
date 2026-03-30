@@ -120,6 +120,7 @@ export function CapabilitiesPanel() {
 
 function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string }) {
   const [active, setActive] = useState(hand.active);
+  const [toggling, setToggling] = useState(false);
   const canActivate = hand.requirements_met && !hand.degraded;
   const displayName = hand.name.replace(" Hand", "");
 
@@ -210,23 +211,59 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
 
         {/* Toggle */}
         <button
-          onClick={() => canActivate && setActive(v => !v)}
+          onClick={async () => {
+            if (!canActivate || toggling) return;
+            const next = !active;
+            setActive(next);
+            setToggling(true);
+            try {
+              await fetch(`/api/openfang/api/hands/${hand.id}/${next ? "enable" : "disable"}`, {
+                method: "POST",
+              });
+            } catch {
+              // revert on error
+              setActive(!next);
+            } finally {
+              setToggling(false);
+            }
+          }}
+          disabled={toggling || !canActivate}
           aria-label={active ? "Deactivate" : "Activate"}
           className="relative w-11 h-6 rounded-full flex-shrink-0 transition-colors duration-200"
           style={{
             background: active ? accentColor : "var(--color-surface-2)",
-            cursor: canActivate ? "pointer" : "not-allowed",
+            cursor: canActivate && !toggling ? "pointer" : "not-allowed",
             border: active ? "none" : "1px solid var(--color-border-strong)",
+            opacity: toggling ? 0.7 : 1,
           }}
         >
-          <span
-            className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
-            style={{
-              background: "white",
-              left: active ? "calc(100% - 22px)" : "2px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-            }}
-          />
+          {toggling ? (
+            <span
+              className="absolute top-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200"
+              style={{
+                background: "white",
+                left: active ? "calc(100% - 22px)" : "2px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              }}
+            >
+              <span
+                className="w-3 h-3 rounded-full border-2 border-transparent animate-spin"
+                style={{
+                  borderTopColor: active ? accentColor : "var(--color-text-subtle)",
+                  borderRightColor: active ? accentColor : "var(--color-text-subtle)",
+                }}
+              />
+            </span>
+          ) : (
+            <span
+              className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
+              style={{
+                background: "white",
+                left: active ? "calc(100% - 22px)" : "2px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              }}
+            />
+          )}
         </button>
       </div>
     </div>

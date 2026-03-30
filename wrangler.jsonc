@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "clawhq-landing",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "landing"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

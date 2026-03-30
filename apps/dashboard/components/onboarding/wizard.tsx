@@ -33,13 +33,46 @@ export function OnboardingWizard() {
   async function saveApiKey() {
     if (!apiKey.trim()) { next(); return; }
     setSaving(true);
-    // Save to localStorage for now — settings page will handle proper storage
+
+    // Save to localStorage as before
     localStorage.setItem("clawhq_anthropic_key", apiKey);
+
+    // Also try to push to OpenFang (graceful failure if endpoint not ready)
+    try {
+      await fetch("/api/openfang/api/config/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: "anthropic", key: apiKey }),
+      });
+    } catch { /* silent */ }
+
     setSaving(false);
     next();
   }
 
+  async function activateGoalCapabilities(selectedGoals: Goal[]) {
+    const GOAL_HANDS: Record<Goal, string[]> = {
+      research:   ["web-search-hand", "browser-hand", "research-hand"],
+      leads:      ["web-search-hand", "browser-hand", "lead-gen-hand"],
+      content:    ["web-search-hand", "content-hand", "writer-hand"],
+      automation: ["scheduler-hand", "webhook-hand", "automation-hand"],
+      custom:     [],
+    };
+
+    const handsToEnable = [...new Set(selectedGoals.flatMap(g => GOAL_HANDS[g]))];
+
+    // Fire and forget — enable all relevant hands
+    await Promise.allSettled(
+      handsToEnable.map(handId =>
+        fetch(`/api/openfang/api/hands/${handId}/enable`, { method: "POST" })
+      )
+    );
+  }
+
   function next() {
+    if (step === "goal") {
+      activateGoalCapabilities(goals); // fire and forget
+    }
     const idx = STEPS.indexOf(step);
     if (idx < STEPS.length - 1) setStep(STEPS[idx + 1]);
     else window.location.href = "/home";
@@ -210,7 +243,17 @@ export function OnboardingWizard() {
             ].map(ch => (
               <button
                 key={ch.label}
-                onClick={ch.label === "ClawHQ Chat" ? next : undefined}
+                onClick={
+                  ch.label === "ClawHQ Chat"
+                    ? next
+                    : ch.label === "Discord"
+                    ? () => { window.location.href = "/settings#channels"; }
+                    : ch.label === "Slack"
+                    ? () => { window.location.href = "/settings#channels"; }
+                    : ch.label === "Telegram"
+                    ? () => { window.location.href = "/settings#channels"; }
+                    : undefined
+                }
                 className="w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all"
                 style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
               >
