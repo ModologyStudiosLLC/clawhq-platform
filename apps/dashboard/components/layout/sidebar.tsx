@@ -11,12 +11,14 @@ import {
   Wallet,
   Settings,
   ChevronRight,
+  Brain,
 } from "lucide-react";
 
 const nav = [
   { href: "/home", label: "Home", icon: LayoutDashboard },
   { href: "/team", label: "Team", icon: Users },
   { href: "/capabilities", label: "Capabilities", icon: Sparkles },
+  { href: "/hermes", label: "Hermes", icon: Brain, accent: true },
   { href: "/channels", label: "Channels", icon: Radio },
   { href: "/activity", label: "Activity", icon: ScrollText },
   { href: "/budget", label: "Budget", icon: Wallet },
@@ -54,16 +56,18 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {nav.map(({ href, label, icon: Icon }) => {
+        {nav.map(({ href, label, icon: Icon, accent }) => {
           const active = pathname === href || pathname.startsWith(href);
+          const accentColor = accent ? "var(--color-accent)" : "var(--color-primary)";
+          const accentDim = accent ? "var(--color-accent-dim)" : "var(--color-primary-dim)";
           return (
             <Link
               key={href}
               href={href}
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150"
               style={{
-                color: active ? "var(--color-primary)" : "var(--color-text-muted)",
-                background: active ? "var(--color-primary-dim)" : "transparent",
+                color: active ? accentColor : "var(--color-text-muted)",
+                background: active ? accentDim : "transparent",
                 fontWeight: active ? 500 : 400,
               }}
             >

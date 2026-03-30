@@ -89,6 +89,36 @@ services:
     networks:
       - clawhq
 
+  # ─── Hermes Agent — Nous Research ────────────────────────────────────────
+  hermes:
+    build:
+      context: ./services/hermes
+      dockerfile: Dockerfile
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      HERMES_MODEL: ${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
+      HERMES_HOME: /opt/data
+    volumes:
+      - hermes-data:/opt/data
+    ports:
+      - "${HERMES_PORT:-4300}:4300"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4300/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - clawhq
+
   # ─── ClawHQ Dashboard ─────────────────────────────────────────────────────
   dashboard:
     build:
@@ -98,10 +128,12 @@ services:
         NEXT_PUBLIC_OPENCLAW_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/openclaw
         NEXT_PUBLIC_PAPERCLIP_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/paperclip
         NEXT_PUBLIC_OPENFANG_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/openfang
+        NEXT_PUBLIC_HERMES_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}/api/hermes
     environment:
       OPENCLAW_INTERNAL_URL: http://openclaw:18789
       PAPERCLIP_INTERNAL_URL: http://paperclip:3100
       OPENFANG_INTERNAL_URL: http://openfang:4200
+      HERMES_INTERNAL_URL: http://hermes:4300
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
       NEXTAUTH_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
     ports:
@@ -110,6 +142,7 @@ services:
       - openclaw
       - openfang
       - paperclip
+      - hermes
     restart: unless-stopped
     networks:
       - clawhq
@@ -120,6 +153,7 @@ volumes:
   openclaw-workspace:
   openfang-data:
   paperclip-data:
+  hermes-data:
 
 networks:
   clawhq:

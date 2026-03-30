@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark-dimmed.css";
 
 interface Agent {
   id: string;
@@ -224,7 +227,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
               </div>
             )}
             <div
-              className="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed"
+              className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed${msg.role === "agent" ? " chat-message-agent" : ""}`}
               style={{
                 background: msg.role === "user" ? "var(--color-primary)" : "var(--color-surface-2)",
                 color: msg.role === "user" ? "#0e0e10" : "var(--color-text)",
@@ -232,17 +235,86 @@ export function ChatInterface({ agentId }: { agentId: string }) {
                 borderBottomLeftRadius: msg.role === "agent" ? "4px" : undefined,
               }}
             >
-              {msg.content || (msg.streaming && (
-                <span className="flex items-center gap-1" style={{ color: "var(--color-text-muted)" }}>
-                  <Loader2 size={12} className="animate-spin" />
-                  <span className="text-xs">Thinking...</span>
-                </span>
-              ))}
-              {msg.streaming && msg.content && (
-                <span
-                  className="inline-block w-0.5 h-3.5 ml-0.5 animate-pulse align-middle"
-                  style={{ background: "var(--color-primary)" }}
-                />
+              {msg.role === "agent" ? (
+                <>
+                  {!msg.content && msg.streaming && (
+                    <span className="flex items-center gap-1" style={{ color: "var(--color-text-muted)" }}>
+                      <Loader2 size={12} className="animate-spin" />
+                      <span className="text-xs">Thinking...</span>
+                    </span>
+                  )}
+                  {msg.content && (
+                    <div style={{ lineHeight: "1.6" }}>
+                      <ReactMarkdown
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                          code: ({ className, children, ...props }) => {
+                            const isInline = !className;
+                            if (isInline) {
+                              return (
+                                <code
+                                  style={{
+                                    background: "var(--color-surface-2)",
+                                    border: "1px solid var(--color-border)",
+                                    borderRadius: "4px",
+                                    padding: "1px 6px",
+                                    fontSize: "12px",
+                                    fontFamily: "var(--font-mono)",
+                                  }}
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              );
+                            }
+                            return <code className={className} {...props}>{children}</code>;
+                          },
+                          pre: ({ children }) => (
+                            <pre
+                              style={{
+                                background: "var(--color-bg)",
+                                border: "1px solid var(--color-border)",
+                                borderRadius: "8px",
+                                padding: "12px 16px",
+                                overflowX: "auto",
+                                margin: "8px 0",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {children}
+                            </pre>
+                          ),
+                          ul: ({ children }) => <ul style={{ paddingLeft: "16px", margin: "6px 0", listStyleType: "disc" }}>{children}</ul>,
+                          ol: ({ children }) => <ol style={{ paddingLeft: "16px", margin: "6px 0", listStyleType: "decimal" }}>{children}</ol>,
+                          li: ({ children }) => <li style={{ marginBottom: "2px" }}>{children}</li>,
+                          strong: ({ children }) => <strong style={{ color: "var(--color-text)", fontWeight: 600 }}>{children}</strong>,
+                          a: ({ children, href }) => <a href={href} style={{ color: "var(--color-primary)", textDecoration: "underline" }}>{children}</a>,
+                          h1: ({ children }) => <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: "4px", color: "var(--color-text)" }}>{children}</h1>,
+                          h2: ({ children }) => <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: "4px", color: "var(--color-text)" }}>{children}</h2>,
+                          h3: ({ children }) => <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 700, marginBottom: "4px", color: "var(--color-text)" }}>{children}</h3>,
+                          blockquote: ({ children }) => (
+                            <blockquote style={{ borderLeft: "2px solid var(--color-border-strong)", paddingLeft: "12px", color: "var(--color-text-muted)", margin: "6px 0" }}>
+                              {children}
+                            </blockquote>
+                          ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                      {msg.streaming && (
+                        <span
+                          className="inline-block w-0.5 h-3.5 ml-0.5 animate-pulse align-middle"
+                          style={{ background: "var(--color-primary)" }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {msg.content}
+                </>
               )}
             </div>
           </div>

@@ -5,6 +5,7 @@ import { Bell, Search } from "lucide-react";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/home": { title: "Home", subtitle: "What your agents are up to" },
+  "/hermes": { title: "Hermes", subtitle: "Autonomous cognitive agent by Nous Research" },
   "/team": { title: "Your Team", subtitle: "The agents working for you" },
   "/capabilities": { title: "Capabilities", subtitle: "What your agents can do" },
   "/channels": { title: "Channels", subtitle: "Where your agents communicate" },
