@@ -14,9 +14,18 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/settings": { title: "Settings", subtitle: "API keys and configuration" },
 };
 
+function resolveTitle(pathname: string): { title: string; subtitle: string } {
+  if (titles[pathname]) return titles[pathname];
+  // /team/[agentId] → "Chat"
+  if (/^\/team\/[^/]+$/.test(pathname)) return { title: "Chat", subtitle: "Talking to your agent" };
+  // /team/[agentId]/settings → "Agent Settings"
+  if (/^\/team\/[^/]+\/settings/.test(pathname)) return { title: "Agent Settings", subtitle: "Configure this agent" };
+  return { title: "ClawHQ", subtitle: "" };
+}
+
 export function Header() {
   const pathname = usePathname();
-  const page = titles[pathname] || { title: "ClawHQ", subtitle: "" };
+  const page = resolveTitle(pathname);
 
   return (
     <header

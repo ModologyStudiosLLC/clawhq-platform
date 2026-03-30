@@ -55,8 +55,9 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      # Channel tokens intentionally omitted — OpenClaw owns all channel connections
+      # and routes messages to agents. Do NOT add TELEGRAM_BOT_TOKEN / DISCORD_BOT_TOKEN
+      # here; duplicate registrations cause conflicts.
     volumes:
       - openfang-data:/data
     ports:
@@ -99,10 +100,8 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
-      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
-      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      # Channel tokens intentionally omitted — OpenClaw owns all channel connections.
+      # Hermes is a cognitive/memory layer, not a channel gateway.
       HERMES_MODEL: ${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
       HERMES_HOME: /opt/data
     volumes:

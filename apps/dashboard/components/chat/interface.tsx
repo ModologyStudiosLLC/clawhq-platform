@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Settings2 } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -192,6 +192,14 @@ export function ChatInterface({ agentId }: { agentId: string }) {
             {agent?.state === "Running" ? "Active" : agent?.state || "..."}
           </p>
         </div>
+        <Link
+          href={`/team/${agentId}/settings`}
+          className="ml-auto p-2 rounded-lg flex-shrink-0"
+          style={{ color: "var(--color-text-muted)", background: "var(--color-surface-2)" }}
+          title="Agent settings"
+        >
+          <Settings2 size={15} />
+        </Link>
       </div>
 
       {/* Messages */}
