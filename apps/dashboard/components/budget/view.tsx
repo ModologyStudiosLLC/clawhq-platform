@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { Zap, DollarSign, Users, AlertCircle } from "lucide-react";
 
 interface MetricsData {
   openfang_tokens_total?: Record<string, number>;
@@ -23,6 +24,10 @@ function inferProvider(name: string): string {
 
 function estimateCost(tokens: number, name: string) {
   return (tokens / 1_000_000) * (PROVIDER_COST_PER_1M[inferProvider(name)] || 0.1);
+}
+
+function fmtTokens(tokens: number): string {
+  return tokens > 1000 ? `${(tokens / 1000).toFixed(0)}K` : String(tokens);
 }
 
 export function BudgetView() {
@@ -50,6 +55,13 @@ export function BudgetView() {
 
   const totalTokens = agentData.reduce((s, a) => s + a.tokens, 0);
   const totalCost = agentData.reduce((s, a) => s + a.cost, 0);
+  const topAgent = agentData[0]?.shortName || "—";
+
+  // Build cumulative cost for the Line series
+  const chartData = agentData.map((a, i) => {
+    const cumulativeCost = agentData.slice(0, i + 1).reduce((s, x) => s + x.cost, 0);
+    return { ...a, cumulativeCost };
+  });
 
   const COLORS = [
     "var(--color-primary)",
@@ -62,27 +74,82 @@ export function BudgetView() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl">
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Tokens this hour", value: loading ? "—" : totalTokens > 1000 ? `${(totalTokens / 1000).toFixed(0)}K` : String(totalTokens), sub: "rolling window" },
-          { label: "Estimated cost", value: loading ? "—" : `$${totalCost.toFixed(4)}`, sub: "this hour" },
-          { label: "Active agents", value: loading ? "—" : String(agentData.length), sub: "using tokens" },
-        ].map(s => (
-          <div key={s.label} className="card p-5">
-            <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>{s.value}</p>
-            <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>{s.label}</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{s.sub}</p>
+      {/* Summary cards — 4 columns */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {/* Tokens card with mini sparkline */}
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-2">
+            <Zap size={16} style={{ color: "var(--color-primary)" }} />
+            {/* Mini sparkline: 5 faked bars */}
+            <div className="flex items-end gap-0.5" style={{ height: 20 }}>
+              {[40, 70, 55, 85, 60].map((h, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 4,
+                    height: `${h}%`,
+                    borderRadius: 2,
+                    background: "var(--color-primary)",
+                    opacity: 0.6 + i * 0.08,
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        ))}
+          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+            {loading ? "—" : fmtTokens(totalTokens)}
+          </p>
+          <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Tokens this hour</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>rolling window</p>
+        </div>
+
+        {/* Cost card */}
+        <div className="card p-5">
+          <div className="flex items-center mb-2">
+            <DollarSign size={16} style={{ color: "var(--color-secondary)" }} />
+          </div>
+          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+            {loading ? "—" : `$${totalCost.toFixed(4)}`}
+          </p>
+          <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Estimated cost</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>this hour</p>
+        </div>
+
+        {/* Active agents card */}
+        <div className="card p-5">
+          <div className="flex items-center mb-2">
+            <Users size={16} style={{ color: "var(--color-accent)" }} />
+          </div>
+          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+            {loading ? "—" : String(agentData.length)}
+          </p>
+          <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Active agents</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>using tokens</p>
+        </div>
+
+        {/* Most used card */}
+        <div className="card p-5">
+          <div className="flex items-center mb-2">
+            <span className="text-sm">🏆</span>
+          </div>
+          <p
+            className="text-lg font-bold truncate"
+            style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}
+            title={topAgent}
+          >
+            {loading ? "—" : topAgent}
+          </p>
+          <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Most used</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>top token agent</p>
+        </div>
       </div>
 
-      {/* Bar chart */}
+      {/* ComposedChart: bars for tokens + line for cumulative cost */}
       {!loading && agentData.length > 0 && (
         <div className="card p-6">
-          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Token usage by agent</h2>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={agentData} margin={{ top: 4, right: 4, left: -20, bottom: 40 }}>
+          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Token usage &amp; cumulative cost</h2>
+          <ResponsiveContainer width="100%" height={200}>
+            <ComposedChart data={chartData} margin={{ top: 4, right: 24, left: -20, bottom: 40 }}>
               <XAxis
                 dataKey="shortName"
                 tick={{ fill: "rgba(240,240,245,0.5)", fontSize: 11 }}
@@ -92,21 +159,49 @@ export function BudgetView() {
                 textAnchor="end"
               />
               <YAxis
+                yAxisId="tokens"
                 tick={{ fill: "rgba(240,240,245,0.5)", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v: number) => v > 1000 ? `${(v/1000).toFixed(0)}K` : String(v)}
+                tickFormatter={(v: number) => v > 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
+              />
+              <YAxis
+                yAxisId="cost"
+                orientation="right"
+                tick={{ fill: "rgba(240,240,245,0.35)", fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v: number) => `$${v.toFixed(3)}`}
               />
               <Tooltip
-                contentStyle={{ background: "#16161a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }}
-                formatter={(v) => [`${Number(v).toLocaleString()} tokens`, "Usage"]}
+                contentStyle={{
+                  background: "#16161a",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+                formatter={(value, name) => {
+                  if (name === "tokens") return [`${Number(value).toLocaleString()} tokens`, "Tokens"] as [string, string];
+                  if (name === "cumulativeCost") return [`$${Number(value).toFixed(4)}`, "Cumulative cost"] as [string, string];
+                  return [`${value}`, `${name}`] as [string, string];
+                }}
+                labelFormatter={(label) => `Agent: ${label}`}
               />
-              <Bar dataKey="tokens" radius={[4, 4, 0, 0]}>
-                {agentData.map((_, i) => (
+              <Bar yAxisId="tokens" dataKey="tokens" radius={[4, 4, 0, 0]}>
+                {chartData.map((_, i) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Bar>
-            </BarChart>
+              <Line
+                yAxisId="cost"
+                type="monotone"
+                dataKey="cumulativeCost"
+                stroke="rgba(240,240,245,0.5)"
+                strokeWidth={1.5}
+                dot={{ fill: "rgba(240,240,245,0.6)", r: 3, strokeWidth: 0 }}
+                activeDot={{ r: 4 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       )}
@@ -123,19 +218,38 @@ export function BudgetView() {
         ) : agentData.length === 0 ? (
           <p className="text-sm text-center py-4" style={{ color: "var(--color-text-muted)" }}>No token usage in the last hour</p>
         ) : (
-          <div className="space-y-3">
-            {agentData.map((a, i) => (
-              <div key={a.name} className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
-                <span className="text-sm flex-1 truncate" style={{ color: "var(--color-text)" }}>{a.name}</span>
-                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-                  {a.tokens > 1000 ? `${(a.tokens / 1000).toFixed(0)}K` : a.tokens} tokens
-                </span>
-                <span className="text-xs w-14 text-right font-mono" style={{ color: "var(--color-text-muted)" }}>
-                  ${a.cost.toFixed(4)}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-4">
+            {agentData.map((a, i) => {
+              const pct = totalTokens > 0 ? (a.tokens / totalTokens * 100) : 0;
+              return (
+                <div key={a.name}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                    <span className="text-sm flex-1 truncate" style={{ color: "var(--color-text)" }}>{a.name}</span>
+                    <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                      {fmtTokens(a.tokens)} · {pct.toFixed(1)}%
+                    </span>
+                    <span className="text-xs w-14 text-right font-mono" style={{ color: "var(--color-text-muted)" }}>
+                      ${a.cost.toFixed(4)}
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{
+                    height: 3,
+                    borderRadius: 2,
+                    background: "var(--color-surface-2)",
+                    marginTop: 4,
+                  }}>
+                    <div style={{
+                      width: `${pct.toFixed(1)}%`,
+                      height: "100%",
+                      borderRadius: 2,
+                      background: COLORS[i % COLORS.length],
+                    }} />
+                  </div>
+                </div>
+              );
+            })}
             <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
               <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Total</span>
               <span className="text-sm font-bold font-mono" style={{ color: "var(--color-primary)", fontFamily: "Manrope, sans-serif" }}>
@@ -144,6 +258,28 @@ export function BudgetView() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Budget alert */}
+      <div className="card p-4 flex items-start gap-3">
+        <AlertCircle size={16} style={{ color: "var(--color-text-muted)", flexShrink: 0, marginTop: 1 }} />
+        <div className="flex-1 min-w-0">
+          {totalCost > 0.10 ? (
+            <p className="text-sm" style={{ color: "#f6d969" }}>
+              You&apos;ve spent <strong>${totalCost.toFixed(4)}</strong> this session.{" "}
+              <a href="/settings" className="underline" style={{ color: "var(--color-text-muted)" }}>
+                Set a limit →
+              </a>
+            </p>
+          ) : (
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+              No budget limit set.{" "}
+              <a href="/settings" className="underline" style={{ color: "var(--color-text-muted)", opacity: 0.7 }}>
+                Set a limit →
+              </a>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

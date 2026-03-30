@@ -42,12 +42,35 @@ function agentEmoji(name: string): string {
   return "🤖";
 }
 
+function dateLabel(iso: string): string {
+  const d = new Date(iso);
+  const todayMs = new Date().setHours(0, 0, 0, 0);
+  const dayMs = new Date(iso).setHours(0, 0, 0, 0);
+  const diff = Math.floor((todayMs - dayMs) / 86400000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+type FilterTab = "all" | "agents" | "sessions";
+
+type ActivityEvent = {
+  id: string;
+  type: "agent_active" | "session";
+  agentId: string;
+  agentName: string;
+  description: string;
+  timestamp: string;
+  status: string;
+};
+
 export function ActivityLog() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterTab>("all");
 
-  useEffect(() => {
+  function fetchData() {
     Promise.all([
       fetch("/api/agents").then(r => r.json()).catch(() => []),
       fetch("/api/sessions").then(r => r.json()).catch(() => ({ sessions: [] })),
@@ -56,12 +79,18 @@ export function ActivityLog() {
       setSessions(s.sessions || []);
       setLoading(false);
     });
+  }
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const agentMap = Object.fromEntries(agents.map(a => [a.id, a]));
 
   // Build activity events from agents sorted by last_active
-  const agentEvents = [...agents]
+  const agentEvents: ActivityEvent[] = [...agents]
     .sort((a, b) => new Date(b.last_active).getTime() - new Date(a.last_active).getTime())
     .map(agent => ({
       id: agent.id,
@@ -74,7 +103,7 @@ export function ActivityLog() {
     }));
 
   // Build session events
-  const sessionEvents = sessions
+  const sessionEvents: ActivityEvent[] = sessions
     .filter(s => s.message_count > 0)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .map(s => ({
@@ -91,56 +120,172 @@ export function ActivityLog() {
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 50);
 
-  const statusColor: Record<string, string> = {
+  const filteredEvents = allEvents.filter(e => {
+    if (filter === "agents") return e.type === "agent_active";
+    if (filter === "sessions") return e.type === "session";
+    return true;
+  });
+
+  // Stats
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  const eventsToday = allEvents.filter(e => new Date(e.timestamp).getTime() >= todayStart).length;
+  const agentsActive = agents.filter(a => a.state === "Running").length;
+  const sessionCount = sessions.filter(s => s.message_count > 0).length;
+
+  // Badge config per event type/status
+  const badgeConfig: Record<string, { label: string; color: string; bg: string }> = {
+    Running: { label: "Active", color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
+    session: { label: "Session", color: "#60a5fa", bg: "rgba(96,165,250,0.12)" },
+    Crashed: { label: "Down", color: "#f87171", bg: "rgba(248,113,113,0.12)" },
+  };
+
+  function getBadge(event: ActivityEvent) {
+    if (event.type === "session") return badgeConfig["session"];
+    return badgeConfig[event.status] || { label: event.status, color: "var(--color-text-muted)", bg: "var(--color-surface-2)" };
+  }
+
+  const dotColor: Record<string, string> = {
     Running: "var(--color-secondary)",
     Crashed: "var(--color-error, #ff6b6b)",
     info: "var(--color-primary)",
   };
 
+  // Group filtered events by date label
+  const grouped: { label: string; events: ActivityEvent[] }[] = [];
+  for (const event of filteredEvents) {
+    const label = dateLabel(event.timestamp);
+    const existing = grouped.find(g => g.label === label);
+    if (existing) {
+      existing.events.push(event);
+    } else {
+      grouped.push({ label, events: [event] });
+    }
+  }
+
+  const tabs: { key: FilterTab; label: string }[] = [
+    { key: "all", label: "All" },
+    { key: "agents", label: "Agents" },
+    { key: "sessions", label: "Sessions" },
+  ];
+
   return (
     <div className="space-y-4 animate-fade-in max-w-2xl">
+      {/* Stats bar */}
+      <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+        <span>{eventsToday} events today</span>
+        <span className="mx-2">·</span>
+        <span>{agentsActive} agents active</span>
+        <span className="mx-2">·</span>
+        <span>{sessionCount} sessions</span>
+      </p>
+
+      {/* Filter tabs */}
+      <div className="flex gap-0 border-b" style={{ borderColor: "var(--color-border)" }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setFilter(tab.key)}
+            className="px-4 py-2 text-xs font-medium transition-colors relative"
+            style={{
+              color: filter === tab.key ? "var(--color-primary)" : "var(--color-text-muted)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {tab.label}
+            {filter === tab.key && (
+              <span
+                className="absolute bottom-0 left-0 right-0"
+                style={{
+                  height: 2,
+                  borderRadius: "2px 2px 0 0",
+                  background: "var(--color-primary)",
+                }}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="space-y-3">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="h-14 rounded-xl animate-pulse" style={{ background: "var(--color-surface)" }} />
           ))}
         </div>
-      ) : allEvents.length === 0 ? (
+      ) : filteredEvents.length === 0 ? (
         <div className="card p-8 text-center">
           <p className="text-3xl mb-3">📜</p>
           <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No activity yet</p>
         </div>
       ) : (
-        <div className="relative">
-          <div className="absolute left-5 top-0 bottom-0 w-px" style={{ background: "var(--color-border)" }} />
-          <div className="space-y-1">
-            {allEvents.map(event => (
-              <div key={event.id} className="flex gap-4 relative pl-12 py-2">
-                <div
-                  className="absolute left-3.5 top-3.5 w-3 h-3 rounded-full border-2 flex-shrink-0"
-                  style={{
-                    borderColor: statusColor[event.status] || "var(--color-primary)",
-                    background: "var(--color-bg)",
-                  }}
-                />
-                <div
-                  className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: "var(--color-surface)" }}
+        <div className="space-y-6">
+          {grouped.map(group => (
+            <div key={group.label}>
+              {/* Sticky date header */}
+              <div
+                className="sticky top-0 z-10 py-1.5 mb-2"
+                style={{ background: "var(--color-bg, #0e0e12)" }}
+              >
+                <span
+                  className="text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--color-text-muted)" }}
                 >
-                  <span className="text-base w-7 text-center flex-shrink-0">{agentEmoji(event.agentName)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{event.agentName}</span>
-                    </div>
-                    <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{event.description}</p>
-                  </div>
-                  <span className="text-xs flex-shrink-0" style={{ color: "var(--color-text-subtle)" }}>
-                    {timeAgo(event.timestamp)}
-                  </span>
+                  {group.label}
+                </span>
+              </div>
+
+              <div className="relative">
+                <div className="absolute left-5 top-0 bottom-0 w-px" style={{ background: "var(--color-border)" }} />
+                <div className="space-y-1">
+                  {group.events.map(event => {
+                    const badge = getBadge(event);
+                    return (
+                      <div key={event.id} className="flex gap-4 relative pl-12 py-2">
+                        <div
+                          className="absolute left-3.5 top-3.5 w-3 h-3 rounded-full border-2 flex-shrink-0"
+                          style={{
+                            borderColor: dotColor[event.status] || "var(--color-primary)",
+                            background: dotColor[event.status] || "var(--color-primary)",
+                          }}
+                        />
+                        <div
+                          className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+                          style={{ background: "var(--color-surface)" }}
+                          onMouseEnter={e => {
+                            (e.currentTarget as HTMLDivElement).style.background = "var(--color-surface-2, rgba(255,255,255,0.06))";
+                          }}
+                          onMouseLeave={e => {
+                            (e.currentTarget as HTMLDivElement).style.background = "var(--color-surface)";
+                          }}
+                        >
+                          <span className="text-base w-7 text-center flex-shrink-0">{agentEmoji(event.agentName)}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold" style={{ color: "var(--color-text)" }}>{event.agentName}</span>
+                            </div>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{event.description}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-xs" style={{ color: "var(--color-text-subtle, var(--color-text-muted))" }}>
+                              {timeAgo(event.timestamp)}
+                            </span>
+                            <span
+                              className="text-xs font-medium px-2 py-0.5 rounded-full"
+                              style={{ color: badge.color, background: badge.bg }}
+                            >
+                              {badge.label}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
