@@ -1,0 +1,35 @@
+# ClawHQ — Caddy reverse proxy
+# Automatic HTTPS via Let's Encrypt. No configuration needed beyond setting
+# CLAWHQ_DOMAIN in your .env file (e.g. clawhq.example.com).
+#
+# For local dev: set CLAWHQ_DOMAIN=localhost and Caddy will use a self-signed cert.
+# For production: set CLAWHQ_DOMAIN to your public domain and Caddy will
+#                 obtain a Let's Encrypt certificate automatically.
+
+{$CLAWHQ_DOMAIN} {
+    # Gzip compression
+    encode gzip
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Remove server fingerprint
+        -Server
+    }
+
+    # Proxy everything to the dashboard
+    reverse_proxy dashboard:3500 {
+        # Pass real client IP through to the Next.js app
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
+
+# Redirect www → apex
+www.{$CLAWHQ_DOMAIN} {
+    redir https://{$CLAWHQ_DOMAIN}{uri} permanent
+}

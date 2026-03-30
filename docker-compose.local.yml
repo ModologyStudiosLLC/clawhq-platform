@@ -1,0 +1,35 @@
+# Local development overrides — exposes service ports directly to localhost.
+# Use when you need to hit services without going through Caddy.
+#
+# Usage: docker compose -f docker-compose.yml -f docker-compose.local.yml up
+#
+# DO NOT use this in production — it bypasses Caddy and exposes services
+# without TLS to your network.
+
+services:
+  openclaw:
+    ports:
+      - "${OPENCLAW_PORT:-18789}:18789"
+
+  openfang:
+    ports:
+      - "${OPENFANG_PORT:-4200}:4200"
+
+  paperclip:
+    ports:
+      - "${PAPERCLIP_PORT:-3100}:3100"
+
+  hermes:
+    ports:
+      - "${HERMES_PORT:-4300}:4300"
+
+  dashboard:
+    ports:
+      - "${CLAWHQ_PORT:-3500}:3500"
+
+  # Replace Caddy with a no-op in local dev (Caddy requires a real domain for
+  # Let's Encrypt; it won't work with localhost). Access the dashboard directly
+  # on port 3500 instead.
+  caddy:
+    entrypoint: ["sh", "-c", "echo 'Caddy disabled in local dev — use port 3500 directly' && sleep infinity"]
+    ports: []
