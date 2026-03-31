@@ -1,0 +1,19 @@
+{
+  "name": "@modology/clawhq-security",
+  "version": "0.1.0",
+  "description": "Security + Cost Tracking for ClawHQ self-hosted AI agent platform",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "node dist/index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}
