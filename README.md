@@ -11,6 +11,28 @@ The unified AI agent platform. OpenClaw + OpenFang + Paperclip, under one roof.
 | **Paperclip** | Orchestration — agent teams, org charts, cost control |
 | **Dashboard** | ClawHQ UI — unified control plane for all three |
 
+### Key Features
+
+**Security (packages/security)**
+- Agent sandboxing — filesystem traversal + dangerous command blocking
+- Audit logging — every agent action tracked to SQLite
+- Rate limiting — per-agent token/cost/request limits
+- Scoped API keys — per-agent credentials with permissions
+- Cost tracking — per-agent budgets, 12 model pricing, waste detection
+
+**Autonomous Research (packages/autoresearch)**
+- Agent self-improvement through experimentation
+- Modify → test → measure → keep/discard → repeat
+- Overnight autonomous iteration on agent configurations
+- Karpathy autoresearch pattern applied to agent skills
+
+**Cost Optimization (via ClawCost integration)**
+- Transparent proxy for Anthropic + OpenAI APIs
+- Per-model, per-session, per-agent cost tracking
+- Budget enforcement with 80% warning / 100% block
+- Waste detection — "You're using Opus for tasks Haiku could handle"
+- Model recommendations per task type
+
 ## Self-host in 2 minutes
 
 **Requirements:** Docker 24+, Docker Compose v2, 4GB RAM
