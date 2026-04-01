@@ -1,23 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAgentStream } from "@/hooks/use-agent-stream";
 
-interface Agent {
-  id: string;
-  name: string;
-  state: string;
-  model_provider: string;
-  model_name: string;
-  last_active: string;
-}
-
-interface Session {
-  session_id: string;
-  agent_id: string;
-  message_count: number;
-  created_at: string;
-  label: string | null;
-}
+type Agent = import("@/hooks/use-agent-stream").Agent;
+type Session = import("@/hooks/use-agent-stream").Session;
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -65,27 +52,8 @@ type ActivityEvent = {
 };
 
 export function ActivityLog() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { agents, sessions, connected, loading } = useAgentStream();
   const [filter, setFilter] = useState<FilterTab>("all");
-
-  function fetchData() {
-    Promise.all([
-      fetch("/api/agents").then(r => r.json()).catch(() => []),
-      fetch("/api/sessions").then(r => r.json()).catch(() => ({ sessions: [] })),
-    ]).then(([a, s]) => {
-      setAgents(Array.isArray(a) ? a : []);
-      setSessions(s.sessions || []);
-      setLoading(false);
-    });
-  }
-
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const agentMap = Object.fromEntries(agents.map(a => [a.id, a]));
 
@@ -170,14 +138,28 @@ export function ActivityLog() {
 
   return (
     <div className="space-y-4 animate-fade-in max-w-2xl">
-      {/* Stats bar */}
-      <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-        <span>{eventsToday} events today</span>
-        <span className="mx-2">·</span>
-        <span>{agentsActive} agents active</span>
-        <span className="mx-2">·</span>
-        <span>{sessionCount} sessions</span>
-      </p>
+      {/* Stats bar + live indicator */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+          <span>{eventsToday} events today</span>
+          <span className="mx-2">·</span>
+          <span>{agentsActive} agents active</span>
+          <span className="mx-2">·</span>
+          <span>{sessionCount} sessions</span>
+        </p>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              background: connected ? "var(--color-secondary)" : "var(--color-text-subtle)",
+              boxShadow: connected ? "0 0 6px var(--color-secondary)" : "none",
+            }}
+          />
+          <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+            {connected ? "Live" : "Reconnecting…"}
+          </span>
+        </div>
+      </div>
 
       {/* Filter tabs */}
       <div className="flex gap-0 border-b" style={{ borderColor: "var(--color-border)" }}>

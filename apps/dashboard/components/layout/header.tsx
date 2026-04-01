@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Search } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/home": { title: "Home", subtitle: "What your agents are up to" },
@@ -12,6 +12,7 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/activity": { title: "Activity", subtitle: "Everything your agents have done" },
   "/budget": { title: "Budget", subtitle: "What you're spending" },
   "/settings": { title: "Settings", subtitle: "API keys and configuration" },
+  "/deploy":   { title: "Deploy",   subtitle: "One-click deploy to Railway, Render, or DigitalOcean" },
 };
 
 function resolveTitle(pathname: string): { title: string; subtitle: string } {
@@ -23,22 +24,37 @@ function resolveTitle(pathname: string): { title: string; subtitle: string } {
   return { title: "ClawHQ", subtitle: "" };
 }
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const page = resolveTitle(pathname);
 
   return (
     <header
-      className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
+      className="flex items-center justify-between px-4 md:px-6 py-4 border-b flex-shrink-0"
       style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
     >
-      <div>
-        <h1 className="text-lg font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
-          {page.title}
-        </h1>
-        {page.subtitle && (
-          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{page.subtitle}</p>
-        )}
+      <div className="flex items-center gap-3">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden p-1.5 rounded-lg -ml-1"
+          style={{ color: "var(--color-text-muted)" }}
+          aria-label="Open menu"
+        >
+          <Menu size={18} />
+        </button>
+        <div>
+          <h1 className="text-lg font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+            {page.title}
+          </h1>
+          {page.subtitle && (
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{page.subtitle}</p>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

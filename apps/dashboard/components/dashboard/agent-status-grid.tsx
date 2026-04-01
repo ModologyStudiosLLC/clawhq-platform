@@ -1,17 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-interface Agent {
-  id: string;
-  name: string;
-  state: string;
-  model_name: string;
-  model_provider: string;
-  ready: boolean;
-  last_active: string;
-  profile: string | null;
-}
+import { useAgentStream, type Agent } from "@/hooks/use-agent-stream";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -35,20 +24,7 @@ const statusBg: Record<string, string> = {
 };
 
 export function AgentStatusGrid() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/agents")
-      .then(r => r.json())
-      .then(d => { setAgents(Array.isArray(d) ? d : []); setLoading(false); })
-      .catch(() => setLoading(false));
-
-    const interval = setInterval(() => {
-      fetch("/api/agents").then(r => r.json()).then(d => setAgents(Array.isArray(d) ? d : [])).catch(() => {});
-    }, 15000);
-    return () => clearInterval(interval);
-  }, []);
+  const { agents, connected, loading } = useAgentStream();
 
   if (loading) {
     return (
@@ -70,6 +46,19 @@ export function AgentStatusGrid() {
 
   return (
     <div className="space-y-2">
+      {/* Live indicator */}
+      <div className="flex items-center gap-1.5 mb-3">
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{
+            background: connected ? "var(--color-secondary)" : "var(--color-text-subtle)",
+            boxShadow: connected ? "0 0 6px var(--color-secondary)" : "none",
+          }}
+        />
+        <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+          {connected ? "Live" : "Reconnecting…"}
+        </span>
+      </div>
       {agents.map((agent) => {
         const state = agent.state || "Unknown";
         return (
