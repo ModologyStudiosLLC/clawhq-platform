@@ -254,6 +254,8 @@ export { AuditLogger } from './audit.js';
 export { RateLimiter } from './rate_limiter.js';
 export { ScopedApiKeyManager } from './api_keys.js';
 export { ClawHQCostTracker } from './cost_tracker.js';
+export { selectRoleForTask, listRoles, getRolesByTier, ROLES } from './specialists.js';
+export { SecurityAuditor } from './security_audit.js';
 
 export class RateLimitError extends Error {
   constructor(message: string, public retryAfterMs: number) {
