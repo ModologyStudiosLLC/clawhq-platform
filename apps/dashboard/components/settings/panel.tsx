@@ -6,6 +6,7 @@ import {
   ChevronDown, AlertTriangle, Sparkles, X, Save
 } from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
+import { toast } from "sonner";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -136,9 +137,15 @@ function KeyRow({
   async function handleSave() {
     if (!value.trim()) return;
     setSaving(true);
-    await onSave(value.trim());
-    setSaving(false);
-    flashSaved();
+    try {
+      await onSave(value.trim());
+      flashSaved();
+      toast.success(`${label} key saved`);
+    } catch {
+      toast.error(`Failed to save ${label} key`);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

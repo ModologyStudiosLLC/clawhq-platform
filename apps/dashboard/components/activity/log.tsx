@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAgentStream } from "@/hooks/use-agent-stream";
+import { useAgentSocket, type AgentEvent } from "@/lib/use-agent-socket";
 
 type Agent = import("@/hooks/use-agent-stream").Agent;
 type Session = import("@/hooks/use-agent-stream").Session;
@@ -51,8 +52,21 @@ type ActivityEvent = {
   status: string;
 };
 
+function wsEventToActivity(event: AgentEvent): ActivityEvent {
+  return {
+    id: `ws-${event.ts}-${event.agentId ?? event.sessionId ?? Math.random()}`,
+    type: event.type.startsWith("session") ? "session" : "agent_active",
+    agentId: event.agentId ?? event.sessionId ?? "",
+    agentName: event.agentId ?? "Agent",
+    description: event.message ?? event.type,
+    timestamp: new Date(event.ts).toISOString(),
+    status: event.type === "agent.error" ? "Crashed" : event.type === "agent.started" ? "Running" : "info",
+  };
+}
+
 export function ActivityLog() {
   const { agents, sessions, connected, loading } = useAgentStream();
+  const { events: wsEvents, connected: wsConnected } = useAgentSocket();
   const [filter, setFilter] = useState<FilterTab>("all");
 
   const agentMap = Object.fromEntries(agents.map(a => [a.id, a]));
@@ -84,9 +98,11 @@ export function ActivityLog() {
       status: "info",
     }));
 
-  const allEvents = [...agentEvents, ...sessionEvents]
+  const wsActivityEvents = wsEvents.map(wsEventToActivity);
+
+  const allEvents = [...wsActivityEvents, ...agentEvents, ...sessionEvents]
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 50);
+    .slice(0, 100);
 
   const filteredEvents = allEvents.filter(e => {
     if (filter === "agents") return e.type === "agent_active";
@@ -148,16 +164,31 @@ export function ActivityLog() {
           <span>{sessionCount} sessions</span>
         </p>
         <div className="flex items-center gap-1.5">
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              background: connected ? "var(--color-secondary)" : "var(--color-text-subtle)",
-              boxShadow: connected ? "0 0 6px var(--color-secondary)" : "none",
-            }}
-          />
-          <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
-            {connected ? "Live" : "Reconnecting…"}
-          </span>
+          {wsConnected ? (
+            <>
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: "var(--color-secondary)",
+                  boxShadow: "0 0 6px var(--color-secondary)",
+                  animation: "var(--animate-pulse-slow)",
+                }}
+              />
+              <span className="text-xs font-semibold" style={{ color: "var(--color-secondary)" }}>
+                ● LIVE
+              </span>
+            </>
+          ) : (
+            <>
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: "var(--color-text-subtle)" }}
+              />
+              <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+                {connected ? "○ Polling" : "Reconnecting…"}
+              </span>
+            </>
+          )}
         </div>
       </div>
 

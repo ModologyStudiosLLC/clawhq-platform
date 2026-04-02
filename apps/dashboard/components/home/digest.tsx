@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, ArrowRight, CheckCircle2, Zap } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Zap, WifiOff } from "lucide-react";
 import Link from "next/link";
 
 interface Agent {
@@ -64,18 +64,24 @@ export function HomeDigest() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [hands, setHands] = useState<Hand[]>([]);
   const [loading, setLoading] = useState(true);
+  const [offline, setOffline] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     Promise.all([
-      fetch("/api/agents").then(r => r.json()).catch(() => []),
-      fetch("/api/metrics").then(r => r.json()).catch(() => ({})),
-      fetch("/api/hands").then(r => r.json()).catch(() => []),
+      fetch("/api/agents").then(r => { if (!r.ok) throw new Error("agents"); return r.json(); }).catch(() => null),
+      fetch("/api/metrics").then(r => { if (!r.ok) throw new Error("metrics"); return r.json(); }).catch(() => null),
+      fetch("/api/hands").then(r => { if (!r.ok) throw new Error("hands"); return r.json(); }).catch(() => null),
     ]).then(([a, m, h]) => {
+      if (cancelled) return;
+      const isOffline = a === null && m === null && h === null;
+      setOffline(isOffline);
       setAgents(Array.isArray(a) ? a : []);
-      setMetrics(m);
+      setMetrics(m ?? {});
       setHands(Array.isArray(h) ? h : []);
       setLoading(false);
     });
+    return () => { cancelled = true; };
   }, []);
 
   const activeAgents = agents.filter(a => a.state === "Running");
@@ -145,6 +151,35 @@ export function HomeDigest() {
           Command every agent, channel, and capability from one place.
         </p>
       </div>
+
+      {/* Service offline banner */}
+      {!loading && offline && (
+        <div
+          className="flex items-start gap-3 p-4 rounded-xl"
+          style={{ background: "rgba(246,217,105,0.08)", border: "1px solid rgba(246,217,105,0.2)" }}
+        >
+          <WifiOff size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--color-warning)" }} />
+          <div className="flex-1">
+            <p className="text-sm font-medium" style={{ color: "var(--color-warning)" }}>
+              Service Offline
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+              Unable to reach the OpenClaw backend. Check your connection or service configuration.
+            </p>
+          </div>
+          <button
+            onClick={() => { setLoading(true); setOffline(false); window.location.reload(); }}
+            className="text-xs px-3 py-1.5 rounded-lg flex-shrink-0"
+            style={{
+              background: "rgba(246,217,105,0.12)",
+              color: "var(--color-warning)",
+              border: "1px solid rgba(246,217,105,0.25)",
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Live system status bar */}
       <div
@@ -235,7 +270,7 @@ export function HomeDigest() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           {
             label: "Active agents",
@@ -425,7 +460,7 @@ export function HomeDigest() {
       </div>
 
       {/* Quick actions — bento style */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
           href="/team"
           className="card card-hover card-glow-primary p-5 flex items-center gap-4"
