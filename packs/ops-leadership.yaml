@@ -1,0 +1,91 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: ops-leadership
+  displayName: "Operations & Leadership Pack"
+  description: "Daily briefing, meeting summarizer, and status reporter. Start every morning informed without lifting a finger."
+  channel: slack,email
+  tags: [operations, leadership, productivity, reporting]
+
+agents:
+
+  - id: daily-briefing
+    name: "Daily Briefing"
+    description: "Every morning, compiles a digest of industry news, team activity, and open items — delivered to your Slack or email before you start work."
+    trigger:
+      - type: cron
+        schedule: "0 7 * * 1-5"  # Weekdays at 7am — adjust TZ in .env
+      - type: channel
+        keywords: ["morning briefing", "daily digest", "what happened overnight"]
+    task: |
+      You are an executive assistant preparing a morning briefing.
+
+      Compile a daily digest covering:
+      1. Top 3 industry news items relevant to [COMPANY_INDUSTRY] — with one-line summaries
+      2. What the team shipped or worked on yesterday (from git activity and channel messages)
+      3. Open items from yesterday that weren't resolved
+      4. Key meetings or deadlines today
+      5. One data point that matters (metric, stat, or signal worth knowing)
+
+      Format: scannable, bullet-first. Total reading time: under 3 minutes.
+      Start with the most important thing, not the most recent thing.
+    tools: [web_search, github, exec]
+    model: anthropic/claude-sonnet-4-6
+
+  - id: meeting-summarizer
+    name: "Meeting Summarizer"
+    description: "Takes a meeting transcript or rough notes and extracts decisions, action items, and a crisp summary."
+    trigger:
+      - type: channel
+        keywords: ["summarize this meeting", "meeting notes", "what did we decide", "action items from"]
+    task: |
+      You are an operations lead summarizing a meeting for people who weren't there.
+
+      From the transcript or notes provided, produce:
+      1. What this meeting was about (one sentence)
+      2. Key decisions made — numbered, specific, no ambiguity
+      3. Action items — each with: owner, task, deadline (if mentioned)
+      4. Open questions — things discussed but not resolved
+      5. What was NOT covered that was on the agenda (if apparent)
+
+      Format this so it can be emailed directly to attendees and stakeholders.
+      Action items should be copy-pasteable into a task manager.
+    tools: []
+    model: anthropic/claude-sonnet-4-6
+
+  - id: status-reporter
+    name: "Status Reporter"
+    description: "Compiles a weekly progress report from git activity, channel messages, and task completions. Ready to share with leadership or investors."
+    trigger:
+      - type: cron
+        schedule: "0 16 * * 5"  # Fridays at 4pm
+      - type: channel
+        keywords: ["weekly report", "status report", "what did we ship this week"]
+    task: |
+      You are a COO writing a weekly status update for leadership.
+
+      Compile a weekly report covering:
+      1. Headline: What was the most important thing that happened this week? (1 sentence)
+      2. Shipped: Features, fixes, and improvements released
+      3. In Progress: What's actively being worked on and expected completion
+      4. Blocked: What's stuck and why — be honest
+      5. Metrics: Any numbers worth noting (if available)
+      6. Next week focus: Top 3 priorities
+
+      Tone: direct, honest, no spin. If something slipped, say so.
+      This goes to people who want the truth, not a highlight reel.
+    tools: [github, exec]
+    model: anthropic/claude-sonnet-4-6
+
+delivery:
+  channels:
+    - type: slack
+      channel: "${OPS_SLACK_CHANNEL}"
+    - type: email
+      to: "${OPS_EMAIL_ADDRESS}"
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+# Set in .env:
+#   OPS_SLACK_CHANNEL or OPS_EMAIL_ADDRESS
+#   COMPANY_INDUSTRY (used in daily briefing prompt)
+#   TZ (timezone for cron schedules, e.g. America/New_York)

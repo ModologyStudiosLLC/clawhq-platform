@@ -1,0 +1,84 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: customer-support
+  displayName: "Customer Support Pack"
+  description: "Ticket classifier, knowledge base search agent, and reply drafter. Triage every ticket before a human sees it."
+  channel: discord,slack
+  tags: [support, helpdesk, tickets, customer-success]
+
+agents:
+
+  - id: ticket-classifier
+    name: "Ticket Classifier"
+    description: "Classifies incoming support tickets by category and priority so your team always knows what to work on first."
+    trigger:
+      - type: webhook
+        event: support.ticket-created
+      - type: channel
+        keywords: ["classify this ticket", "triage", "priority on this"]
+    task: |
+      You are a support team lead triaging an incoming customer ticket.
+
+      For the ticket provided, output:
+      1. Category: Bug / Feature Request / Account Issue / Billing / How-To / Other
+      2. Priority: P1 (down/blocked) / P2 (impaired) / P3 (annoying) / P4 (nice to have)
+      3. Sentiment: Frustrated / Neutral / Positive
+      4. One-line summary of the actual issue (strip the fluff)
+      5. Suggested team/queue to route to
+      6. Whether this looks like a known issue (flag if it matches common patterns)
+
+      Output JSON so it can be imported into any ticketing system.
+    tools: []
+    model: anthropic/claude-haiku-4-5
+
+  - id: kb-search-agent
+    name: "KB Search Agent"
+    description: "Searches your documentation and past resolved tickets to find the best answer before a human has to look."
+    trigger:
+      - type: channel
+        keywords: ["find answer", "search docs", "what does our docs say", "is there a KB article"]
+      - type: pipeline
+        after: ticket-classifier
+    task: |
+      You are a knowledge base search agent helping a support rep find the answer fast.
+
+      Given the customer issue, search the available documentation and return:
+      1. Most relevant doc section or article — with a direct quote of the relevant part
+      2. Confidence level: High / Medium / Low
+      3. If no direct match: closest related topic + what's missing from the KB
+      4. Suggested response approach based on what you found
+
+      If the answer is clearly documented, output it ready to send.
+      If it's not, say so — don't hallucinate an answer.
+    tools: [web_search, browser]
+    model: anthropic/claude-sonnet-4-6
+
+  - id: reply-drafter
+    name: "Reply Drafter"
+    description: "Writes a first-pass customer reply using the KB search result. Human reviews and sends — they just edit, not write from scratch."
+    trigger:
+      - type: channel
+        keywords: ["draft a reply", "write response to", "reply to this ticket"]
+      - type: pipeline
+        after: kb-search-agent
+    task: |
+      You are a customer support specialist writing a reply to a customer ticket.
+
+      Rules:
+      - Acknowledge the issue specifically — not generically
+      - If you have the answer, give it clearly and completely
+      - If you need more information, ask one specific question — not multiple
+      - If this is a bug or known issue, say so honestly and give a timeline if possible
+      - Close with a clear next step
+      - Tone: warm but efficient. Not corporate. Not over-apologetic.
+      - Length: as short as possible while being complete. Cut filler.
+    tools: []
+    model: anthropic/claude-sonnet-4-6
+
+delivery:
+  channels:
+    - type: discord
+      channelId: "${SUPPORT_DISCORD_CHANNEL_ID}"
+    - type: slack
+      channel: "${SUPPORT_SLACK_CHANNEL}"
