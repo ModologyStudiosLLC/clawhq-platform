@@ -1,0 +1,122 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: finance-compliance
+  displayName: "Finance & Compliance Pack"
+  description: "Invoice processor, expense auditor, and board report generator. Know your numbers before the board asks."
+  channel: slack,email
+  tags: [finance, compliance, accounting, reporting]
+
+# ── Agents ────────────────────────────────────────────────────────────────────
+
+agents:
+
+  - id: invoice-processor
+    name: "Invoice Processor"
+    description: "Extracts structured data from vendor invoices and outputs JSON ready for ERP import, flagging duplicates and anomalies."
+    trigger:
+      - type: webhook
+        event: email.attachment-received
+      - type: channel
+        keywords: ["process invoice", "extract invoice", "log this invoice"]
+    task: |
+      You are an accounts payable specialist extracting structured data from vendor invoices.
+
+      For the invoice provided, output a JSON object with the following fields:
+      - vendor: name and address of the vendor
+      - invoice_number: the invoice identifier
+      - invoice_date: date issued (ISO 8601)
+      - due_date: payment due date (ISO 8601)
+      - payment_terms: e.g. Net 30, Due on receipt
+      - line_items: array of { description, quantity, unit_price, total }
+      - subtotal: sum before tax/fees
+      - tax: tax amount and rate if shown
+      - total: final amount due
+      - currency: ISO 4217 code
+
+      After the JSON, add a brief FLAGS section noting any of the following if present:
+      - Possible duplicate (same vendor + amount seen recently)
+      - Missing required fields (invoice number, due date, line item detail)
+      - Unusual amount (significantly above or below typical for this vendor if context is provided)
+      - Mismatched totals (line items don't add up to the stated total)
+
+      Output the JSON first, then FLAGS. Nothing else.
+    tools: [browser, exec]
+    model: anthropic/claude-sonnet-4-6
+
+  - id: expense-auditor
+    name: "Expense Auditor"
+    description: "Reviews submitted expense reports against company policy and outputs a structured compliance check with approval recommendation."
+    trigger:
+      - type: webhook
+        event: expense.submitted
+      - type: channel
+        keywords: ["audit this expense", "check expense report", "review expenses"]
+    task: |
+      You are a finance controller reviewing an employee expense submission against company policy.
+
+      For the expense report provided, produce a structured audit with:
+      1. Policy compliance check — for each line item, state whether it complies, violates, or is unclear against policy. Cite the specific policy rule by name or section number.
+      2. Flagged items — list every item that requires attention. For each: what the item is, why it's flagged, which policy rule applies.
+      3. Missing documentation — list any receipts, approvals, or supporting docs required but not provided.
+      4. Approval recommendation — one of: APPROVE / FLAG FOR MANAGER REVIEW / REJECT. Include a one-sentence justification.
+
+      Be specific. Do not write generic compliance language. If a $47 dinner is flagged because it exceeds the $40 per-person meal cap, say exactly that. Reference amounts, dates, and policy thresholds directly.
+
+      If the expense policy threshold is set via EXPENSE_POLICY_THRESHOLD, use that value. Otherwise apply standard conservative thresholds and note that you're doing so.
+    tools: []
+    model: anthropic/claude-haiku-4-5
+
+  - id: board-report-generator
+    name: "Board Report Generator"
+    description: "Generates a concise board-level financial report on the first of each month, covering headline metrics, variances, risks, and outlook."
+    trigger:
+      - type: cron
+        schedule: "0 8 1 * *"  # First of month at 8am — monthly board report
+      - type: channel
+        keywords: ["board report", "monthly financial report", "exec summary financials"]
+    task: |
+      You are a CFO preparing the monthly financial report for a board audience.
+
+      Produce a concise board-level report with the following sections:
+
+      **Headline Metric**
+      One number that summarizes the month. Revenue, ARR, or the single figure that matters most to this business. State it plainly.
+
+      **Revenue vs. Plan**
+      Actual vs. target. Variance in dollars and percentage. One sentence on the primary driver of any variance.
+
+      **Cost Variance**
+      Actual vs. budget. Call out any cost center that is materially over or under. One sentence of explanation per item.
+
+      **Cash Position**
+      Current cash on hand. Runway at current burn. Any changes to credit facilities or large upcoming obligations.
+
+      **Key Risks**
+      Up to three risks that the board should be aware of. Be specific — not "market conditions" but "customer X represents 22% of ARR and is up for renewal in 60 days."
+
+      **Forward Outlook**
+      Next month expectations and any decisions the board needs to make or approve.
+
+      Write for board members: data-driven, concise, no jargon. Assume they've read last month's report. Skip preamble and get to the numbers.
+    tools: [web_search, exec]
+    model: anthropic/claude-sonnet-4-6
+
+# ── Delivery ──────────────────────────────────────────────────────────────────
+
+delivery:
+  channels:
+    - type: slack
+      # Set FINANCE_SLACK_CHANNEL in your .env
+      channel: "${FINANCE_SLACK_CHANNEL}"
+    - type: email
+      # Set FINANCE_EMAIL_ADDRESS in your .env
+      address: "${FINANCE_EMAIL_ADDRESS}"
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+# 1. Set FINANCE_SLACK_CHANNEL or FINANCE_EMAIL_ADDRESS in .env
+# 2. Set EXPENSE_POLICY_THRESHOLD (dollar amount) in .env — used by expense-auditor
+# 3. Set TZ in .env for correct cron scheduling (e.g. TZ=America/New_York)
+# 4. For invoice-processor: configure your email provider to forward
+#    attachment-received events to your Paperclip webhook endpoint
+# 5. Deploy: docker compose up -d

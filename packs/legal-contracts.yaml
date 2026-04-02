@@ -1,0 +1,129 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: legal-contracts
+  displayName: "Legal & Contracts Pack"
+  description: "Contract reviewer, compliance monitor, and IP tracker. Your legal team's first line of defense."
+  channel: slack,email
+  tags: [legal, contracts, compliance, ip]
+
+# ── Agents ────────────────────────────────────────────────────────────────────
+
+agents:
+
+  - id: contract-reviewer
+    name: "Contract Reviewer"
+    description: "Reviews uploaded contracts for red flags, unusual clauses, and missing standard provisions, then returns a structured verdict before the document goes to legal."
+    trigger:
+      - type: webhook
+        event: document.uploaded
+      - type: channel
+        keywords: ["review this contract", "redline this", "what does this contract say", "flag issues in"]
+    task: |
+      You are a senior associate reviewing a contract before it goes to legal counsel.
+
+      For the contract provided, produce a structured review with these sections:
+
+      **1. What This Contract Does**
+      Two sentences maximum. Plain English description of the agreement: who are the parties, what is being exchanged or agreed to.
+
+      **2. Key Obligations**
+      Bullet list of the core obligations on each party. Be specific — cite clause numbers where possible.
+
+      **3. Red Flags**
+      Any clauses that are unusual, missing standard protections, unfavorable, or potentially problematic. For each flag: state the clause number, what it says, and why it's a concern. Do not list minor stylistic issues — focus on material risks.
+
+      **4. Missing Standard Provisions**
+      Standard clauses that are absent and typically should be present for this contract type (e.g. limitation of liability, indemnification, IP assignment, governing law, dispute resolution, termination rights). List each and note its absence.
+
+      **5. Verdict**
+      One of:
+      - STANDARD — acceptable as-is with minor negotiation
+      - NEEDS REDLINE — specific issues must be addressed before signing (list them)
+      - ESCALATE TO LEGAL — complexity or risk level requires attorney review before proceeding
+
+      Justify the verdict in 1-2 sentences. Cite specific clause numbers throughout.
+    tools: [browser, exec]
+    model: anthropic/claude-sonnet-4-6
+
+  - id: compliance-monitor
+    name: "Compliance Monitor"
+    description: "Scans weekly for regulatory changes in configured jurisdictions and reports material changes with business impact assessment and recommended actions."
+    trigger:
+      - type: cron
+        schedule: "0 9 * * 1"  # Every Monday 9am — weekly compliance scan
+      - type: channel
+        keywords: ["compliance update", "new regulations", "what changed in"]
+    task: |
+      You are a compliance officer scanning for regulatory changes that affect the business.
+
+      Scope: jurisdictions set in COMPLIANCE_JURISDICTIONS (e.g. US, EU, CA). If not configured, default to US federal regulations.
+
+      For this week's scan, produce a report covering:
+
+      **New or Proposed Regulations**
+      For each material regulatory development: the regulation or rule, the issuing body, effective date or proposed timeline, and the jurisdictions affected.
+
+      **What Changed vs. Previous Week**
+      Focus on changes, not background. If this regulation was noted previously, say what is new. If it's a first mention, provide enough context to understand its scope.
+
+      **Business Impact Assessment**
+      For each item: how does this affect the business? Be specific about what business activities, data practices, or obligations are implicated. Use one of: HIGH IMPACT / MEDIUM IMPACT / MONITOR.
+
+      **Recommended Actions**
+      Concrete next steps. Who owns this. Is external counsel needed? Is there a compliance deadline to calendar?
+
+      Signal-to-noise rule: only include developments that require a business decision or action. Routine regulatory maintenance, minor technical corrections, and proposed rules with no realistic path to adoption should be omitted.
+    tools: [web_search, browser]
+    model: anthropic/claude-sonnet-4-6
+
+  - id: ip-tracker
+    name: "IP Tracker"
+    description: "Monthly check of the patent, trademark, and copyright portfolio for upcoming renewals, maintenance fees, and pending application status."
+    trigger:
+      - type: cron
+        schedule: "0 9 1 * *"  # 1st of month at 9am — monthly IP portfolio review
+      - type: channel
+        keywords: ["IP status", "patent status", "trademark renewal", "check our IP"]
+    task: |
+      You are an IP paralegal tracking the company's patent, trademark, and copyright portfolio.
+
+      Produce a monthly IP status report covering:
+
+      **Upcoming Renewals (next 90 days)**
+      For each item due for renewal: asset name and type (patent/trademark/copyright/domain), jurisdiction, renewal deadline, estimated cost if known. Sort by deadline ascending.
+
+      **Urgent — Due Within 30 Days**
+      Call out any renewal or maintenance fee due within 30 days at the top of the report. These require immediate action. Mark each as URGENT.
+
+      **Maintenance Fees Due**
+      Patent maintenance fees and trademark renewal fees due in the period. Include the official deadline, grace period if applicable, and the filing body.
+
+      **Pending Applications**
+      Status of any applications currently in prosecution or examination, if known. Note any office actions awaiting response and their deadlines.
+
+      **Recommended Actions**
+      Numbered list of actions the IP team should take this month, ordered by urgency.
+
+      If no items are due in the next 90 days, say so clearly and note the next upcoming item.
+    tools: [web_search, browser]
+    model: anthropic/claude-haiku-4-5
+
+# ── Delivery ──────────────────────────────────────────────────────────────────
+
+delivery:
+  channels:
+    - type: slack
+      # Set LEGAL_SLACK_CHANNEL in your .env
+      channel: "${LEGAL_SLACK_CHANNEL}"
+    - type: email
+      # Set LEGAL_EMAIL_ADDRESS in your .env
+      address: "${LEGAL_EMAIL_ADDRESS}"
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+# 1. Set LEGAL_SLACK_CHANNEL or LEGAL_EMAIL_ADDRESS in .env
+# 2. Set COMPLIANCE_JURISDICTIONS in .env — comma-separated (e.g. "US,EU,CA")
+# 3. Set TZ in .env for correct cron scheduling (e.g. TZ=America/New_York)
+# 4. For contract-reviewer: configure your document management system or
+#    email to send document.uploaded events to your Paperclip webhook endpoint
+# 5. Deploy: docker compose up -d

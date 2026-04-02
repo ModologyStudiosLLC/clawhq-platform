@@ -1347,6 +1347,81 @@
     @media (max-width: 768px) {
       .usecases-grid { grid-template-columns: 1fr; }
     }
+
+/* ── New usecase card accents ─────────────────────────────────────────────── */
+.usecase-card--finance::before   { background: var(--secondary); opacity: 0.7; }
+.usecase-card--hr::before        { background: var(--accent); }
+.usecase-card--legal::before     { background: var(--hermes); opacity: 0.7; }
+.usecase-card--product::before   { background: var(--primary); opacity: 0.8; }
+.usecase-card--devops::before    { background: var(--secondary); }
+.usecase-card--finance .usecase-agent::before { background: var(--secondary); }
+.usecase-card--hr .usecase-agent::before      { background: var(--accent); }
+.usecase-card--legal .usecase-agent::before   { background: var(--hermes); }
+.usecase-card--product .usecase-agent::before { background: var(--primary); }
+.usecase-card--devops .usecase-agent::before  { background: var(--secondary); }
+
+/* ── Enterprise section ──────────────────────────────────────────────────── */
+.enterprise-section { padding: 96px 0; background: var(--bg); position: relative; overflow: hidden; }
+.enterprise-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; margin: 48px auto;
+  max-width: var(--max-w);
+}
+.enterprise-stat { background: var(--surface); padding: 40px 32px; text-align: center; }
+.enterprise-stat-num {
+  font-family: 'Newsreader', Georgia, serif; font-weight: 700;
+  font-size: clamp(44px, 5vw, 64px); line-height: 1; letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.enterprise-stat-label {
+  font-family: 'Geist Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 8px;
+}
+.enterprise-pains-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; max-width: var(--max-w); margin: 24px auto 48px;
+}
+.enterprise-pain-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.enterprise-pain-card:hover { border-color: rgba(105,218,255,0.25); transform: translateY(-2px); }
+.enterprise-pain-icon { font-size: 22px; margin-bottom: 12px; display: block; }
+.enterprise-pain-title {
+  font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 15px;
+  color: var(--text); margin-bottom: 8px; line-height: 1.3;
+}
+.enterprise-pain-solution { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.enterprise-trust {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+  max-width: var(--max-w); margin: 0 auto 56px;
+}
+.enterprise-trust-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border: 1px solid var(--border); border-radius: 100px;
+  background: var(--surface); font-family: 'Geist Mono', monospace;
+  font-size: 12px; color: var(--text-muted);
+}
+.enterprise-trust-badge .badge-dot { color: var(--primary); }
+.enterprise-cta-block {
+  text-align: center; max-width: 560px; margin: 0 auto;
+  padding: 48px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.enterprise-cta-block h3 {
+  font-family: 'Newsreader', Georgia, serif; font-weight: 700;
+  font-size: clamp(26px, 3vw, 38px); letter-spacing: -0.02em;
+  color: var(--text); margin-bottom: 12px;
+}
+.enterprise-cta-block p { font-size: 16px; color: var(--text-muted); margin-bottom: 28px; }
+.enterprise-cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+@media (max-width: 900px) { .enterprise-pains-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .enterprise-stats { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .enterprise-pains-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -1372,6 +1447,7 @@
       </div>
       <div class="nav-links">
         <a href="#usecases">Use Cases</a>
+        <a href="#enterprise" class="nav-link">Enterprise</a>
         <a href="#compare">Why ClawHQ</a>
         <a href="#privacy">Privacy</a>
         <a href="#how">How it works</a>
@@ -1777,9 +1853,171 @@
           </div>
         </div>
 
+        <!-- Finance & Compliance -->
+        <div class="usecase-card usecase-card--finance fade-up">
+          <div class="usecase-header">
+            <span class="usecase-icon">💰</span>
+            <span class="usecase-channel">Slack · Email</span>
+          </div>
+          <h3 class="usecase-title">Finance & Compliance</h3>
+          <p class="usecase-desc">Invoice processing, expense auditing, and board report generation. Know your numbers before the board asks.</p>
+          <ul class="usecase-agents">
+            <li class="usecase-agent">Invoice Processor</li>
+            <li class="usecase-agent">Expense Auditor</li>
+            <li class="usecase-agent">Board Report Generator</li>
+          </ul>
+        </div>
+
+        <!-- HR & Recruiting -->
+        <div class="usecase-card usecase-card--hr fade-up">
+          <div class="usecase-header">
+            <span class="usecase-icon">🧑‍💼</span>
+            <span class="usecase-channel">Slack · Email</span>
+          </div>
+          <h3 class="usecase-title">HR & Recruiting</h3>
+          <p class="usecase-desc">Candidate sourcing, onboarding orchestration, and benefits Q&A. Your people team's AI layer.</p>
+          <ul class="usecase-agents">
+            <li class="usecase-agent">Candidate Sourcer</li>
+            <li class="usecase-agent">Onboarding Orchestrator</li>
+            <li class="usecase-agent">Benefits Q&A Bot</li>
+          </ul>
+        </div>
+
+        <!-- Legal & Contracts -->
+        <div class="usecase-card usecase-card--legal fade-up">
+          <div class="usecase-header">
+            <span class="usecase-icon">⚖️</span>
+            <span class="usecase-channel">Slack · Email</span>
+          </div>
+          <h3 class="usecase-title">Legal & Contracts</h3>
+          <p class="usecase-desc">Contract review, compliance monitoring, and IP tracking. Your legal team's first line of defense.</p>
+          <ul class="usecase-agents">
+            <li class="usecase-agent">Contract Reviewer</li>
+            <li class="usecase-agent">Compliance Monitor</li>
+            <li class="usecase-agent">IP Tracker</li>
+          </ul>
+        </div>
+
+        <!-- Product & Design -->
+        <div class="usecase-card usecase-card--product fade-up">
+          <div class="usecase-header">
+            <span class="usecase-icon">🎯</span>
+            <span class="usecase-channel">Slack · Discord</span>
+          </div>
+          <h3 class="usecase-title">Product & Design</h3>
+          <p class="usecase-desc">Feature request triage, feedback synthesis, and competitive intel. Ship what users actually want.</p>
+          <ul class="usecase-agents">
+            <li class="usecase-agent">Feature Request Triage</li>
+            <li class="usecase-agent">Feedback Synthesizer</li>
+            <li class="usecase-agent">Competitive Intel Watcher</li>
+          </ul>
+        </div>
+
+        <!-- DevOps & Infrastructure — spans full width as 9th card -->
+        <div class="usecase-card usecase-card--devops fade-up" style="grid-column: 1 / -1; max-width: 540px; margin: 0 auto; width: 100%;">
+          <div class="usecase-header">
+            <span class="usecase-icon">🚀</span>
+            <span class="usecase-channel">Slack · Discord</span>
+          </div>
+          <h3 class="usecase-title">DevOps & Infrastructure</h3>
+          <p class="usecase-desc">Incident response, deployment automation, and cloud cost optimization. Keep systems up and bills down.</p>
+          <ul class="usecase-agents">
+            <li class="usecase-agent">Incident Responder</li>
+            <li class="usecase-agent">Deployment Automator</li>
+            <li class="usecase-agent">Cloud Cost Optimizer</li>
+          </ul>
+        </div>
+
       </div>
     </div>
   </section>
+
+      <!-- ── Enterprise ───────────────────────────────────────────────── -->
+      <section class="enterprise-section" id="enterprise">
+        <div class="container">
+          <div class="enterprise-header fade-up" style="text-align:center; max-width: 700px; margin: 0 auto 8px;">
+            <p class="section-label">Enterprise AI</p>
+            <h2 class="section-title">From Pilot Hell to<br>Production in 4 Weeks.</h2>
+            <p class="section-sub">95% of enterprise AI pilots never reach production. The bottleneck isn't the AI — it's everything around it.</p>
+          </div>
+
+          <div class="enterprise-stats">
+            <div class="enterprise-stat">
+              <div class="enterprise-stat-num">95%</div>
+              <div class="enterprise-stat-label">of enterprise AI pilots never reach production</div>
+            </div>
+            <div class="enterprise-stat">
+              <div class="enterprise-stat-num">78%</div>
+              <div class="enterprise-stat-label">of organizations struggle to integrate AI with existing systems</div>
+            </div>
+            <div class="enterprise-stat">
+              <div class="enterprise-stat-num">$40B</div>
+              <div class="enterprise-stat-label">spent on enterprise AI in 2024 — most with no measurable ROI</div>
+            </div>
+          </div>
+
+          <p class="section-label fade-up" style="text-align:center; margin-bottom: 20px;">Pain Points We Solve</p>
+          <div class="enterprise-pains-grid">
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🔌</span>
+              <div class="enterprise-pain-title">Integration Fragmentation</div>
+              <div class="enterprise-pain-solution">One YAML config connects GitHub, Slack, your CRM, and any webhook. No custom integration work.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🚀</span>
+              <div class="enterprise-pain-title">Pilot-to-Production Failure</div>
+              <div class="enterprise-pain-solution">Production-ready from day one. YAML is versionable, testable, and Docker-deployable — not a prototype.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">⏱️</span>
+              <div class="enterprise-pain-title">Time-to-Value</div>
+              <div class="enterprise-pain-solution">4-week deployment path. Self-hosted bypasses vendor approval queues. No integration backlog.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🛡️</span>
+              <div class="enterprise-pain-title">Governance & Audit Gaps</div>
+              <div class="enterprise-pain-solution">Deterministic YAML workflows. Every agent run logged with inputs, outputs, model version, and timestamp.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🧩</span>
+              <div class="enterprise-pain-title">Siloed Tools</div>
+              <div class="enterprise-pain-solution">One agent consolidates GitHub, Jira, Slack, and email into a single coordinated workflow.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">📊</span>
+              <div class="enterprise-pain-title">ROI Proof</div>
+              <div class="enterprise-pain-solution">Usage logs in Slack provide built-in ROI metrics. Target: measurable proof in 90 days.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🔒</span>
+              <div class="enterprise-pain-title">Vendor Lock-In</div>
+              <div class="enterprise-pain-solution">Self-hosted Docker. Flat per-agent pricing. YAML workflows are portable — they leave with you.</div>
+            </div>
+            <div class="enterprise-pain-card fade-up">
+              <span class="enterprise-pain-icon">🤖</span>
+              <div class="enterprise-pain-title">Hallucination Risk</div>
+              <div class="enterprise-pain-solution">Tool-grounded agents fetch facts from live APIs. Multi-model strategy keeps confidence high.</div>
+            </div>
+          </div>
+
+          <div class="enterprise-trust fade-up">
+            <span class="enterprise-trust-badge"><span class="badge-dot">✓</span> SOC 2 Fast-Track Ready</span>
+            <span class="enterprise-trust-badge"><span class="badge-dot">✓</span> Self-Hosted — Data Never Leaves</span>
+            <span class="enterprise-trust-badge"><span class="badge-dot">✓</span> Full Audit Trail Built-In</span>
+            <span class="enterprise-trust-badge"><span class="badge-dot">✓</span> Flat Pricing — No Per-Seat Fees</span>
+            <span class="enterprise-trust-badge"><span class="badge-dot">✓</span> On-Prem or Private Cloud</span>
+          </div>
+
+          <div class="enterprise-cta-block fade-up">
+            <h3>Ready to get your first agent live?</h3>
+            <p>No deck. No 6-month procurement cycle. A conversation about your actual workflow.</p>
+            <div class="enterprise-cta-buttons">
+              <a href="mailto:enterprise@clawhqplatform.com" class="btn-primary">Book a Demo →</a>
+              <a href="#waitlist-form" class="btn-ghost">Join the waitlist</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
   <!-- ── TESTIMONIALS ──────────────────────────────────── -->
   <section class="testimonials-section" id="testimonials">

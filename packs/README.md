@@ -11,6 +11,11 @@ Pre-built agent workflow packs for common team use cases. Each pack includes
 | [Sales Team](./sales-team.yaml) | Lead Researcher, Outreach Drafter, CRM Note Taker | Sales and RevOps |
 | [Customer Support](./customer-support.yaml) | Ticket Classifier, KB Search, Reply Drafter | Support teams |
 | [Ops & Leadership](./ops-leadership.yaml) | Daily Briefing, Meeting Summarizer, Status Reporter | Founders, COOs, team leads |
+| [Finance & Compliance](./finance-compliance.yaml) | Invoice Processor, Expense Auditor, Board Report Generator | Finance teams and CFOs |
+| [HR & Recruiting](./hr-recruiting.yaml) | Candidate Sourcer, Onboarding Orchestrator, Benefits Q&A Bot | HR and people ops teams |
+| [Legal & Contracts](./legal-contracts.yaml) | Contract Reviewer, Compliance Monitor, IP Tracker | Legal teams and GCs |
+| [Product & Design](./product-design.yaml) | Feature Request Triage, Feedback Synthesizer, Competitive Intel Watcher | Product managers and designers |
+| [DevOps & Infrastructure](./devops-infrastructure.yaml) | Incident Responder, Deployment Automator, Cloud Cost Optimizer | DevOps, SRE, and platform teams |
 
 ## Deploy a Pack
 
