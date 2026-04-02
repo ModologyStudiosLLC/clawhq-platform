@@ -18,12 +18,13 @@ function workspacePath(agentName: string): string | null {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { agentName: string } }
+  { params }: { params: Promise<{ agentName: string }> }
 ) {
+  const { agentName } = await params;
   const filePath = req.nextUrl.searchParams.get("path");
   if (!filePath) return NextResponse.json({ error: "Missing path" }, { status: 400 });
 
-  const wsPath = workspacePath(params.agentName);
+  const wsPath = workspacePath(agentName);
   if (!wsPath) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Prevent path traversal

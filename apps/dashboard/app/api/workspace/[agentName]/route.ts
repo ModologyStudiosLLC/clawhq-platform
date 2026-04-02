@@ -62,9 +62,10 @@ function listFiles(dir: string, root: string, depth = 0): WorkspaceFile[] {
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { agentName: string } }
+  { params }: { params: Promise<{ agentName: string }> }
 ) {
-  const wsPath = workspacePath(params.agentName);
+  const { agentName } = await params;
+  const wsPath = workspacePath(agentName);
   if (!wsPath) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const files = listFiles(wsPath, wsPath)

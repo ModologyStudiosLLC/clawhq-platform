@@ -1,52 +1,131 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { Check, RefreshCw, Eye, EyeOff, Zap } from "lucide-react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import {
+  Check, RefreshCw, Eye, EyeOff, Zap, Shield, Bot, Wallet, Sliders,
+  ChevronDown, AlertTriangle, Sparkles, X, Save
+} from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-interface ServiceStatus {
-  name: string;
-  ok: boolean;
-  status: string;
+interface AgentConfig {
+  model: string;
+  tools: Record<string, boolean>;
+  schedule: string;
 }
 
-interface HealthResponse {
-  services: ServiceStatus[];
-  allHealthy: boolean;
+interface Settings {
+  securityLevel: 0 | 1 | 2 | 3;
+  timezone: string;
+  displayName: string;
+  agents: Record<string, AgentConfig>;
+  monthlyBudgetCents: number;
+  budgetUnlimited: boolean;
+  budgetAlertPercent: number;
+  providerCaps: Record<string, number>;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+const DEFAULT_SETTINGS: Settings = {
+  securityLevel: 1,
+  timezone: "UTC",
+  displayName: "",
+  agents: {
+    hermes: { model: "claude-sonnet-4-6", tools: { web_search: true, code_exec: true, memory: true, calendar: false }, schedule: "" },
+    openfang: { model: "claude-sonnet-4-6", tools: { bash: true, file_write: true, browser: false, code_exec: true }, schedule: "" },
+  },
+  monthlyBudgetCents: 2000,
+  budgetUnlimited: false,
+  budgetAlertPercent: 80,
+  providerCaps: { anthropic: 0, openai: 0, groq: 0, openrouter: 0 },
+};
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const SECURITY_LEVELS = [
+  { label: "Locked", description: "Agents cannot modify files or run code", color: "#ef4444" },
+  { label: "Balanced", description: "Safe defaults — most tasks work", color: "#f6d969" },
+  { label: "Open", description: "Agents can write files and run commands", color: "#69daff" },
+  { label: "Dev Mode", description: "Unrestricted — use in dev environments only", color: "#ac8aff" },
+];
+
+const MODELS = [
+  { id: "claude-haiku-4-5-20251001", name: "Haiku 4.5", cost: "$", description: "Fastest, cheapest" },
+  { id: "claude-sonnet-4-6", name: "Sonnet 4.6", cost: "$$", description: "Best balance" },
+  { id: "claude-opus-4-6", name: "Opus 4.6", cost: "$$$", description: "Most capable" },
+];
+
+const AGENT_TOOLS: Record<string, { key: string; label: string }[]> = {
+  hermes: [
+    { key: "web_search", label: "Web search" },
+    { key: "code_exec", label: "Code execution" },
+    { key: "memory", label: "Persistent memory" },
+    { key: "calendar", label: "Calendar access" },
+  ],
+  openfang: [
+    { key: "bash", label: "Bash / shell" },
+    { key: "file_write", label: "File writes" },
+    { key: "browser", label: "Browser automation" },
+    { key: "code_exec", label: "Code execution" },
+  ],
+};
+
+// Log scale: $1 → $500/mo
+function centsToSlider(cents: number): number {
+  const clamped = Math.max(100, Math.min(50000, cents));
+  return Math.round((Math.log(clamped) - Math.log(100)) / (Math.log(50000) - Math.log(100)) * 100);
+}
+function sliderToCents(value: number): number {
+  return Math.round(Math.exp(
+    Math.log(100) + (value / 100) * (Math.log(50000) - Math.log(100))
+  ));
+}
+function formatBudget(cents: number): string {
+  if (cents < 100) return "<$1";
+  const d = cents / 100;
+  return d >= 100 ? `$${Math.round(d)}` : `$${d.toFixed(0)}`;
+}
+
+// Simple cron description
+function describeCron(expr: string): string {
+  if (!expr.trim()) return "";
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length !== 5) return "Invalid cron expression";
+  const [min, hour, dom, month, dow] = parts;
+  if (min === "*" && hour === "*" && dom === "*" && month === "*" && dow === "*") return "Every minute";
+  if (dom === "*" && month === "*" && dow === "*") {
+    if (min === "0" && hour !== "*") return `Daily at ${hour.padStart(2, "0")}:00 UTC`;
+    if (hour !== "*") return `Daily at ${hour.padStart(2, "0")}:${min.padStart(2, "0")} UTC`;
+  }
+  if (dom === "*" && month === "*" && dow !== "*") {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayName = days[parseInt(dow)] ?? `day ${dow}`;
+    if (hour !== "*") return `Every ${dayName} at ${hour.padStart(2, "0")}:${min.padStart(2, "0")} UTC`;
+    return `Every ${dayName}`;
+  }
+  if (min.startsWith("*/")) return `Every ${min.slice(2)} minutes`;
+  if (hour.startsWith("*/")) return `Every ${hour.slice(2)} hours`;
+  return expr;
+}
+
+// ── Small helpers ─────────────────────────────────────────────────────────────
 
 function useSaved(): [boolean, () => void] {
   const [saved, setSaved] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function flash() {
+  const t = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flash = useCallback(() => {
     setSaved(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setSaved(false), 2000);
-  }
+    if (t.current) clearTimeout(t.current);
+    t.current = setTimeout(() => setSaved(false), 2000);
+  }, []);
   return [saved, flash];
 }
 
-// ── Key row ──────────────────────────────────────────────────────────────────
-
 function KeyRow({
-  emoji,
-  label,
-  placeholder,
-  defaultValue,
-  onSave,
-  wizardChannel,
-  onOpenWizard,
+  emoji, label, placeholder, defaultValue, onSave, wizardChannel, onOpenWizard,
 }: {
-  emoji: string;
-  label: string;
-  placeholder: string;
-  defaultValue?: string;
-  onSave: (value: string) => Promise<void>;
-  wizardChannel?: ChannelId;
+  emoji: string; label: string; placeholder: string; defaultValue?: string;
+  onSave: (v: string) => Promise<void>; wizardChannel?: ChannelId;
   onOpenWizard?: (ch: ChannelId) => void;
 }) {
   const [value, setValue] = useState(defaultValue ?? "");
@@ -65,53 +144,30 @@ function KeyRow({
   return (
     <div className="flex items-center gap-3 py-3" style={{ borderBottom: "1px solid var(--color-border)" }}>
       <span className="text-xl w-8 text-center flex-shrink-0">{emoji}</span>
-      <span className="text-sm font-medium w-28 flex-shrink-0" style={{ color: "var(--color-text)" }}>
-        {label}
-      </span>
-      <div
-        className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg"
-        style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}
-      >
-        <input
-          type={show ? "text" : "password"}
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder={placeholder}
-          className="flex-1 bg-transparent text-sm outline-none"
-          style={{ color: "var(--color-text)" }}
-        />
+      <span className="text-sm font-medium w-28 flex-shrink-0" style={{ color: "var(--color-text)" }}>{label}</span>
+      <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg"
+        style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+        <input type={show ? "text" : "password"} value={value} onChange={e => setValue(e.target.value)}
+          placeholder={placeholder} className="flex-1 bg-transparent text-sm outline-none"
+          style={{ color: "var(--color-text)" }} />
         <button onClick={() => setShow(v => !v)} style={{ color: "var(--color-text-muted)" }}>
           {show ? <EyeOff size={14} /> : <Eye size={14} />}
         </button>
       </div>
-
-      {/* Setup wizard button for supported channels */}
       {wizardChannel && onOpenWizard && (
-        <button
-          onClick={() => onOpenWizard(wizardChannel)}
-          title="Open setup wizard"
+        <button onClick={() => onOpenWizard(wizardChannel)}
           className="px-2.5 py-2 rounded-lg text-xs flex items-center gap-1 flex-shrink-0 transition-all"
-          style={{
-            background: "var(--color-primary-dim)",
-            border: "1px solid rgba(105,218,255,0.25)",
-            color: "var(--color-primary)",
-          }}
-        >
-          <Zap size={12} />
-          <span className="hidden sm:inline">Guide</span>
+          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.25)", color: "var(--color-primary)" }}>
+          <Zap size={12} /><span className="hidden sm:inline">Guide</span>
         </button>
       )}
-
-      <button
-        onClick={handleSave}
-        disabled={saving || !value.trim()}
+      <button onClick={handleSave} disabled={saving || !value.trim()}
         className="px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 flex-shrink-0 transition-all disabled:opacity-40"
         style={{
           background: saved ? "var(--color-secondary-dim)" : "var(--color-surface-2)",
           color: saved ? "var(--color-secondary)" : "var(--color-text-muted)",
           border: `1px solid ${saved ? "var(--color-secondary)" : "var(--color-border)"}`,
-        }}
-      >
+        }}>
         {saved ? <Check size={13} /> : saving ? "Saving…" : "Save"}
         {saved && <span>Saved</span>}
       </button>
@@ -119,244 +175,648 @@ function KeyRow({
   );
 }
 
-// ── Main panel ────────────────────────────────────────────────────────────────
+// ── Tab: General ──────────────────────────────────────────────────────────────
 
-export function SettingsPanel() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [healthLoading, setHealthLoading] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardChannel, setWizardChannel] = useState<ChannelId>("discord");
+function GeneralTab({ settings, onChange }: { settings: Settings; onChange: (patch: Partial<Settings>) => void }) {
+  const level = settings.securityLevel;
 
-  const anthropicDefault =
-    typeof window !== "undefined" ? localStorage.getItem("clawhq_anthropic_key") ?? "" : "";
+  return (
+    <div className="space-y-6">
+      {/* Security level slider */}
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Security Level
+        </h2>
+        <p className="text-xs mb-5" style={{ color: "var(--color-text-muted)" }}>
+          Controls what your agents are allowed to do.
+        </p>
 
-  async function fetchHealth() {
-    setHealthLoading(true);
-    try {
-      const res = await fetch("/api/health");
-      const data = await res.json();
-      setHealth(data);
-    } catch {
-      setHealth(null);
-    } finally {
-      setHealthLoading(false);
-    }
+        {/* 4-stop slider */}
+        <div className="relative mb-4">
+          <div className="flex justify-between mb-2">
+            {SECURITY_LEVELS.map((s, i) => (
+              <button key={i} onClick={() => onChange({ securityLevel: i as 0|1|2|3 })}
+                className="flex-1 text-center text-xs font-semibold py-2 rounded-lg mx-0.5 transition-all"
+                style={{
+                  background: level === i ? `${s.color}22` : "var(--color-surface-2)",
+                  color: level === i ? s.color : "var(--color-text-muted)",
+                  border: `1px solid ${level === i ? s.color : "var(--color-border)"}`,
+                  boxShadow: level === i ? `0 0 16px ${s.color}30` : "none",
+                }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
+          style={{ background: `${SECURITY_LEVELS[level].color}11`, border: `1px solid ${SECURITY_LEVELS[level].color}33` }}>
+          <Shield size={16} className="mt-0.5 flex-shrink-0" style={{ color: SECURITY_LEVELS[level].color }} />
+          <p className="text-sm" style={{ color: "var(--color-text)" }}>
+            {SECURITY_LEVELS[level].description}
+          </p>
+        </div>
+      </div>
+
+      {/* Display name & timezone */}
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-4"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Preferences
+        </h2>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium block mb-1.5" style={{ color: "var(--color-text-muted)" }}>
+              Display Name
+            </label>
+            <input value={settings.displayName}
+              onChange={e => onChange({ displayName: e.target.value })}
+              placeholder="Your name or team name"
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all"
+              style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+          </div>
+          <div>
+            <label className="text-xs font-medium block mb-1.5" style={{ color: "var(--color-text-muted)" }}>
+              Timezone
+            </label>
+            <select value={settings.timezone} onChange={e => onChange({ timezone: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+              style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
+              {["UTC", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
+                "Europe/London", "Europe/Paris", "Europe/Berlin", "Asia/Tokyo", "Asia/Shanghai", "Australia/Sydney"
+              ].map(tz => <option key={tz} value={tz}>{tz}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      <div className="card" style={{ padding: "1.5rem", border: "1px solid rgba(239,68,68,0.35)" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "#ef4444", fontFamily: "var(--font-display)" }}>
+          Danger Zone
+        </h2>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+          These actions are irreversible — proceed with caution.
+        </p>
+        <div className="flex items-center justify-between py-3" style={{ borderTop: "1px solid var(--color-border)" }}>
+          <div>
+            <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Reset onboarding</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+              Clears setup state and API key, then restarts the onboarding wizard.
+            </p>
+          </div>
+          <button onClick={() => {
+            document.cookie = "clawhq_setup=; path=/; max-age=0";
+            localStorage.removeItem("clawhq_anthropic_key");
+            window.location.href = "/onboarding";
+          }} className="px-4 py-2 rounded-lg text-xs font-semibold flex-shrink-0 ml-4 transition-all"
+            style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.35)" }}>
+            Reset onboarding
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: Agents ────────────────────────────────────────────────────────────────
+
+function AgentSection({ agentId, config, onChange }: {
+  agentId: string;
+  config: AgentConfig;
+  onChange: (patch: Partial<AgentConfig>) => void;
+}) {
+  const [open, setOpen] = useState(true);
+  const tools = AGENT_TOOLS[agentId] ?? [];
+  const cronDesc = describeCron(config.schedule);
+
+  return (
+    <div className="card overflow-hidden" style={{ marginBottom: "1rem" }}>
+      {/* Header */}
+      <button onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-3 px-5 py-4 transition-colors"
+        style={{ borderBottom: open ? "1px solid var(--color-border)" : "none" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.2)" }}>
+          <Bot size={15} style={{ color: "var(--color-primary)" }} />
+        </div>
+        <div className="flex-1 text-left">
+          <p className="text-sm font-semibold capitalize" style={{ color: "var(--color-text)" }}>{agentId}</p>
+          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            {MODELS.find(m => m.id === config.model)?.name ?? config.model}
+            {cronDesc ? ` · ${cronDesc}` : " · no schedule"}
+          </p>
+        </div>
+        <ChevronDown size={16} className={`transition-transform ${open ? "rotate-180" : ""}`}
+          style={{ color: "var(--color-text-muted)" }} />
+      </button>
+
+      {open && (
+        <div className="px-5 py-4 space-y-5">
+          {/* Model picker */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider block mb-2"
+              style={{ color: "var(--color-text-subtle)" }}>Model</label>
+            <div className="flex gap-2 flex-wrap">
+              {MODELS.map(m => (
+                <button key={m.id} onClick={() => onChange({ model: m.id })}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all"
+                  style={{
+                    background: config.model === m.id ? "var(--color-primary-dim)" : "var(--color-surface-2)",
+                    border: `1px solid ${config.model === m.id ? "var(--color-primary)" : "var(--color-border)"}`,
+                    color: config.model === m.id ? "var(--color-primary)" : "var(--color-text-muted)",
+                  }}>
+                  <span className="font-bold">{m.cost}</span>
+                  <span className="font-medium">{m.name}</span>
+                  <span style={{ opacity: 0.7 }}>{m.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tool toggles */}
+          {tools.length > 0 && (
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider block mb-2"
+                style={{ color: "var(--color-text-subtle)" }}>Tool Access</label>
+              <div className="grid grid-cols-2 gap-2">
+                {tools.map(t => {
+                  const enabled = config.tools[t.key] ?? false;
+                  return (
+                    <button key={t.key} onClick={() => onChange({ tools: { ...config.tools, [t.key]: !enabled } })}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs text-left transition-all"
+                      style={{
+                        background: enabled ? "var(--color-secondary-dim)" : "var(--color-surface-2)",
+                        border: `1px solid ${enabled ? "rgba(105,246,184,0.3)" : "var(--color-border)"}`,
+                      }}>
+                      <div className="w-3.5 h-3.5 rounded-sm border flex items-center justify-center flex-shrink-0"
+                        style={{
+                          background: enabled ? "var(--color-secondary)" : "transparent",
+                          borderColor: enabled ? "var(--color-secondary)" : "var(--color-border-strong)",
+                        }}>
+                        {enabled && <Check size={9} style={{ color: "#0e0e10" }} />}
+                      </div>
+                      <span style={{ color: enabled ? "var(--color-text)" : "var(--color-text-muted)" }}>
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Schedule */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider block mb-2"
+              style={{ color: "var(--color-text-subtle)" }}>Schedule (cron)</label>
+            <div className="flex flex-col gap-1.5">
+              <input value={config.schedule}
+                onChange={e => onChange({ schedule: e.target.value })}
+                placeholder="e.g. 0 9 * * 1-5  (weekdays at 9am)"
+                className="w-full px-3 py-2 rounded-lg text-sm font-mono outline-none"
+                style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+              {cronDesc && (
+                <p className="text-xs px-1" style={{ color: cronDesc === "Invalid cron expression" ? "var(--color-error)" : "var(--color-secondary)" }}>
+                  ↳ {cronDesc}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AgentsTab({ settings, onChange }: { settings: Settings; onChange: (patch: Partial<Settings>) => void }) {
+  function updateAgent(agentId: string, patch: Partial<AgentConfig>) {
+    onChange({
+      agents: {
+        ...settings.agents,
+        [agentId]: { ...settings.agents[agentId], ...patch },
+      },
+    });
   }
 
-  useEffect(() => { fetchHealth(); }, []);
+  return (
+    <div className="space-y-0">
+      {Object.entries(settings.agents).map(([id, config]) => (
+        <AgentSection key={id} agentId={id} config={config}
+          onChange={patch => updateAgent(id, patch)} />
+      ))}
+    </div>
+  );
+}
+
+// ── Tab: Channels ─────────────────────────────────────────────────────────────
+
+function ChannelsTab({ onOpenWizard }: { onOpenWizard: (ch: ChannelId) => void }) {
+  const anthropicDefault = typeof window !== "undefined" ? localStorage.getItem("clawhq_anthropic_key") ?? "" : "";
 
   async function saveLlmKey(provider: string, key: string) {
     try {
       await fetch("/api/openfang/api/config/keys", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, key }),
       });
-    } catch { /* graceful — endpoint may not exist yet */ }
+    } catch { /* graceful */ }
   }
 
   async function saveChannelToken(channel: string, token: string) {
     try {
       await fetch("/api/openclaw/config/channels", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ channel, token }),
       });
     } catch { /* graceful */ }
   }
 
-  function openWizard(ch: ChannelId) {
-    setWizardChannel(ch);
-    setWizardOpen(true);
+  return (
+    <div className="space-y-6">
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          LLM API Keys
+        </h2>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+          Stored locally and pushed to your OpenFang instance.
+        </p>
+        <KeyRow emoji="🤖" label="Anthropic" placeholder="sk-ant-..." defaultValue={anthropicDefault}
+          onSave={key => { localStorage.setItem("clawhq_anthropic_key", key); return saveLlmKey("anthropic", key); }} />
+        <KeyRow emoji="🟢" label="OpenAI" placeholder="sk-..." onSave={key => saveLlmKey("openai", key)} />
+        <KeyRow emoji="⚡" label="Groq" placeholder="gsk_..." onSave={key => saveLlmKey("groq", key)} />
+        <KeyRow emoji="🔀" label="OpenRouter" placeholder="sk-or-..." onSave={key => saveLlmKey("openrouter", key)} />
+      </div>
+
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Channel Tokens
+        </h2>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+          Connect external channels so your agents can receive and send messages.
+          Hit <span style={{ color: "var(--color-primary)" }}>Guide</span> for step-by-step setup.
+        </p>
+        <KeyRow emoji="💬" label="Discord" placeholder="Bot token..." wizardChannel="discord" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("discord", token)} />
+        <KeyRow emoji="✈️" label="Telegram" placeholder="Bot token..." wizardChannel="telegram" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("telegram", token)} />
+        <KeyRow emoji="🟣" label="Slack" placeholder="xoxb-..." wizardChannel="slack" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("slack", token)} />
+        <KeyRow emoji="📱" label="WhatsApp" placeholder="Token..."
+          onSave={token => saveChannelToken("whatsapp", token)} />
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: Budget ────────────────────────────────────────────────────────────────
+
+function BudgetTab({ settings, onChange }: { settings: Settings; onChange: (patch: Partial<Settings>) => void }) {
+  const sliderVal = centsToSlider(settings.monthlyBudgetCents);
+
+  return (
+    <div className="space-y-6">
+      {/* Monthly budget slider */}
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Monthly Budget
+        </h2>
+        <p className="text-xs mb-5" style={{ color: "var(--color-text-muted)" }}>
+          Hard cap across all agents and providers. You&apos;ll receive an alert when you hit the threshold.
+        </p>
+
+        <div className="flex items-center gap-4 mb-4">
+          <div className="text-3xl font-bold tabular-nums" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
+            {settings.budgetUnlimited ? "∞" : formatBudget(settings.monthlyBudgetCents)}
+          </div>
+          {!settings.budgetUnlimited && (
+            <div className="text-sm" style={{ color: "var(--color-text-muted)" }}>/mo</div>
+          )}
+          <div className="ml-auto">
+            <button onClick={() => onChange({ budgetUnlimited: !settings.budgetUnlimited })}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={{
+                background: settings.budgetUnlimited ? "var(--color-accent-dim)" : "var(--color-surface-2)",
+                border: `1px solid ${settings.budgetUnlimited ? "var(--color-accent)" : "var(--color-border)"}`,
+                color: settings.budgetUnlimited ? "var(--color-accent)" : "var(--color-text-muted)",
+              }}>
+              {settings.budgetUnlimited ? "Unlimited" : "Set limit"}
+            </button>
+          </div>
+        </div>
+
+        {!settings.budgetUnlimited && (
+          <>
+            <input type="range" min={0} max={100} value={sliderVal}
+              onChange={e => onChange({ monthlyBudgetCents: sliderToCents(parseInt(e.target.value)) })}
+              className="w-full mb-3"
+              style={{ accentColor: "var(--color-primary)" }} />
+            <div className="flex justify-between text-xs" style={{ color: "var(--color-text-subtle)" }}>
+              <span>$1</span><span>$10</span><span>$50</span><span>$200</span><span>$500</span>
+            </div>
+          </>
+        )}
+
+        {!settings.budgetUnlimited && (
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>
+                Alert threshold
+              </label>
+              <span className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>
+                {settings.budgetAlertPercent}%
+              </span>
+            </div>
+            <input type="range" min={50} max={95} step={5} value={settings.budgetAlertPercent}
+              onChange={e => onChange({ budgetAlertPercent: parseInt(e.target.value) })}
+              className="w-full"
+              style={{ accentColor: "var(--color-warning)" }} />
+            <p className="text-xs mt-1.5" style={{ color: "var(--color-text-muted)" }}>
+              Alert when {settings.budgetAlertPercent}% of {formatBudget(settings.monthlyBudgetCents)} is used
+              ({formatBudget(Math.round(settings.monthlyBudgetCents * settings.budgetAlertPercent / 100))})
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Per-provider caps */}
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Per-Provider Caps
+        </h2>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+          Optional per-provider sub-limits (0 = no sub-limit).
+        </p>
+        <div className="space-y-3">
+          {Object.entries(settings.providerCaps).map(([provider, cents]) => (
+            <div key={provider} className="flex items-center gap-3">
+              <span className="text-sm font-medium w-28 capitalize flex-shrink-0"
+                style={{ color: "var(--color-text)" }}>{provider}</span>
+              <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg"
+                style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+                <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>$</span>
+                <input type="number" min={0} step={1}
+                  value={cents > 0 ? (cents / 100).toFixed(0) : ""}
+                  onChange={e => {
+                    const v = parseFloat(e.target.value);
+                    onChange({ providerCaps: { ...settings.providerCaps, [provider]: isNaN(v) ? 0 : Math.round(v * 100) } });
+                  }}
+                  placeholder="No limit"
+                  className="flex-1 bg-transparent text-sm outline-none"
+                  style={{ color: "var(--color-text)" }} />
+                <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>/mo</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── NL Propose box ─────────────────────────────────────────────────────────────
+
+function NaturalLanguageInput({ currentSettings, onPropose }: {
+  currentSettings: Settings;
+  onPropose: (diff: Partial<Settings>) => void;
+}) {
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit() {
+    if (!text.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/settings/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: text, currentSettings }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      onPropose(data.diff);
+      setText("");
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="card" style={{ padding: "1rem 1.25rem", border: "1px solid rgba(105,218,255,0.2)" }}>
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles size={14} style={{ color: "var(--color-primary)" }} />
+        <span className="text-xs font-semibold" style={{ color: "var(--color-primary)" }}>
+          AI Settings Assistant
+        </span>
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          placeholder="e.g. &quot;Set Hermes to Haiku and limit budget to $20/mo&quot;"
+          className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
+          style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+          disabled={loading} />
+        <button onClick={handleSubmit} disabled={loading || !text.trim()}
+          className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-all disabled:opacity-40"
+          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.3)", color: "var(--color-primary)" }}>
+          {loading ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {loading ? "Thinking…" : "Apply"}
+        </button>
+      </div>
+      {error && (
+        <p className="text-xs mt-2 flex items-center gap-1" style={{ color: "var(--color-error)" }}>
+          <AlertTriangle size={12} />{error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Unsaved changes bar ────────────────────────────────────────────────────────
+
+function UnsavedBar({ dirty, saving, onSave, onDiscard }: {
+  dirty: boolean; saving: boolean; onSave: () => void; onDiscard: () => void;
+}) {
+  if (!dirty) return null;
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl"
+      style={{ background: "var(--color-surface)", border: "1px solid var(--color-border-strong)", backdropFilter: "blur(12px)" }}>
+      <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Unsaved changes</span>
+      <button onClick={onDiscard}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+        style={{ color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}>
+        <X size={12} /> Discard
+      </button>
+      <button onClick={onSave} disabled={saving}
+        className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-60"
+        style={{ background: "var(--color-primary)", color: "#0e0e10" }}>
+        {saving ? <RefreshCw size={12} className="animate-spin" /> : <Save size={12} />}
+        {saving ? "Saving…" : "Save changes"}
+      </button>
+    </div>
+  );
+}
+
+// ── Pending-proposal confirm banner ────────────────────────────────────────────
+
+function ProposalBanner({ diff, onAccept, onReject }: {
+  diff: Partial<Settings>; onAccept: () => void; onReject: () => void;
+}) {
+  return (
+    <div className="rounded-xl px-4 py-3 mb-4 flex items-start gap-3 animate-slide-up"
+      style={{ background: "var(--color-accent-dim)", border: "1px solid rgba(172,138,255,0.3)" }}>
+      <Sparkles size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text)" }}>
+          AI proposed changes
+        </p>
+        <pre className="text-xs font-mono overflow-x-auto" style={{ color: "var(--color-text-muted)" }}>
+          {JSON.stringify(diff, null, 2)}
+        </pre>
+      </div>
+      <div className="flex flex-col gap-1.5 flex-shrink-0">
+        <button onClick={onAccept}
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+          style={{ background: "var(--color-secondary-dim)", color: "var(--color-secondary)", border: "1px solid rgba(105,246,184,0.3)" }}>
+          Apply
+        </button>
+        <button onClick={onReject}
+          className="px-3 py-1.5 rounded-lg text-xs transition-all"
+          style={{ color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}>
+          Ignore
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main panel ─────────────────────────────────────────────────────────────────
+
+const TABS = [
+  { id: "general", label: "General", icon: Sliders },
+  { id: "agents", label: "Agents", icon: Bot },
+  { id: "channels", label: "Channels", icon: Zap },
+  { id: "budget", label: "Budget", icon: Wallet },
+];
+
+export function SettingsPanel() {
+  const [activeTab, setActiveTab] = useState("general");
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [saved, setSaved] = useState<Settings>(DEFAULT_SETTINGS);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [proposal, setProposal] = useState<Partial<Settings> | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardChannel, setWizardChannel] = useState<ChannelId>("discord");
+
+  const dirty = JSON.stringify(settings) !== JSON.stringify(saved);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(r => r.json())
+      .then(d => { setSettings(d); setSaved(d); })
+      .catch(() => {/* use defaults */})
+      .finally(() => setLoading(false));
+  }, []);
+
+  function patch(p: Partial<Settings>) {
+    setSettings(prev => ({ ...prev, ...p }));
+  }
+
+  async function saveSettings() {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const updated = await res.json();
+      setSaved(updated);
+      setSettings(updated);
+    } catch { /* graceful */ }
+    finally { setSaving(false); }
+  }
+
+  function discard() { setSettings(saved); }
+
+  function applyProposal() {
+    if (!proposal) return;
+    setSettings(prev => ({
+      ...prev,
+      ...proposal,
+      agents: { ...prev.agents, ...(proposal.agents ?? {}) },
+      providerCaps: { ...prev.providerCaps, ...(proposal.providerCaps ?? {}) },
+    }));
+    setProposal(null);
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4 max-w-3xl">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-32 rounded-xl animate-pulse" style={{ background: "var(--color-surface)" }} />
+        ))}
+      </div>
+    );
   }
 
   return (
     <>
-      <ChannelWizard
-        open={wizardOpen}
-        defaultChannel={wizardChannel}
-        onClose={() => setWizardOpen(false)}
-      />
+      <ChannelWizard open={wizardOpen} defaultChannel={wizardChannel} onClose={() => setWizardOpen(false)} />
 
-      <div className="space-y-8 max-w-3xl animate-fade-in">
-
-        {/* ── A. LLM API Keys ── */}
-        <section>
-          <div className="card" style={{ padding: "1.5rem" }}>
-            <h2 className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
-              LLM API Keys
-            </h2>
-            <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
-              Provide your own API keys. Stored locally and pushed to your OpenFang instance.
-            </p>
-            <KeyRow
-              emoji="🤖"
-              label="Anthropic"
-              placeholder="sk-ant-..."
-              defaultValue={anthropicDefault}
-              onSave={key => {
-                localStorage.setItem("clawhq_anthropic_key", key);
-                return saveLlmKey("anthropic", key);
-              }}
-            />
-            <KeyRow
-              emoji="🟢"
-              label="OpenAI"
-              placeholder="sk-..."
-              onSave={key => saveLlmKey("openai", key)}
-            />
-            <KeyRow
-              emoji="⚡"
-              label="Groq"
-              placeholder="gsk_..."
-              onSave={key => saveLlmKey("groq", key)}
-            />
-            <KeyRow
-              emoji="🔀"
-              label="OpenRouter"
-              placeholder="sk-or-..."
-              onSave={key => saveLlmKey("openrouter", key)}
-            />
-          </div>
-        </section>
-
-        {/* ── B. Channel Tokens ── */}
-        <section id="channels">
-          <div className="card" style={{ padding: "1.5rem" }}>
-            <h2 className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
-              Channel Tokens
-            </h2>
-            <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
-              Connect external channels so your agents can receive and send messages.
-              Hit <span className="text-primary font-medium">Guide</span> for step-by-step setup.
-            </p>
-            <KeyRow
-              emoji="💬"
-              label="Discord"
-              placeholder="Bot token..."
-              wizardChannel="discord"
-              onOpenWizard={openWizard}
-              onSave={token => saveChannelToken("discord", token)}
-            />
-            <KeyRow
-              emoji="✈️"
-              label="Telegram"
-              placeholder="Bot token..."
-              wizardChannel="telegram"
-              onOpenWizard={openWizard}
-              onSave={token => saveChannelToken("telegram", token)}
-            />
-            <KeyRow
-              emoji="🟣"
-              label="Slack"
-              placeholder="xoxb-..."
-              wizardChannel="slack"
-              onOpenWizard={openWizard}
-              onSave={token => saveChannelToken("slack", token)}
-            />
-            <KeyRow
-              emoji="📱"
-              label="WhatsApp"
-              placeholder="Token..."
-              onSave={token => saveChannelToken("whatsapp", token)}
-            />
-          </div>
-        </section>
-
-        {/* ── C. Service Status ── */}
-        <section id="service-status">
-          <div className="card" style={{ padding: "1.5rem" }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
-                  Service Status
-                </h2>
-                <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-                  Live health of connected services.
-                </p>
-              </div>
-              <button
-                onClick={fetchHealth}
-                disabled={healthLoading}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50"
-                style={{ background: "var(--color-surface-2)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}
-              >
-                <RefreshCw size={13} className={healthLoading ? "animate-spin" : ""} />
-                Refresh
-              </button>
-            </div>
-            {health ? (
-              <div className="space-y-2">
-                {health.services.map(svc => (
-                  <div
-                    key={svc.name}
-                    className="flex items-center gap-3 py-2.5 px-3 rounded-lg"
-                    style={{ background: "var(--color-surface-2)" }}
-                  >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ background: svc.ok ? "var(--color-secondary)" : "var(--color-warning)" }}
-                    />
-                    <span className="text-sm font-medium flex-1" style={{ color: "var(--color-text)" }}>
-                      {svc.name}
-                    </span>
-                    <span
-                      className="text-xs capitalize"
-                      style={{ color: svc.ok ? "var(--color-secondary)" : "var(--color-warning)" }}
-                    >
-                      {svc.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: "var(--color-surface-2)" }} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* ── D. Danger Zone ── */}
-        <section>
-          <div
-            className="card"
-            style={{ padding: "1.5rem", border: "1px solid rgba(239,68,68,0.35)" }}
-          >
-            <h2 className="text-sm font-bold uppercase tracking-widest mb-1" style={{ color: "#ef4444", fontFamily: "var(--font-display)" }}>
-              Danger Zone
-            </h2>
-            <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
-              These actions are irreversible — proceed with caution.
-            </p>
-            <div className="flex items-center justify-between py-3" style={{ borderTop: "1px solid var(--color-border)" }}>
-              <div>
-                <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Reset onboarding</p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
-                  Clears setup state and API key, then restarts the onboarding wizard.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  document.cookie = "clawhq_setup=; path=/; max-age=0";
-                  localStorage.removeItem("clawhq_anthropic_key");
-                  window.location.href = "/onboarding";
-                }}
-                className="px-4 py-2 rounded-lg text-xs font-semibold flex-shrink-0 ml-4 transition-all"
+      <div className="max-w-3xl animate-fade-in">
+        {/* Tab bar */}
+        <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit"
+          style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
+          {TABS.map(t => {
+            const Icon = t.icon;
+            const active = activeTab === t.id;
+            return (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
                 style={{
-                  background: "rgba(239,68,68,0.1)",
-                  color: "#ef4444",
-                  border: "1px solid rgba(239,68,68,0.35)",
-                }}
-              >
-                Reset onboarding
+                  background: active ? "var(--color-surface-2)" : "transparent",
+                  color: active ? "var(--color-text)" : "var(--color-text-muted)",
+                  boxShadow: active ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
+                }}>
+                <Icon size={14} />
+                {t.label}
               </button>
-            </div>
+            );
+          })}
+        </div>
+
+        {/* AI proposal banner */}
+        {proposal && (
+          <ProposalBanner diff={proposal} onAccept={applyProposal} onReject={() => setProposal(null)} />
+        )}
+
+        {/* Tab content */}
+        {activeTab === "general" && <GeneralTab settings={settings} onChange={patch} />}
+        {activeTab === "agents" && <AgentsTab settings={settings} onChange={patch} />}
+        {activeTab === "channels" && <ChannelsTab onOpenWizard={ch => { setWizardChannel(ch); setWizardOpen(true); }} />}
+        {activeTab === "budget" && <BudgetTab settings={settings} onChange={patch} />}
+
+        {/* NL input (not shown on channels tab since it doesn't affect keyed secrets) */}
+        {activeTab !== "channels" && (
+          <div className="mt-6">
+            <NaturalLanguageInput currentSettings={settings} onPropose={setProposal} />
           </div>
-        </section>
+        )}
       </div>
+
+      <UnsavedBar dirty={dirty} saving={saving} onSave={saveSettings} onDiscard={discard} />
     </>
   );
 }
