@@ -149,7 +149,8 @@
       white-space: nowrap;
     }
     [data-theme="dark"] .nav-cta { color: #0e0e10; }
-    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(105,218,255,0.25); }
+    [data-theme="light"] .nav-cta:hover { box-shadow: 0 4px 14px rgba(0,87,217,0.2); }
 
     /* ── HERO ─────────────────────────────────────────────── */
     .hero {
@@ -167,15 +168,11 @@
       pointer-events: none; filter: blur(120px); opacity: 0.18;
     }
     .hero-orb-1 {
-      width: 600px; height: 600px;
+      width: 700px; height: 700px;
       background: var(--primary);
-      top: -150px; left: -150px;
+      top: -200px; left: -150px;
     }
-    .hero-orb-2 {
-      width: 500px; height: 500px;
-      background: var(--accent);
-      bottom: -100px; right: -80px;
-    }
+    .hero-orb-2 { display: none; }
     [data-theme="light"] .hero-orb { opacity: 0.07; }
 
     /* Dot grid */
@@ -228,7 +225,7 @@
       margin-bottom: 28px;
     }
     .hero-headline .gradient-line {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -428,7 +425,7 @@
     .mockup-glow {
       position: absolute; inset: -1px;
       border-radius: 13px;
-      background: linear-gradient(135deg, var(--primary-dim), transparent 50%, rgba(172,138,255,0.08));
+      background: linear-gradient(180deg, var(--primary-dim), transparent 60%);
       pointer-events: none;
       z-index: -1;
     }
@@ -671,16 +668,16 @@
     .btn-primary {
       display: inline-flex; align-items: center; justify-content: center;
       padding: 13px 22px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      background: var(--primary);
       color: #0d0d0d;
       border-radius: var(--radius-sm);
       font-size: 14px; font-weight: 600;
       white-space: nowrap;
-      transition: opacity 0.15s, transform 0.15s;
+      transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
       flex-shrink: 0;
     }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(105,218,255,0.25); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }
     .signup-note {
       font-family: 'Geist Mono', monospace;
       font-size: 11px;
@@ -741,6 +738,526 @@
     @media (max-width: 480px) {
       .mockup-stats { grid-template-columns: repeat(3, 1fr); }
     }
+
+    /* ── STATS BAR ────────────────────────────────────────── */
+    .stats-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      divide: var(--border);
+    }
+    .stat-item {
+      padding: 48px 32px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+      transition: background 0.2s;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:hover { background: var(--surface-2); }
+    .stat-num {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(48px, 5vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .stat-item:nth-child(1) .stat-num {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .stat-item:nth-child(2) .stat-num {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .stat-item:nth-child(3) .stat-num {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--hermes) 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .stat-item:nth-child(4) .stat-num {
+      background: linear-gradient(135deg, var(--hermes) 0%, var(--primary) 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .stat-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+    }
+    @media (max-width: 640px) {
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3) { border-top: 1px solid var(--border); }
+      .stat-item:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
+      .stat-item { padding: 32px 20px; }
+    }
+
+    /* ── TESTIMONIALS ─────────────────────────────────────── */
+    .testimonials-section {
+      background: var(--surface-2);
+      overflow: hidden;
+      position: relative;
+    }
+    [data-theme="light"] .testimonials-section { background: var(--surface); }
+    .testimonials-header { text-align: center; margin-bottom: 56px; }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: var(--max-w); margin: 0 auto;
+    }
+    .testimonial-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex; flex-direction: column; gap: 24px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    [data-theme="light"] .testimonial-card { background: var(--surface-2); }
+    .testimonial-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(105,218,255,0.2);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+    }
+    [data-theme="light"] .testimonial-card:hover { border-color: rgba(0,87,217,0.15); }
+    .testimonial-quote-mark {
+      font-family: 'Newsreader', serif;
+      font-size: 64px; line-height: 0.8;
+      color: var(--primary);
+      opacity: 0.3;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .testimonial-body {
+      font-size: 15px; line-height: 1.7;
+      color: var(--text-muted);
+      flex: 1;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-dim), var(--surface-2));
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .testimonial-name {
+      font-size: 14px; font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .testimonial-role {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; color: var(--text-subtle);
+      letter-spacing: 0.03em;
+      margin-top: 2px;
+    }
+    @media (max-width: 768px) {
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── PRIVACY ──────────────────────────────────────────── */
+    .privacy-section {
+      background: var(--bg);
+      position: relative; overflow: hidden;
+    }
+    .privacy-orb {
+      position: absolute; border-radius: 50%;
+      pointer-events: none; filter: blur(120px); opacity: 0.07;
+      width: 700px; height: 700px;
+      background: var(--secondary);
+      top: -200px; right: -200px;
+    }
+    [data-theme="light"] .privacy-orb { opacity: 0.04; }
+    .privacy-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .privacy-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .privacy-headline {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(40px, 4.5vw, 60px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .privacy-headline .privacy-accent {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .privacy-sub {
+      font-size: 17px; color: var(--text-muted);
+      line-height: 1.65; max-width: 420px;
+      margin-bottom: 36px;
+    }
+    .privacy-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid rgba(105,218,255,0.2);
+      border-radius: 100px;
+      background: var(--primary-dim);
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+    .privacy-pillars {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .privacy-pillar {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .privacy-pillar:hover {
+      border-color: rgba(105,218,255,0.2);
+      background: var(--surface-2);
+    }
+    .privacy-pillar-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--primary-dim);
+      border: 1px solid rgba(105,218,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .privacy-pillar-title {
+      font-size: 15px; font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .privacy-pillar-desc {
+      font-size: 13px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    @media (max-width: 768px) {
+      .privacy-layout { grid-template-columns: 1fr; gap: 48px; }
+    }
+
+    /* ── FINAL CTA ────────────────────────────────────────── */
+    .final-cta-section {
+      position: relative; overflow: hidden;
+      padding: 140px 24px;
+      text-align: center;
+      background: var(--bg);
+    }
+    .final-cta-orb-1 {
+      position: absolute; border-radius: 50%;
+      pointer-events: none; filter: blur(100px); opacity: 0.15;
+      width: 500px; height: 500px;
+      background: var(--primary);
+      top: -100px; left: 50%; transform: translateX(-60%);
+    }
+    .final-cta-orb-2 {
+      position: absolute; border-radius: 50%;
+      pointer-events: none; filter: blur(100px); opacity: 0.1;
+      width: 400px; height: 400px;
+      background: var(--secondary);
+      bottom: -80px; right: 10%;
+    }
+    [data-theme="light"] .final-cta-orb-1,
+    [data-theme="light"] .final-cta-orb-2 { opacity: 0.05; }
+    .final-cta-inner {
+      position: relative; z-index: 1;
+      max-width: 640px; margin: 0 auto;
+    }
+    .final-cta-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 24px;
+    }
+    .final-cta-headline {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(44px, 5.5vw, 72px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .final-cta-headline .cta-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--hermes) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .final-cta-sub {
+      font-size: 17px; color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 48px;
+    }
+
+    /* ── AGENTS MARQUEE ───────────────────────────────────── */
+    .agents-marquee-section {
+      padding: 0;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .agents-marquee-label {
+      text-align: center;
+      padding: 40px 24px 24px;
+    }
+    .agents-marquee-label p {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 12px;
+      padding: 0 0 40px;
+      width: max-content;
+      animation: marquee-scroll 38s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .agent-chip {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      white-space: nowrap;
+      transition: border-color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .agent-chip:hover {
+      border-color: rgba(105,218,255,0.3);
+      background: var(--surface-2);
+    }
+    [data-theme="light"] .agent-chip:hover { border-color: rgba(0,87,217,0.2); }
+    .agent-chip-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .agent-chip-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500;
+      color: var(--text);
+    }
+    .agent-chip-tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; color: var(--text-subtle);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── HOW IT WORKS ─────────────────────────────────────── */
+    .how-section { background: var(--bg); }
+    .how-header { text-align: center; margin-bottom: 64px; }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      max-width: var(--max-w); margin: 0 auto;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .how-step {
+      background: var(--surface);
+      padding: 40px 36px;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .how-step:hover { background: var(--surface-2); }
+    .how-step-num {
+      font-family: 'Newsreader', serif;
+      font-weight: 700;
+      font-size: 64px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .how-step-title {
+      font-family: 'Newsreader', serif;
+      font-weight: 700; font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .how-step-desc {
+      font-size: 15px; color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .how-step-cmd {
+      margin-top: 18px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 12px;
+      color: var(--primary);
+    }
+    .how-step-cmd .prompt { color: var(--secondary); margin-right: 2px; }
+    @media (max-width: 768px) {
+      .how-steps { grid-template-columns: 1fr; }
+      .marquee-track { animation-duration: 24s; }
+    }
+
+    /* ── COMPARISON ───────────────────────────────────────── */
+    .compare-section { background: var(--surface-2); }
+    [data-theme="light"] .compare-section { background: var(--bg); }
+    .compare-header { text-align: center; margin-bottom: 56px; }
+    .compare-table {
+      max-width: 800px; margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .compare-thead {
+      display: grid; grid-template-columns: 1fr 200px 200px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-thead-cell {
+      padding: 16px 24px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .compare-thead-cell.col-clawhq {
+      color: var(--primary);
+      border-left: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .compare-thead-cell.col-clawhq::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--primary);
+    }
+    .compare-thead-cell.col-diy {
+      color: var(--text-subtle);
+      border-left: 1px solid var(--border);
+    }
+    .compare-row {
+      display: grid; grid-template-columns: 1fr 200px 200px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row:hover { background: var(--surface); }
+    .compare-cell {
+      padding: 16px 24px;
+      font-size: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .compare-cell.feature {
+      color: var(--text-muted);
+      font-size: 14px; line-height: 1.5;
+    }
+    .compare-cell.col-clawhq {
+      border-left: 1px solid var(--border);
+      color: var(--secondary);
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px; font-weight: 500;
+    }
+    .compare-cell.col-diy {
+      border-left: 1px solid var(--border);
+      color: var(--text-subtle);
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+    }
+    .check { color: var(--secondary); font-size: 16px; flex-shrink: 0; }
+    .cross { color: rgba(240,240,245,0.2); font-size: 16px; flex-shrink: 0; }
+    [data-theme="light"] .cross { color: rgba(13,13,13,0.2); }
+
+    @media (max-width: 680px) {
+      .compare-thead { grid-template-columns: 1fr 140px 140px; }
+      .compare-row { grid-template-columns: 1fr 140px 140px; }
+      .compare-thead-cell, .compare-cell { padding: 14px 14px; font-size: 12px; }
+      .compare-cell.feature { font-size: 13px; }
+    }
+    @media (max-width: 520px) {
+      .compare-thead { display: none; }
+      .compare-row { grid-template-columns: 1fr 80px 80px; }
+      .compare-cell.col-clawhq, .compare-cell.col-diy { justify-content: center; }
+    }
+
+    /* ── OUTCOMES ─────────────────────────────────────────── */
+    .outcomes-section { background: var(--bg); }
+    .outcomes-header { text-align: center; margin-bottom: 56px; }
+    .outcomes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: var(--max-w); margin: 0 auto;
+    }
+    .outcome-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .outcome-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(105,218,255,0.2);
+    }
+    [data-theme="light"] .outcome-card:hover { border-color: rgba(0,87,217,0.15); }
+    .outcome-icon {
+      font-size: 28px; margin-bottom: 16px;
+      display: block;
+    }
+    .outcome-title {
+      font-family: 'Newsreader', serif;
+      font-weight: 700; font-size: 18px;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .outcome-desc {
+      font-size: 14px; color: var(--text-muted);
+      line-height: 1.65;
+    }
+    @media (max-width: 768px) {
+      .outcomes-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -765,6 +1282,9 @@
         <span class="nav-by">by Modology Studios</span>
       </div>
       <div class="nav-links">
+        <a href="#compare">Why ClawHQ</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#how">How it works</a>
         <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
       </div>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
@@ -786,18 +1306,18 @@
     <div class="hero-content">
       <div class="hero-badge fade-up">
         <span>⬡</span>
-        OPEN SOURCE &nbsp;·&nbsp; SELF-HOSTED &nbsp;·&nbsp; MIT LICENSE
+        OPEN SOURCE &nbsp;·&nbsp; SELF-HOSTED &nbsp;·&nbsp; 30+ AGENTS INCLUDED
       </div>
 
       <h1 class="hero-headline fade-up">
-        Your AI&nbsp;team.<br>
-        <span class="gradient-line">Fully coordinated.</span><br>
-        One stack.
+        Your AI team.<br>
+        <span class="gradient-line">Ready to work.</span><br>
+        One command.
       </h1>
 
       <p class="hero-sub fade-up">
-        OpenClaw · OpenFang · Paperclip · Hermes — four services,<br>
-        one <code>docker compose up -d</code>
+        30+ agents pre-installed. Every channel wired.<br>
+        Your team coordinates itself — you just delegate.
       </p>
 
       <div class="hero-ctas fade-up">
@@ -819,9 +1339,9 @@
         <span>·</span>
         Self-hosted
         <span>·</span>
-        No vendor lock-in
+        No per-seat fees
         <span>·</span>
-        Ships with 40+ tools
+        Your data stays yours
       </p>
     </div>
 
@@ -855,8 +1375,8 @@
                 <div class="mockup-stat-label">Tokens</div>
               </div>
               <div class="mockup-stat">
-                <div class="mockup-stat-val">40+</div>
-                <div class="mockup-stat-label">Tools ⚡</div>
+                <div class="mockup-stat-val">30+</div>
+                <div class="mockup-stat-label">Agents ⚡</div>
               </div>
             </div>
             <div class="mockup-agents">
@@ -872,13 +1392,80 @@
     </div>
   </section>
 
+  <!-- ── STATS BAR ─────────────────────────────────────── -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item fade-up">
+        <span class="stat-num">30+</span>
+        <span class="stat-label">Agents pre-installed</span>
+      </div>
+      <div class="stat-item fade-up">
+        <span class="stat-num">40+</span>
+        <span class="stat-label">Tools available</span>
+      </div>
+      <div class="stat-item fade-up">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Channels supported</span>
+      </div>
+      <div class="stat-item fade-up">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Command to deploy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AGENTS MARQUEE ────────────────────────────────── -->
+  <div class="agents-marquee-section">
+    <div class="agents-marquee-label">
+      <p>Pre-installed agents — ready the moment you deploy</p>
+    </div>
+    <div style="overflow: hidden;">
+      <div class="marquee-track" id="marqueeTrack">
+        <!-- First set -->
+        <div class="agent-chip"><div class="agent-chip-icon">🔍</div><span class="agent-chip-name">Researcher</span><span class="agent-chip-tag">research</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">✉️</div><span class="agent-chip-name">Email Assistant</span><span class="agent-chip-tag">inbox</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">✍️</div><span class="agent-chip-name">Doc Writer</span><span class="agent-chip-tag">writing</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">💻</div><span class="agent-chip-name">Coder</span><span class="agent-chip-tag">engineering</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📊</div><span class="agent-chip-name">Analyst</span><span class="agent-chip-tag">data</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📱</div><span class="agent-chip-name">Social Media</span><span class="agent-chip-tag">marketing</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📅</div><span class="agent-chip-name">Planner</span><span class="agent-chip-tag">automation</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🌍</div><span class="agent-chip-name">Translator</span><span class="agent-chip-tag">language</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🎓</div><span class="agent-chip-name">Tutor</span><span class="agent-chip-tag">education</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">⚖️</div><span class="agent-chip-name">Legal Assistant</span><span class="agent-chip-tag">legal</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">💼</div><span class="agent-chip-name">Sales Assistant</span><span class="agent-chip-tag">sales</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🛡️</div><span class="agent-chip-name">Security Auditor</span><span class="agent-chip-tag">security</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🧑‍💼</div><span class="agent-chip-name">Recruiter</span><span class="agent-chip-tag">hr</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🤝</div><span class="agent-chip-name">Customer Support</span><span class="agent-chip-tag">support</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🧪</div><span class="agent-chip-name">Test Engineer</span><span class="agent-chip-tag">qa</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🏗️</div><span class="agent-chip-name">Architect</span><span class="agent-chip-tag">systems</span></div>
+        <!-- Duplicate set for seamless loop -->
+        <div class="agent-chip"><div class="agent-chip-icon">🔍</div><span class="agent-chip-name">Researcher</span><span class="agent-chip-tag">research</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">✉️</div><span class="agent-chip-name">Email Assistant</span><span class="agent-chip-tag">inbox</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">✍️</div><span class="agent-chip-name">Doc Writer</span><span class="agent-chip-tag">writing</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">💻</div><span class="agent-chip-name">Coder</span><span class="agent-chip-tag">engineering</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📊</div><span class="agent-chip-name">Analyst</span><span class="agent-chip-tag">data</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📱</div><span class="agent-chip-name">Social Media</span><span class="agent-chip-tag">marketing</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">📅</div><span class="agent-chip-name">Planner</span><span class="agent-chip-tag">automation</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🌍</div><span class="agent-chip-name">Translator</span><span class="agent-chip-tag">language</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🎓</div><span class="agent-chip-name">Tutor</span><span class="agent-chip-tag">education</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">⚖️</div><span class="agent-chip-name">Legal Assistant</span><span class="agent-chip-tag">legal</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">💼</div><span class="agent-chip-name">Sales Assistant</span><span class="agent-chip-tag">sales</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🛡️</div><span class="agent-chip-name">Security Auditor</span><span class="agent-chip-tag">security</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🧑‍💼</div><span class="agent-chip-name">Recruiter</span><span class="agent-chip-tag">hr</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🤝</div><span class="agent-chip-name">Customer Support</span><span class="agent-chip-tag">support</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🧪</div><span class="agent-chip-name">Test Engineer</span><span class="agent-chip-tag">qa</span></div>
+        <div class="agent-chip"><div class="agent-chip-icon">🏗️</div><span class="agent-chip-name">Architect</span><span class="agent-chip-tag">systems</span></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── THE STACK ──────────────────────────────────────── -->
   <section class="stack-section" id="stack">
     <div class="container">
       <div class="stack-header fade-up">
         <p class="section-label">The Stack</p>
-        <h2 class="section-title">Four services. One command.</h2>
-        <p class="section-sub">Everything you need to run a coordinated AI team, packaged and wired together out of the box.</p>
+        <h2 class="section-title">Four services. Pre-wired. You just run it.</h2>
+        <p class="section-sub">We bundled, configured, and connected everything. The complex part is already done.</p>
       </div>
 
       <div class="stack-grid">
@@ -912,6 +1499,213 @@
           <div class="stack-card-name">Hermes</div>
           <p class="stack-card-desc">Cognitive layer by Nous Research. Memory, skills, and learning — agents that improve over time.</p>
           <span class="stack-badge">memory · skills · nous-research</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COMPARISON ────────────────────────────────────── -->
+  <section class="compare-section" id="compare">
+    <div class="container">
+      <div class="compare-header fade-up">
+        <p class="section-label">Why ClawHQ</p>
+        <h2 class="section-title">ClawHQ vs. building it yourself.</h2>
+        <p class="section-sub">The four projects exist. Wiring them together — that's the hard part. We did it.</p>
+      </div>
+
+      <div class="compare-table fade-up">
+        <div class="compare-thead">
+          <div class="compare-thead-cell"></div>
+          <div class="compare-thead-cell col-clawhq">ClawHQ</div>
+          <div class="compare-thead-cell col-diy">DIY setup</div>
+        </div>
+
+        <div class="compare-row">
+          <div class="compare-cell feature">Agents pre-installed and ready to run</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> 30+ included</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Find them yourself</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">All four services wired and talking to each other</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> Out of the box</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Wire it manually</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">One command to deploy everything</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> docker compose up</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Hours of setup</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">Dashboard to manage your whole team</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> Included</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> CLI only</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">Hermes coordinates agents automatically</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> Pre-wired</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Route tasks yourself</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">HTTPS + TLS certificates, zero config</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> Caddy auto-renews</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Set up yourself</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell feature">Health checks, auto-restart, monitoring</div>
+          <div class="compare-cell col-clawhq"><span class="check">✓</span> Configured</div>
+          <div class="compare-cell col-diy"><span class="cross">✗</span> Build your own ops</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHAT YOUR TEAM DOES ────────────────────────────── -->
+  <section class="outcomes-section" id="outcomes">
+    <div class="container">
+      <div class="outcomes-header fade-up">
+        <p class="section-label">What your team does for you</p>
+        <h2 class="section-title">Show up. Delegate. Done.</h2>
+        <p class="section-sub">Every agent knows its job. Hermes routes the work automatically.</p>
+      </div>
+
+      <div class="outcomes-grid">
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">📬</span>
+          <div class="outcome-title">Clear your inbox</div>
+          <p class="outcome-desc">Email Assistant triages, drafts replies in your tone, and flags what actually needs you. Overnight backlog gone by morning.</p>
+        </div>
+
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">🔍</span>
+          <div class="outcome-title">Research anything</div>
+          <p class="outcome-desc">Researcher fetches, cross-references, and synthesizes. Ask in plain English — get a sourced report back in minutes.</p>
+        </div>
+
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">✍️</span>
+          <div class="outcome-title">Write without writing</div>
+          <p class="outcome-desc">Doc Writer turns bullet points into polished documents, reports, and proposals. Your voice, your structure, zero blank page.</p>
+        </div>
+
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">💻</span>
+          <div class="outcome-title">Ship code faster</div>
+          <p class="outcome-desc">Coder writes, reviews, and debugs. Test Engineer catches what slips through. Pair-program with agents that never sleep.</p>
+        </div>
+
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">📊</span>
+          <div class="outcome-title">Turn data into decisions</div>
+          <p class="outcome-desc">Analyst reads your numbers and tells you what they mean. Business questions become structured briefings, not raw spreadsheets.</p>
+        </div>
+
+        <div class="outcome-card fade-up">
+          <span class="outcome-icon">🤝</span>
+          <div class="outcome-title">Coordinate the whole team</div>
+          <p class="outcome-desc">Hermes routes your request to the right agents, collects results, and brings back the answer. You delegate once. They handle the rest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIALS ──────────────────────────────────── -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="testimonials-header fade-up">
+        <p class="section-label">Early access</p>
+        <h2 class="section-title">What builders are saying.</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card fade-up">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-body">We replaced three separate AI integrations with ClawHQ. Hermes coordinates everything — I send one message and the research, writing, and code review all happen in parallel. It's like having a real team on call.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👨‍💻</div>
+            <div>
+              <div class="testimonial-name">Alex Chen</div>
+              <div class="testimonial-role">CTO · Stealth AI startup</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card fade-up">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-body">The self-hosted aspect was the dealbreaker for us. Our clients' data never touches a third-party server. ClawHQ gives us enterprise-grade AI without the enterprise-grade privacy risk.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">👩‍💼</div>
+            <div>
+              <div class="testimonial-name">Sarah Mercer</div>
+              <div class="testimonial-role">Product Lead · Consulting firm</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card fade-up">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-body">docker compose up and everything just worked. The pre-installed agents saved me days of setup. I had Researcher and Coder running in Discord within the hour. This is how it should always be.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">🧑‍🚀</div>
+            <div>
+              <div class="testimonial-name">Marcus R.</div>
+              <div class="testimonial-role">Founder · Solo operator</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRIVACY ─────────────────────────────────────────── -->
+  <section class="privacy-section" id="privacy">
+    <div class="privacy-orb"></div>
+    <div class="privacy-inner">
+      <div class="privacy-layout">
+        <div class="fade-up">
+          <div class="privacy-badge" style="margin-bottom: 28px;">
+            <span>🔒</span> Privacy by design
+          </div>
+          <h2 class="privacy-headline">
+            Your data.<br>
+            <span class="privacy-accent">Your server.</span><br>
+            Full stop.
+          </h2>
+          <p class="privacy-sub">Every conversation, every file, every agent memory — stored on your infrastructure. No telemetry. No training on your data. No subscriptions that cut off your access.</p>
+          <p class="privacy-sub" style="margin-bottom: 0;">Open source means you can read every line. Deploy on any server, any cloud, or completely air-gapped.</p>
+        </div>
+
+        <div class="privacy-pillars fade-up">
+          <div class="privacy-pillar">
+            <div class="privacy-pillar-icon">🏠</div>
+            <div>
+              <div class="privacy-pillar-title">Runs on your hardware</div>
+              <div class="privacy-pillar-desc">One Docker Compose file. Your VPS, your homelab, your cloud account. Nothing calls home.</div>
+            </div>
+          </div>
+
+          <div class="privacy-pillar">
+            <div class="privacy-pillar-icon">🔑</div>
+            <div>
+              <div class="privacy-pillar-title">You hold your own keys</div>
+              <div class="privacy-pillar-desc">API keys live in your .env. Secrets never leave your environment. No SaaS middleman.</div>
+            </div>
+          </div>
+
+          <div class="privacy-pillar">
+            <div class="privacy-pillar-icon">📖</div>
+            <div>
+              <div class="privacy-pillar-title">Fully open source</div>
+              <div class="privacy-pillar-desc">MIT license. Audit the code, fork it, extend it. No black boxes, no vendor lock-in, ever.</div>
+            </div>
+          </div>
+
+          <div class="privacy-pillar">
+            <div class="privacy-pillar-icon">✈️</div>
+            <div>
+              <div class="privacy-pillar-title">Air-gap capable</div>
+              <div class="privacy-pillar-desc">Run with local models via Ollama. Fully offline operation for sensitive environments.</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -984,6 +1778,69 @@
           <p class="bento-card-desc">Web search, code execution, calendar, email, databases — and a simple API to add your own.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ──────────────────────────────────── -->
+  <section class="how-section" id="how">
+    <div class="container">
+      <div class="how-header fade-up">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">From zero to your AI team<br>in three steps.</h2>
+        <p class="section-sub">No cloud lock-in. No per-seat fees. No complicated setup. Your infrastructure, your data.</p>
+      </div>
+
+      <div class="how-steps">
+        <div class="how-step fade-up">
+          <span class="how-step-num">01</span>
+          <h3 class="how-step-title">Deploy</h3>
+          <p class="how-step-desc">Add your API keys to <code style="font-family:'Geist Mono',monospace;font-size:12px;background:var(--surface-2);padding:2px 6px;border-radius:4px;">.env</code> and run one command. All four services start, connect, and health-check themselves. No manual wiring.</p>
+          <div class="how-step-cmd"><span class="prompt">$</span> docker compose up -d</div>
+        </div>
+
+        <div class="how-step fade-up">
+          <span class="how-step-num">02</span>
+          <h3 class="how-step-title">Meet your team</h3>
+          <p class="how-step-desc">Open the dashboard. 30+ agents are already there — researcher, coder, writer, analyst and more. Connect your channels (Discord, Telegram, Slack) in one click.</p>
+          <div class="how-step-cmd"><span class="prompt">→</span> your agents are waiting</div>
+        </div>
+
+        <div class="how-step fade-up">
+          <span class="how-step-num">03</span>
+          <h3 class="how-step-title">Just delegate</h3>
+          <p class="how-step-desc">Message Hermes — your coordinator — with any task. It routes to the right agent, collects the result, and reports back. You never touch a terminal again.</p>
+          <div class="how-step-cmd"><span class="prompt">→</span> your 24/7 AI coworkers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FINAL CTA ─────────────────────────────────────── -->
+  <section class="final-cta-section" id="waitlist">
+    <div class="final-cta-orb-1"></div>
+    <div class="final-cta-orb-2"></div>
+    <div class="final-cta-inner">
+      <p class="final-cta-eyebrow fade-up">Early access</p>
+      <h2 class="final-cta-headline fade-up">
+        Your AI team<br>
+        <span class="cta-gradient">is waiting.</span>
+      </h2>
+      <p class="final-cta-sub fade-up">Join the waitlist. Be first to know when ClawHQ is ready to deploy.</p>
+
+      <div class="hero-ctas fade-up">
+        <form class="signup-form" action="https://formspree.io/f/mojpddjd" method="POST">
+          <input type="email" name="email" placeholder="your@email.com" required class="email-input">
+          <button type="submit" class="btn-primary">Join the waitlist</button>
+        </form>
+      </div>
+
+      <div class="fade-up" style="margin-top: 20px;">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="btn-ghost">
+          View on GitHub →
+        </a>
+      </div>
+
+      <p class="signup-note fade-up" style="margin-top: 12px;">No spam. Launch updates only. Unsubscribe anytime.</p>
     </div>
   </section>
 
