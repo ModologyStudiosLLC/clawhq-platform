@@ -138,6 +138,8 @@ services:
       # Bridge URLs — Hermes uses these to delegate to OpenFang and Paperclip
       OPENFANG_INTERNAL_URL: http://openfang:4200
       PAPERCLIP_INTERNAL_URL: http://paperclip:3100
+      # Clawhip — fire events (session.started, session.finished, etc.)
+      CLAWHIP_INTERNAL_URL: http://clawhip:25294
     volumes:
       - hermes-data:/opt/data
     # Not exposed publicly — dashboard queries via internal URL
@@ -168,6 +170,7 @@ services:
       PAPERCLIP_INTERNAL_URL: http://paperclip:3100
       OPENFANG_INTERNAL_URL: http://openfang:4200
       HERMES_INTERNAL_URL: http://hermes:4300
+      CLAWHIP_INTERNAL_URL: http://clawhip:25294
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
       NEXTAUTH_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
     # Not exposed publicly — Caddy proxies it
@@ -182,6 +185,40 @@ services:
         condition: service_healthy
       hermes:
         condition: service_started
+    restart: unless-stopped
+    networks:
+      - clawhq
+
+  # ─── Clawhip — event notification router (Git/GitHub/tmux → Discord/Slack) ─
+  # Monitors Git commits, GitHub events, tmux sessions, and agent lifecycle
+  # events — routes them to Discord or Slack. Other services reach it at
+  # http://clawhip:25294. Fire events with: clawhip send --channel <id> --message "..."
+  clawhip:
+    build:
+      context: ./services/clawhip
+      dockerfile: Dockerfile
+    environment:
+      # Discord — use a dedicated bot token (separate from Hermes)
+      CLAWHIP_DISCORD_TOKEN: ${CLAWHIP_DISCORD_TOKEN:-}
+      CLAWHIP_DISCORD_CHANNEL_ID: ${CLAWHIP_DISCORD_CHANNEL_ID:-}
+      # Fallback: webhook URL instead of bot token (only one needed)
+      CLAWHIP_DISCORD_WEBHOOK: ${CLAWHIP_DISCORD_WEBHOOK:-}
+      # Slack (optional)
+      CLAWHIP_SLACK_WEBHOOK: ${CLAWHIP_SLACK_WEBHOOK:-}
+      # GitHub event source (optional — PR/issue notifications)
+      CLAWHIP_GITHUB_TOKEN: ${CLAWHIP_GITHUB_TOKEN:-}
+      CLAWHIP_GITHUB_REPOS: ${CLAWHIP_GITHUB_REPOS:-}
+      CLAWHIP_LOG_LEVEL: ${CLAWHIP_LOG_LEVEL:-info}
+    volumes:
+      - clawhip-data:/var/lib/clawhip
+    expose:
+      - "25294"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:25294/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     networks:
       - clawhq
@@ -215,6 +252,7 @@ volumes:
   openfang-data:
   paperclip-data:
   hermes-data:
+  clawhip-data:
   caddy-data:
   caddy-config:
 
