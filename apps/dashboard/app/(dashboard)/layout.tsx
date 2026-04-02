@@ -1,12 +1,10 @@
-import { getSession } from '@workos-inc/authkit-nextjs';
+import { withAuth } from '@workos-inc/authkit-nextjs';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { DashboardShell } from "@/components/layout/shell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // getSession reads the session cookie directly without requiring middleware headers.
-  const session = await getSession();
-  const user = session?.user;
+  const { user } = await withAuth();
 
   if (!user) {
     redirect('/sign-in');
