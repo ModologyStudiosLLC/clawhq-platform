@@ -18,6 +18,7 @@ import {
   HeartPulse,
   Network,
   Shield,
+  KeyRound,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -42,6 +43,7 @@ const nav = [
 ];
 
 const bottom = [
+  { href: "/sso", label: "SSO", icon: KeyRound },
   { href: "/sandbox", label: "Sandbox", icon: Shield },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/deploy", label: "Deploy", icon: Rocket },
