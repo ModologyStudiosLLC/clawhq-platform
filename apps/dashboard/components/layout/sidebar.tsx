@@ -14,6 +14,7 @@ import {
   Brain,
   Rocket,
   LogOut,
+  Container,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -31,6 +32,7 @@ const nav = [
   { href: "/hermes", label: "Hermes", icon: Brain, accent: true },
   { href: "/channels", label: "Channels", icon: Radio },
   { href: "/activity", label: "Activity", icon: ScrollText },
+  { href: "/services", label: "Services", icon: Container },
   { href: "/budget", label: "Budget", icon: Wallet },
 ];
 

@@ -3,5 +3,9 @@
   "compatibility_date": "2026-01-01",
   "assets": {
     "directory": "landing"
-  }
+  },
+  "routes": [
+    { "pattern": "clawhqplatform.com/*", "zone_name": "clawhqplatform.com" },
+    { "pattern": "www.clawhqplatform.com/*", "zone_name": "clawhqplatform.com" }
+  ]
 }

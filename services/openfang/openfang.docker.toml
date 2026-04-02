@@ -33,3 +33,20 @@ max_summary_tokens = 1024
 
 # Usage tracking in agent responses
 # usage_footer = "Full"
+
+# ── ClawHQ default agent roster ──────────────────────────────────────────────
+# These agents ship pre-installed in the OpenFang Docker image at
+# /opt/openfang/agents/. They are loaded automatically on first boot.
+# To disable one, set autostart = false for that agent via the API or dashboard.
+#
+# Default active agents (maps to the ClawHQ skill set):
+#   assistant      — General-purpose assistant (always-on)
+#   researcher     — Web research and synthesis
+#   email-assistant — Email triage, drafting, scheduling
+#   doc-writer     — Documents, reports, summaries
+#   coder          — Code generation and review
+#   analyst        — Data and business analysis
+#   social-media   — Social content and strategy
+#   planner        — Task planning and automation
+#
+# Full agent library (30+ total) lives at /opt/openfang/agents/ in the image.

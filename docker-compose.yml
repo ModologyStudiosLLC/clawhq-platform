@@ -171,6 +171,7 @@ services:
       OPENFANG_INTERNAL_URL: http://openfang:4200
       HERMES_INTERNAL_URL: http://hermes:4300
       CLAWHIP_INTERNAL_URL: http://clawhip:25294
+      DOCKER_PROXY_URL: http://docker-proxy:2375
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
       NEXTAUTH_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
     # Not exposed publicly — Caddy proxies it
@@ -223,6 +224,33 @@ services:
     networks:
       - clawhq
 
+  # ─── Docker Socket Proxy — scoped Docker API access for Services UI ─────────
+  # Exposes a SUBSET of the Docker API over TCP with an explicit allowlist.
+  # The dashboard never mounts the raw Docker socket — it talks to this proxy.
+  # Profile: services-ui (opt-in, not started by default)
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    profiles: [services-ui]
+    environment:
+      CONTAINERS: 1
+      INFO: 1
+      EVENTS: 1
+      POST: 1
+      AUTH: 0
+      IMAGES: 0
+      NETWORKS: 0
+      VOLUMES: 0
+      SERVICES: 0
+      TASKS: 0
+      EXEC: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    expose:
+      - "2375"
+    restart: unless-stopped
+    networks:
+      - clawhq
+
   # ─── Caddy — HTTPS reverse proxy ──────────────────────────────────────────
   # Terminates TLS using Let's Encrypt. Set CLAWHQ_DOMAIN in .env to your
   # public domain (e.g. clawhq.example.com). Caddy obtains and renews the
@@ -255,6 +283,8 @@ volumes:
   clawhip-data:
   caddy-data:
   caddy-config:
+  tailscale-state:
+  portainer-data:
 
 networks:
   clawhq:
