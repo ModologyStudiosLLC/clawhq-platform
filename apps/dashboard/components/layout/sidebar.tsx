@@ -17,6 +17,7 @@ import {
   Container,
   HeartPulse,
   Network,
+  Shield,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -41,6 +42,7 @@ const nav = [
 ];
 
 const bottom = [
+  { href: "/sandbox", label: "Sandbox", icon: Shield },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/deploy", label: "Deploy", icon: Rocket },
 ];

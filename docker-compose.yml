@@ -64,6 +64,10 @@ services:
       # Mount Docker-specific config so OpenFang binds to 0.0.0.0 (required
       # for the dashboard to reach it across the Docker bridge network).
       - ./services/openfang/openfang.docker.toml:/data/config.toml:ro
+    # Restrictive seccomp profile — blocks ptrace, mount, namespace syscalls
+    security_opt:
+      - seccomp:./services/openfang/security/seccomp-agent.json
+      - no-new-privileges:true
     # Not exposed publicly — internal only
     expose:
       - "4200"   # HTTP API
