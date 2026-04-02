@@ -1258,6 +1258,95 @@
     @media (max-width: 768px) {
       .outcomes-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── USE CASE PACKS ───────────────────────────────────── */
+    .usecases-section { background: var(--surface-2); }
+    [data-theme="light"] .usecases-section { background: var(--bg); }
+    .usecases-header { margin-bottom: 56px; }
+    .usecases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      max-width: var(--max-w); margin: 0 auto;
+    }
+    .usecase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex; flex-direction: column; gap: 20px;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+    .usecase-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .usecase-card--engineering::before { background: var(--primary); }
+    .usecase-card--sales::before { background: var(--secondary); }
+    .usecase-card--support::before { background: var(--hermes); }
+    .usecase-card--ops::before { background: var(--primary); opacity: 0.6; }
+    .usecase-card:hover {
+      border-color: rgba(105,218,255,0.2);
+      transform: translateY(-2px);
+      background: var(--surface-2);
+    }
+    [data-theme="light"] .usecase-card:hover { border-color: rgba(0,87,217,0.15); }
+    .usecase-card-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .usecase-card-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+    .usecase-card-channel {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface-2);
+      white-space: nowrap;
+    }
+    .usecase-card-title {
+      font-family: 'Newsreader', serif;
+      font-weight: 700; font-size: 20px;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .usecase-card-desc {
+      font-size: 14px; color: var(--text-muted); line-height: 1.65;
+    }
+    .usecase-agents {
+      display: flex; flex-direction: column; gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .usecase-agents-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-subtle);
+      margin-bottom: 4px;
+    }
+    .usecase-agent {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .usecase-agent::before {
+      content: '';
+      display: block; width: 5px; height: 5px;
+      border-radius: 50%; background: var(--primary); flex-shrink: 0;
+    }
+    .usecase-card--sales .usecase-agent::before { background: var(--secondary); }
+    .usecase-card--support .usecase-agent::before { background: var(--hermes); }
+    @media (max-width: 768px) {
+      .usecases-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -1282,6 +1371,7 @@
         <span class="nav-by">by Modology Studios</span>
       </div>
       <div class="nav-links">
+        <a href="#usecases">Use Cases</a>
         <a href="#compare">Why ClawHQ</a>
         <a href="#privacy">Privacy</a>
         <a href="#how">How it works</a>
@@ -1604,6 +1694,89 @@
           <div class="outcome-title">Coordinate the whole team</div>
           <p class="outcome-desc">Hermes routes your request to the right agents, collects results, and brings back the answer. You delegate once. They handle the rest.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── USE CASE PACKS ────────────────────────────────── -->
+  <section class="usecases-section" id="usecases">
+    <div class="container">
+      <div class="usecases-header fade-up">
+        <p class="section-label">Use Case Packs</p>
+        <h2 class="section-title">Deploy a team for your team.</h2>
+        <p class="section-sub">Pre-wired agent packs for common workflows. Each one is ready the moment your stack comes up.</p>
+      </div>
+
+      <div class="usecases-grid">
+
+        <div class="usecase-card usecase-card--engineering fade-up">
+          <div class="usecase-card-header">
+            <div class="usecase-card-icon">⚙️</div>
+            <span class="usecase-card-channel">Slack · Discord</span>
+          </div>
+          <div>
+            <div class="usecase-card-title">Engineering Team</div>
+            <p class="usecase-card-desc">Your agents join Slack or Discord and handle the toil engineers hate. PR reviews, release notes, and bug triage — automatic, on every commit.</p>
+          </div>
+          <div class="usecase-agents">
+            <div class="usecase-agents-label">Included agents</div>
+            <div class="usecase-agent">PR Reviewer — reviews diffs, flags issues, suggests fixes</div>
+            <div class="usecase-agent">Release Notes Writer — drafts changelogs from git history</div>
+            <div class="usecase-agent">Bug Triage — classifies incoming issues, assigns severity</div>
+          </div>
+        </div>
+
+        <div class="usecase-card usecase-card--sales fade-up">
+          <div class="usecase-card-header">
+            <div class="usecase-card-icon">📈</div>
+            <span class="usecase-card-channel">Slack · Telegram</span>
+          </div>
+          <div>
+            <div class="usecase-card-title">Sales Team</div>
+            <p class="usecase-card-desc">Your agents research leads, draft outreach, and keep your CRM updated — without anyone having to remember to do it. Just paste a name and let them go.</p>
+          </div>
+          <div class="usecase-agents">
+            <div class="usecase-agents-label">Included agents</div>
+            <div class="usecase-agent">Lead Researcher — enriches contacts with context and signals</div>
+            <div class="usecase-agent">Outreach Drafter — writes personalized first messages</div>
+            <div class="usecase-agent">CRM Note Taker — logs meeting notes directly to your CRM</div>
+          </div>
+        </div>
+
+        <div class="usecase-card usecase-card--support fade-up">
+          <div class="usecase-card-header">
+            <div class="usecase-card-icon">🎧</div>
+            <span class="usecase-card-channel">Discord · Slack</span>
+          </div>
+          <div>
+            <div class="usecase-card-title">Customer Support</div>
+            <p class="usecase-card-desc">Triage every ticket before a human sees it. Your agents classify, search the knowledge base, and draft a reply — your team just reviews and sends.</p>
+          </div>
+          <div class="usecase-agents">
+            <div class="usecase-agents-label">Included agents</div>
+            <div class="usecase-agent">Ticket Classifier — categorizes and prioritizes incoming requests</div>
+            <div class="usecase-agent">KB Search Agent — finds relevant docs and past resolutions</div>
+            <div class="usecase-agent">Reply Drafter — writes a first-pass response for human review</div>
+          </div>
+        </div>
+
+        <div class="usecase-card usecase-card--ops fade-up">
+          <div class="usecase-card-header">
+            <div class="usecase-card-icon">🗂️</div>
+            <span class="usecase-card-channel">Slack · Email</span>
+          </div>
+          <div>
+            <div class="usecase-card-title">Operations &amp; Leadership</div>
+            <p class="usecase-card-desc">Start every morning with a briefing that wrote itself — news, metrics, open items, and what your team shipped yesterday. Scheduled, consistent, zero effort.</p>
+          </div>
+          <div class="usecase-agents">
+            <div class="usecase-agents-label">Included agents</div>
+            <div class="usecase-agent">Daily Briefing — morning digest of news and internal metrics</div>
+            <div class="usecase-agent">Meeting Summarizer — extracts decisions and action items</div>
+            <div class="usecase-agent">Status Reporter — compiles weekly team progress reports</div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
