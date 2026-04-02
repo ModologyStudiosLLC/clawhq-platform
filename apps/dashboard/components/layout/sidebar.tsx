@@ -16,6 +16,7 @@ import {
   LogOut,
   Container,
   HeartPulse,
+  Network,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -35,6 +36,7 @@ const nav = [
   { href: "/activity", label: "Activity", icon: ScrollText },
   { href: "/services", label: "Services", icon: Container },
   { href: "/health", label: "Health", icon: HeartPulse },
+  { href: "/tunnels", label: "Tunnels", icon: Network },
   { href: "/budget", label: "Budget", icon: Wallet },
 ];
 

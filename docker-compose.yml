@@ -251,6 +251,43 @@ services:
     networks:
       - clawhq
 
+  # ─── Tailscale — zero-config VPN tunnel (opt-in) ────────────────────────────
+  # Gives the ClawHQ stack a Tailscale IP so you can reach it from any device
+  # on your tailnet without opening public ports. Start with:
+  #   docker compose --profile tunnel-ts up -d
+  # Then run: docker compose exec tailscale tailscale up --authkey=<TSKEY>
+  tailscale:
+    image: tailscale/tailscale:latest
+    profiles: [tunnel-ts]
+    hostname: clawhq
+    environment:
+      TS_AUTHKEY: ${TAILSCALE_AUTHKEY:-}
+      TS_EXTRA_ARGS: ${TAILSCALE_EXTRA_ARGS:---advertise-tags=tag:clawhq}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_USERSPACE: "false"
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host          # must use host mode to proxy into the clawhq bridge
+    restart: unless-stopped
+
+  # ─── Cloudflare Tunnel — public HTTPS via Cloudflare Zero Trust ─────────────
+  # Exposes the dashboard over a Cloudflare Tunnel — no open ports required.
+  # Start with:  docker compose --profile tunnel-cf up -d
+  # Create a tunnel token at dash.cloudflare.com → Zero Trust → Tunnels.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    profiles: [tunnel-cf]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?Set CLOUDFLARE_TUNNEL_TOKEN in .env to use Cloudflare Tunnel}
+    restart: unless-stopped
+    networks:
+      - clawhq
+
   # ─── Caddy — HTTPS reverse proxy ──────────────────────────────────────────
   # Terminates TLS using Let's Encrypt. Set CLAWHQ_DOMAIN in .env to your
   # public domain (e.g. clawhq.example.com). Caddy obtains and renews the
