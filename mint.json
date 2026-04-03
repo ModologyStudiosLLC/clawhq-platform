@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "ClawHQ Docs",
+  "name": "ClawHQ",
   "logo": {
     "dark": "/images/logo-dark.svg",
     "light": "/images/logo-light.svg"
