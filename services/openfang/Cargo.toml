@@ -134,7 +134,7 @@ regex-lite = "0.1"
 rmcp = { version = "1.2", default-features = false, features = ["client", "transport-child-process", "transport-streamable-http-client-reqwest", "reqwest"] }
 
 # Socket options (SO_REUSEADDR)
-socket2 = "0.5"
+socket2 = "0.6"
 
 # Zip archive extraction
 zip = { version = "4", default-features = false, features = ["deflate"] }
