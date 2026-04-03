@@ -1,0 +1,7 @@
+services/
+apps/
+landing/
+marketing/
+packs/
+.github/
+node_modules/
