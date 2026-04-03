@@ -32,7 +32,7 @@ regex-lite = { workspace = true }
 rusqlite = { workspace = true }
 rmcp = { workspace = true }
 http = "1"
-tokio-tungstenite = "0.24"
+tokio-tungstenite = "0.28"
 shlex = "1"
 
 [dev-dependencies]
