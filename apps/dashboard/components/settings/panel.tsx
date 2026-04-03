@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Check, RefreshCw, Eye, EyeOff, Zap, Shield, Bot, Wallet, Sliders,
-  ChevronDown, AlertTriangle, Sparkles, X, Save
+  ChevronDown, AlertTriangle, Sparkles, X, Save, Plug
 } from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
 import { toast } from "sonner";
@@ -707,6 +707,271 @@ function ProposalBanner({ diff, onAccept, onReject }: {
   );
 }
 
+// ── Tab: Integrations (MCP Tier 1) ────────────────────────────────────────────
+
+interface IntegrationConfig {
+  enabled: boolean;
+  credential: string;
+  status: "idle" | "testing" | "ok" | "error";
+  errorMsg?: string;
+}
+
+type IntegrationsState = Record<string, IntegrationConfig>;
+
+interface IntegrationDef {
+  id: string;
+  name: string;
+  description: string;
+  credentialLabel: string;
+  credentialType: "text" | "password";
+  credentialPlaceholder: string;
+}
+
+const INTEGRATION_DEFS: IntegrationDef[] = [
+  {
+    id: "filesystem",
+    name: "Filesystem",
+    description: "Read/write local files and directories",
+    credentialLabel: "Root path",
+    credentialType: "text",
+    credentialPlaceholder: "/home/user/files",
+  },
+  {
+    id: "memory",
+    name: "Memory",
+    description: "Persistent key-value memory across sessions",
+    credentialLabel: "Storage path",
+    credentialType: "text",
+    credentialPlaceholder: "~/.clawhq/memory",
+  },
+  {
+    id: "postgres",
+    name: "PostgreSQL",
+    description: "Query and manage PostgreSQL databases",
+    credentialLabel: "Connection string",
+    credentialType: "password",
+    credentialPlaceholder: "postgresql://user:pass@localhost:5432/db",
+  },
+  {
+    id: "brave-search",
+    name: "Brave Search",
+    description: "Web search via Brave Search API",
+    credentialLabel: "API key",
+    credentialType: "password",
+    credentialPlaceholder: "BSA...",
+  },
+];
+
+function IntegrationCard({
+  def,
+  config,
+  onChange,
+}: {
+  def: IntegrationDef;
+  config: IntegrationConfig;
+  onChange: (patch: Partial<IntegrationConfig>) => void;
+}) {
+  async function handleTest() {
+    onChange({ status: "testing", errorMsg: undefined });
+    try {
+      const res = await fetch(`/api/integrations/${def.id}/test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: config.credential }),
+      });
+      const data = await res.json() as { ok: boolean; message: string };
+      onChange({ status: data.ok ? "ok" : "error", errorMsg: data.ok ? undefined : data.message });
+    } catch (err) {
+      onChange({ status: "error", errorMsg: String(err) });
+    }
+  }
+
+  const statusColor =
+    config.status === "ok" ? "var(--color-secondary)" :
+    config.status === "error" ? "var(--color-error, #ef4444)" :
+    "var(--color-text-muted)";
+
+  return (
+    <div style={{
+      padding: "1rem 1.25rem",
+      borderBottom: "1px solid var(--color-border)",
+    }}>
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: config.enabled ? "0.75rem" : 0 }}>
+        {/* Toggle */}
+        <button
+          onClick={() => onChange({ enabled: !config.enabled, status: "idle", errorMsg: undefined })}
+          style={{
+            flexShrink: 0,
+            width: "2.25rem",
+            height: "1.25rem",
+            borderRadius: "0.625rem",
+            border: "none",
+            cursor: "pointer",
+            position: "relative",
+            background: config.enabled ? "var(--color-primary)" : "var(--color-surface-2)",
+            transition: "background 0.15s",
+            outline: "1px solid var(--color-border)",
+          }}
+          aria-label={`${config.enabled ? "Disable" : "Enable"} ${def.name}`}
+        >
+          <span style={{
+            display: "block",
+            width: "0.875rem",
+            height: "0.875rem",
+            borderRadius: "50%",
+            background: config.enabled ? "#0e0e10" : "var(--color-text-muted)",
+            position: "absolute",
+            top: "50%",
+            transform: `translateY(-50%) translateX(${config.enabled ? "1.125rem" : "0.125rem"})`,
+            transition: "transform 0.15s",
+          }} />
+        </button>
+
+        {/* Name + description */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+            {def.name}
+          </p>
+          <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", margin: 0 }}>
+            {def.description}
+          </p>
+        </div>
+
+        {/* Status badge */}
+        {config.status !== "idle" && (
+          <span style={{ fontSize: "0.7rem", fontWeight: 600, color: statusColor, flexShrink: 0 }}>
+            {config.status === "testing" && <RefreshCw size={12} style={{ display: "inline", verticalAlign: "middle", animation: "spin 1s linear infinite" }} />}
+            {config.status === "ok" && <Check size={12} style={{ display: "inline", verticalAlign: "middle" }} />}
+            {config.status === "error" && <AlertTriangle size={12} style={{ display: "inline", verticalAlign: "middle" }} />}
+            {" "}
+            {config.status === "testing" ? "Testing…" : config.status === "ok" ? "Connected" : "Error"}
+          </span>
+        )}
+      </div>
+
+      {/* Credential field + test button — only when enabled */}
+      {config.enabled && (
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 0.75rem", borderRadius: "0.5rem", background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+            <label style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--color-text-subtle)", flexShrink: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              {def.credentialLabel}
+            </label>
+            <input
+              type={def.credentialType}
+              value={config.credential}
+              onChange={e => onChange({ credential: e.target.value, status: "idle", errorMsg: undefined })}
+              placeholder={def.credentialPlaceholder}
+              style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: "0.8125rem", color: "var(--color-text)" }}
+            />
+          </div>
+          <button
+            onClick={handleTest}
+            disabled={config.status === "testing" || !config.credential.trim()}
+            style={{
+              flexShrink: 0,
+              padding: "0.5rem 0.875rem",
+              borderRadius: "0.5rem",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              cursor: config.status === "testing" || !config.credential.trim() ? "not-allowed" : "pointer",
+              opacity: config.status === "testing" || !config.credential.trim() ? 0.45 : 1,
+              background: "var(--color-surface-2)",
+              color: "var(--color-text-muted)",
+              border: "1px solid var(--color-border)",
+              transition: "opacity 0.15s",
+            }}
+          >
+            Test
+          </button>
+        </div>
+      )}
+
+      {/* Inline error message */}
+      {config.status === "error" && config.errorMsg && (
+        <p style={{ fontSize: "0.75rem", marginTop: "0.375rem", color: "var(--color-error, #ef4444)", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          <AlertTriangle size={11} style={{ flexShrink: 0 }} />
+          {config.errorMsg}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const DEFAULT_INTEGRATION_CONFIG: IntegrationConfig = { enabled: false, credential: "", status: "idle" };
+
+function IntegrationsTab() {
+  const [state, setState] = useState<IntegrationsState>(() =>
+    Object.fromEntries(INTEGRATION_DEFS.map(d => [d.id, { ...DEFAULT_INTEGRATION_CONFIG }]))
+  );
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/integrations")
+      .then(r => r.json() as Promise<{ integrations: Record<string, { enabled: boolean; credential: string }> }>)
+      .then(({ integrations }) => {
+        setState(prev => {
+          const next = { ...prev };
+          for (const [id, entry] of Object.entries(integrations)) {
+            next[id] = { ...DEFAULT_INTEGRATION_CONFIG, ...entry };
+          }
+          return next;
+        });
+      })
+      .catch(() => setLoadError(true));
+  }, []);
+
+  function updateConfig(id: string, patch: Partial<IntegrationConfig>) {
+    setState(prev => {
+      const next = { ...prev, [id]: { ...prev[id]!, ...patch } };
+      // Persist enabled + credential changes (not status/errorMsg)
+      if ("enabled" in patch || "credential" in patch) {
+        const payload: Record<string, { enabled: boolean; credential: string }> = {};
+        for (const [integId, cfg] of Object.entries(next)) {
+          payload[integId] = { enabled: cfg.enabled, credential: cfg.credential };
+        }
+        fetch("/api/integrations", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }).catch(() => { /* graceful */ });
+      }
+      return next;
+    });
+  }
+
+  return (
+    <div>
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: "1.25rem 1.25rem 0.75rem", borderBottom: "1px solid var(--color-border)" }}>
+          <h2 className="text-sm font-bold uppercase tracking-widest"
+            style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)", marginBottom: "0.25rem" }}>
+            MCP Integrations
+          </h2>
+          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            Enable Model Context Protocol servers to extend your agents with external capabilities.
+          </p>
+          {loadError && (
+            <p className="text-xs mt-2" style={{ color: "var(--color-error, #ef4444)" }}>
+              <AlertTriangle size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.25rem" }} />
+              Could not load saved integrations — changes will still be saved.
+            </p>
+          )}
+        </div>
+
+        {INTEGRATION_DEFS.map(def => (
+          <IntegrationCard
+            key={def.id}
+            def={def}
+            config={state[def.id] ?? { ...DEFAULT_INTEGRATION_CONFIG }}
+            onChange={patch => updateConfig(def.id, patch)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -714,6 +979,7 @@ const TABS = [
   { id: "agents", label: "Agents", icon: Bot },
   { id: "channels", label: "Channels", icon: Zap },
   { id: "budget", label: "Budget", icon: Wallet },
+  { id: "integrations", label: "Integrations", icon: Plug },
 ];
 
 export function SettingsPanel() {
@@ -814,9 +1080,10 @@ export function SettingsPanel() {
         {activeTab === "agents" && <AgentsTab settings={settings} onChange={patch} />}
         {activeTab === "channels" && <ChannelsTab onOpenWizard={ch => { setWizardChannel(ch); setWizardOpen(true); }} />}
         {activeTab === "budget" && <BudgetTab settings={settings} onChange={patch} />}
+        {activeTab === "integrations" && <IntegrationsTab />}
 
-        {/* NL input (not shown on channels tab since it doesn't affect keyed secrets) */}
-        {activeTab !== "channels" && (
+        {/* NL input (not shown on channels/integrations tabs since they don't affect general settings) */}
+        {activeTab !== "channels" && activeTab !== "integrations" && (
           <div className="mt-6">
             <NaturalLanguageInput currentSettings={settings} onPropose={setProposal} />
           </div>
