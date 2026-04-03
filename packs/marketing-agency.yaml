@@ -1,0 +1,136 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: marketing-agency
+  namespace: clawhq
+  version: "1.0.0"
+  description: >
+    End-to-end content and campaign operations for marketing teams and agencies.
+    Strategy, copy, SEO, client reporting, and social scheduling — fully automated
+    with human approval on final deliverables.
+
+spec:
+  agents:
+    - ref: clawhq://content-strategist
+      role: strategy
+      priority: 1
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer, calendar]
+        instructions: |
+          You are a Content Strategist. Research industry trends, competitor content,
+          and audience signals. Produce a weekly content calendar with topics, formats,
+          channels, and target keywords. Prioritize topics with high search intent and
+          low competition. Format output as a structured brief the copywriter can act on.
+
+    - ref: clawhq://copywriter
+      role: copy
+      priority: 2
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        temperature: 0.7
+        instructions: |
+          You are a Copywriter. Write compelling, on-brand copy for blog posts,
+          social captions, email campaigns, and ad creative. Match the brand voice.
+          Always write a headline, subheadline, body, and CTA. For long-form content,
+          include an SEO meta description and suggested internal links.
+
+    - ref: clawhq://seo-analyst
+      role: seo
+      priority: 3
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        instructions: |
+          You are an SEO Analyst. For any piece of content, audit: target keyword
+          density, title tag, meta description, header structure, internal linking,
+          and readability score. Flag issues and suggest fixes. Research top-ranking
+          competitors for the target keyword and extract their structure.
+
+    - ref: clawhq://social-scheduler
+      role: scheduling
+      priority: 4
+      config:
+        model: claude-haiku-4-5
+        tools: [doc_writer, calendar]
+        instructions: |
+          You are a Social Scheduler. Take approved content and generate platform-specific
+          versions: Twitter/X (280 chars), LinkedIn (600-900 chars), Instagram caption
+          with hashtags. Schedule posts at optimal times per platform. Flag posts that
+          need visual assets.
+
+    - ref: clawhq://client-reporter
+      role: reporting
+      priority: 5
+      config:
+        model: claude-haiku-4-5
+        tools: [web_search, doc_writer]
+        instructions: |
+          You are a Client Reporter. Generate weekly and monthly performance summaries.
+          Pull metrics, compare to benchmarks, highlight wins, flag underperformers,
+          and recommend next actions. Format as an executive-ready report — clear
+          numbers up top, detail in appendix. Keep it under 400 words for weeklies.
+
+  pipelines:
+    - name: weekly-content-calendar
+      trigger: cron "0 9 * * MON"
+      steps:
+        - agent: content-strategist
+          action: "Research this week's top topics in our industry and produce a 5-day content calendar"
+          deliver_to: "#marketing"
+
+        - agent: copywriter
+          action: "Draft copy for Monday and Tuesday content from the calendar"
+          hitl: true
+          deliver_to: "content-lead"
+
+        - agent: seo-analyst
+          action: "Audit drafted content for SEO and return a score with fixes"
+
+    - name: content-on-demand
+      trigger: command "write {content_type} about {topic}"
+      steps:
+        - agent: seo-analyst
+          action: "Research keyword opportunity for the topic"
+        - agent: copywriter
+          action: "Write the content using SEO brief"
+          hitl: true
+        - agent: social-scheduler
+          action: "Generate social variants of approved content"
+
+    - name: monthly-report
+      trigger: cron "0 8 1 * *"
+      steps:
+        - agent: client-reporter
+          action: "Generate last month's performance report"
+          hitl: true
+          deliver_to: "account-manager"
+
+  settings:
+    hitl:
+      enabled: true
+      human_handles:
+        - "Final content approval before publishing"
+        - "Client-facing reports"
+        - "Ad creative sign-off"
+        - "Brand voice decisions"
+      ai_handles:
+        - "Topic research and trend monitoring"
+        - "First draft copy"
+        - "SEO audits"
+        - "Social caption variations"
+        - "Scheduling and format adaptation"
+
+  metrics:
+    - name: "content_output_per_week"
+      target: "3x current volume"
+    - name: "time_to_first_draft"
+      target: "< 10 minutes"
+    - name: "seo_score_average"
+      target: "> 80/100"
+
+# Required env vars: none
+# Optional: BRAND_VOICE — description of brand tone for copywriter
+# Optional: TARGET_KEYWORDS — comma-separated seed keywords
+# Optional: PUBLISH_CHANNELS — comma-separated: twitter,linkedin,instagram

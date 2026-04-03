@@ -1248,6 +1248,9 @@ const PACK_CATALOG: Record<string, PackMeta> = {
   "augmented-sales":       { id: "augmented-sales",       name: "Augmented Sales",         description: "Sales team agents — lead qualification, pipeline review, outreach drafting." },
   "augmented-support":     { id: "augmented-support",     name: "Augmented Support",       description: "Customer support agents — triage, response drafting, escalation routing." },
   "creator-suite":         { id: "creator-suite",         name: "Creator Suite",           description: "12-agent content system — scripting, scheduling, repurposing, analytics." },
+  "marketing-agency":      { id: "marketing-agency",      name: "Marketing Agency",        description: "Content strategy, copywriting, SEO, social scheduling, and client reporting agents." },
+  "real-estate":           { id: "real-estate",           name: "Real Estate",             description: "Listing copy, lead follow-up, market research, offer strategy, and open house prep agents." },
+  "ecommerce":             { id: "ecommerce",             name: "E-commerce",              description: "Product copy, review responses, competitor pricing, inventory alerts, and cart recovery agents." },
   "trades-library":        { id: "trades-library",        name: "Trades Library",          description: "Agents and workflows for skilled trades businesses and field service teams." },
 };
 

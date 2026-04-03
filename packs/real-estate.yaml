@@ -1,0 +1,151 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: real-estate
+  namespace: clawhq
+  version: "1.0.0"
+  description: >
+    AI agents for real estate agents and brokerages. Automates listing copy,
+    lead follow-up, market research, and buyer/seller communication — so agents
+    spend time closing deals, not writing emails.
+
+spec:
+  agents:
+    - ref: clawhq://listing-writer
+      role: listings
+      priority: 1
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        temperature: 0.6
+        instructions: |
+          You are a Listing Copywriter. Write compelling MLS listings and marketing
+          descriptions for residential and commercial properties. Lead with the
+          property's strongest selling point. Use sensory language. Include: headline,
+          main description (150-200 words), key features bullet list, and neighborhood
+          blurb. Avoid clichés like "cozy" and "must-see." Tailor tone to property
+          type — luxury vs. starter home vs. investment property.
+
+    - ref: clawhq://lead-follow-up
+      role: nurture
+      priority: 2
+      config:
+        model: claude-haiku-4-5
+        tools: [doc_writer, calendar]
+        instructions: |
+          You are a Lead Follow-Up Agent. Draft personalized follow-up messages for
+          real estate leads. For new inquiries: respond within 5 minutes with a
+          warm, specific reply referencing what they asked about. For nurture sequences:
+          weekly check-ins that add value (new listings, market update, useful tip).
+          Never sound automated. Always propose a specific next step.
+
+    - ref: clawhq://market-analyst
+      role: research
+      priority: 3
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        instructions: |
+          You are a Market Analyst. Research local real estate market conditions:
+          median prices, days on market, price reductions, new listings, absorption
+          rate, and comparable sales. Produce a concise market snapshot (under 300
+          words) that an agent can share with buyers and sellers. Cite sources.
+          Flag if market is trending hot, cooling, or stable.
+
+    - ref: clawhq://offer-advisor
+      role: strategy
+      priority: 4
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        instructions: |
+          You are an Offer Advisor. Given a property address and asking price,
+          research comps, days on market, and seller motivation signals. Recommend
+          an offer strategy: price range, contingencies to include or waive, escalation
+          clause guidance, and timeline. Explain the reasoning clearly so the agent
+          can present it to their client confidently.
+
+    - ref: clawhq://open-house-prep
+      role: prep
+      priority: 5
+      config:
+        model: claude-haiku-4-5
+        tools: [doc_writer, web_search]
+        instructions: |
+          You are an Open House Prep Agent. For any listing, produce: a one-page
+          property highlight sheet for visitors, 5 likely buyer objections and
+          responses, a neighbourhood talking points guide, and a follow-up email
+          template to send to attendees within 2 hours of the open house ending.
+
+  pipelines:
+    - name: new-listing
+      trigger: command "new listing {address}"
+      steps:
+        - agent: market-analyst
+          action: "Research comps and neighbourhood for this address"
+        - agent: listing-writer
+          action: "Write listing copy using market research and property details"
+          hitl: true
+        - agent: open-house-prep
+          action: "Prepare open house materials for this listing"
+
+    - name: lead-response
+      trigger: event "new-lead"
+      steps:
+        - agent: lead-follow-up
+          action: "Draft immediate response to new inquiry"
+          hitl: true
+          deliver_to: "agent"
+          sla: "5 minutes"
+
+    - name: daily-lead-nurture
+      trigger: cron "0 9 * * 1-5"
+      steps:
+        - agent: lead-follow-up
+          action: "Review leads with no contact in 7 days and draft re-engagement messages"
+          hitl: true
+          deliver_to: "#leads"
+
+    - name: market-update
+      trigger: cron "0 8 * * MON"
+      steps:
+        - agent: market-analyst
+          action: "Generate weekly market snapshot for agent's target neighborhoods"
+          deliver_to: "#market-updates"
+
+    - name: offer-strategy
+      trigger: command "offer strategy for {address}"
+      steps:
+        - agent: market-analyst
+          action: "Pull comps and market conditions"
+        - agent: offer-advisor
+          action: "Recommend offer strategy based on research"
+          hitl: true
+
+  settings:
+    hitl:
+      enabled: true
+      human_handles:
+        - "All client communication before sending"
+        - "Offer advice and negotiation strategy"
+        - "Pricing decisions"
+        - "Legal and contract review"
+      ai_handles:
+        - "Listing copy drafts"
+        - "Market research and comps"
+        - "Lead follow-up drafts"
+        - "Open house materials"
+        - "Neighbourhood research"
+
+  metrics:
+    - name: "lead_response_time"
+      target: "< 5 minutes"
+    - name: "listings_written_per_hour"
+      target: "3x current rate"
+    - name: "lead_nurture_consistency"
+      target: "100% of leads touched weekly"
+
+# Required env vars: none
+# Optional: TARGET_MARKETS — comma-separated neighborhoods or zip codes to monitor
+# Optional: AGENT_NAME — for personalized follow-up signatures
+# Optional: BROKERAGE_NAME — for branding on reports and materials
