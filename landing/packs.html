@@ -266,6 +266,49 @@
     }
     .success-banner.visible { display: block; }
 
+    /* ── NOTIFY ── */
+    .notify-section {
+      border-top: 1px solid var(--border);
+      padding: 80px 32px;
+      max-width: var(--max-w); margin: 0 auto;
+      text-align: center;
+    }
+    .notify-section h2 {
+      font-family: var(--font-display);
+      font-size: 32px; font-weight: 500; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .notify-section p { color: var(--text-3); font-size: 15px; margin-bottom: 28px; }
+    .notify-form {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap; max-width: 480px; margin: 0 auto;
+    }
+    .notify-input {
+      flex: 1; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 16px;
+      font-size: 14px; color: var(--text);
+      font-family: var(--font-body);
+      outline: none; transition: border-color 0.15s;
+    }
+    .notify-input::placeholder { color: var(--text-4); }
+    .notify-input:focus { border-color: var(--border-light); }
+    .notify-btn {
+      background: var(--text); color: var(--bg);
+      padding: 11px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer;
+      font-family: var(--font-body);
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .notify-btn:hover { opacity: 0.82; }
+    .notify-success {
+      display: none; color: var(--green);
+      font-size: 14px; margin-top: 12px;
+    }
+    .notify-success.visible { display: block; }
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -559,6 +602,20 @@
   </p>
 </div>
 
+<!-- ── NOTIFY ── -->
+<div class="notify-section">
+  <h2>New packs dropping soon.</h2>
+  <p>Get notified when new agent packs are released. No spam — one email per new pack.</p>
+  <form class="notify-form" id="notifyForm" action="https://api.web3forms.com/submit" method="POST">
+    <input type="hidden" name="access_key" value="d22048a6-090f-4663-8cec-0fc0efdf19ea" />
+    <input type="hidden" name="subject" value="New ClawHQ pack notification signup" />
+    <input type="hidden" name="redirect" value="false" />
+    <input type="email" name="email" placeholder="your@email.com" required class="notify-input" />
+    <button type="submit" class="notify-btn">Notify me</button>
+  </form>
+  <p class="notify-success" id="notifySuccess">✓ You're on the list.</p>
+</div>
+
 <!-- ── FOOTER ── -->
 <footer>
   <div class="footer-inner">
@@ -581,6 +638,31 @@
     document.getElementById('successBanner').classList.add('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // Web3Forms notify signup — submit via fetch to avoid page redirect
+  document.getElementById('notifyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.notify-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: new FormData(this),
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.style.display = 'none';
+        document.getElementById('notifySuccess').classList.add('visible');
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+    }
+  });
 </script>
 
 </body>
