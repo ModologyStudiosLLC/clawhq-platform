@@ -1,0 +1,60 @@
+---
+title: Channels
+description: Connect ClawHQ agents to Slack, Discord, Telegram, and more.
+---
+
+Channels let your agents send messages, receive commands, and deliver output to the platforms your team already uses.
+
+## Supported channels
+
+| Channel | What it enables |
+|---|---|
+| **Slack** | Post messages, respond to slash commands, thread replies |
+| **Discord** | Post to channels, respond to bot commands |
+| **Telegram** | Send messages, respond to /commands |
+| **Email** | Send delivery notifications and reports via Resend |
+| **Webhook** | POST output to any HTTP endpoint |
+
+## Setup
+
+Configure channels in **Settings → Integrations** in the ClawHQ dashboard, or set environment variables directly.
+
+Each channel requires its own credentials:
+
+- **Slack** — Bot token (`xoxb-...`) and signing secret. See [Slack setup](/channels/slack).
+- **Discord** — Bot token and application ID. See [Discord setup](/channels/discord).
+- **Telegram** — Bot token from BotFather. See [Telegram setup](/channels/telegram).
+
+## Using channels in pipelines
+
+Deliver agent output to a channel using `deliver_to` in your pipeline steps:
+
+```yaml
+steps:
+  - agent: my-agent
+    action: "Summarise today's news"
+    deliver_to: slack:#general
+```
+
+Supported `deliver_to` values:
+
+| Format | Target |
+|---|---|
+| `slack:#channel-name` | Slack channel |
+| `discord:channel-id` | Discord channel |
+| `telegram:@username` | Telegram user or group |
+| `webhook:https://...` | Any HTTP endpoint |
+
+## Human-in-the-loop approvals
+
+Add `hitl: true` to a step to pause and wait for a human to approve before the output is delivered:
+
+```yaml
+steps:
+  - agent: my-agent
+    action: "Draft this week's newsletter"
+    hitl: true
+    deliver_to: slack:#marketing
+```
+
+The dashboard will show a pending approval card. Once approved, the output is delivered to the configured channel.

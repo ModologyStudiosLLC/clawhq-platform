@@ -1,0 +1,63 @@
+---
+title: Lead Qualification Bot
+description: Researches B2B prospects before your first call. Scores fit, timing, and reachability.
+---
+
+The Lead Qualification Bot researches a company or contact before your first call. It scores fit, buying timing, and reachability — so your reps walk into every call prepared.
+
+## Install
+
+```bash
+cp templates/lead-qualification.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+## Usage
+
+```
+@Felix qualify Acme Corp
+```
+
+```
+/qualify acmecorp.com
+```
+
+## Output format
+
+```
+**Fit Score: 8/10**
+
+**Company Overview**
+Brief summary of what the company does.
+
+**Fit Assessment**
+Why they're a good (or poor) fit for your product.
+
+**Timing Signals**
+Recent news, funding, headcount changes, or pain signals.
+
+**Key Contacts**
+Decision-maker names, titles, and LinkedIn profiles.
+
+**Suggested Opener**
+A personalized conversation starter based on the research.
+```
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Sonnet 4.6 |
+| Temperature | 0.2 |
+| Tools | web_search, doc_writer |
+
+## Required env vars
+
+None — uses your configured API key.
+
+## Optional env vars
+
+| Variable | Purpose |
+|---|---|
+| `ICP_DESCRIPTION` | Your ideal customer profile — used to score fit |
+| `MIN_COMPANY_SIZE` | Filter out companies below this headcount |

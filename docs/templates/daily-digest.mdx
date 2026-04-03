@@ -1,0 +1,71 @@
+---
+title: Daily Digest
+description: Morning briefing with industry news, priorities, and quick wins. Delivered to Discord DM.
+---
+
+The Daily Digest delivers a personalized morning briefing every weekday at 8am — industry news, your top priorities, and quick wins for the day. Under 300 words. Reads in 60 seconds.
+
+## Install
+
+```bash
+cp templates/daily-digest.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+## Usage
+
+Runs automatically every weekday at 8am ET. To trigger manually:
+
+```
+@Felix morning digest
+```
+
+```
+/brief me
+```
+
+## Output format
+
+```
+**Good morning, [Name].** Here's what matters today.
+
+**Today's Focus**
+1. Finish Q2 budget review (due EOD)
+2. Follow up with Acme Corp — no response in 5 days
+3. Team standup at 10am
+
+**Industry News**
+- OpenAI releases GPT-5 — first model with native voice and vision. Competitors scrambling to respond. — The Verge
+- VC funding in AI down 12% QoQ — but seed rounds up. Early-stage still hot. — TechCrunch
+- Cloudflare Workers adds Python support — worth testing for your edge functions. — Cloudflare Blog
+
+**Quick Wins**
+- Reply to 3 unanswered emails sitting in your drafts
+- Update your LinkedIn headline — it's 2 years old
+```
+
+## Schedule
+
+Default: Monday–Friday at 8am ET.
+
+```yaml
+triggers:
+  - type: cron
+    expr: "0 8 * * 1-5"
+    tz: "America/New_York"  # change to your timezone
+```
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Haiku 4.5 |
+| Temperature | 0.4 |
+| Tools | web_search, calendar, doc_writer |
+
+## Optional env vars
+
+| Variable | Purpose |
+|---|---|
+| `DIGEST_NAME` | Your name for the greeting |
+| `DIGEST_TOPICS` | Comma-separated topics to monitor (e.g. `AI,SaaS,fintech`) |

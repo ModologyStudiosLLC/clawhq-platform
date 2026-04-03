@@ -1,0 +1,55 @@
+---
+title: Integrations
+description: Connect ClawHQ to external services and tools.
+---
+
+Integrations give your agents access to external data sources and services. Configure them once and reference them in any agent.
+
+## Available integrations
+
+| Integration | What it enables |
+|---|---|
+| **Slack** | Read/write messages, respond to commands |
+| **Discord** | Post to channels, respond to bot commands |
+| **Telegram** | Send and receive messages |
+| **Notion** | Read pages, create and update database entries |
+| **Google Calendar** | Read events, create calendar entries |
+| **GitHub** | Read repos, create issues and PRs |
+| **Airtable** | Read/write rows in any base |
+| **Webhook** | POST to any HTTP endpoint |
+
+## Setup
+
+1. Go to **Settings → Integrations** in the ClawHQ dashboard
+2. Click **Connect** next to the integration you want to add
+3. Follow the OAuth flow or paste your API key
+4. Click **Test connection** to verify
+
+## Using integrations in agents
+
+Reference integrations in your agent config or AgentPack YAML:
+
+```yaml
+spec:
+  agents:
+    - ref: clawhq://my-agent
+      config:
+        tools: [notion_read, notion_write, slack_post]
+```
+
+Agents can only use tools that are connected. If a tool is listed but the integration is not connected, the agent will skip that tool and log a warning.
+
+## Testing integrations
+
+Each integration has a test endpoint:
+
+```bash
+curl -X POST https://your-clawhq.com/api/integrations/notion/test \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Or use **Settings → Integrations → Test** in the dashboard.
+
+## Environment variables
+
+You can also configure integrations via environment variables instead of the dashboard UI. See [Environment Variables](/reference/environment-variables) for the full list.

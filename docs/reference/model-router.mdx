@@ -1,0 +1,64 @@
+---
+title: Model Router
+description: Reference for ClawHQ's self-learning model router configuration.
+---
+
+The Model Router automatically selects the right model for each task — routing cheap tasks to cheaper models and complex tasks to more capable ones. It learns from outcomes over time.
+
+## How it works
+
+Five-tier priority system, evaluated in order:
+
+1. **Task-type override** — if you've pinned a specific model to a task type, that wins
+2. **Self-learning** — if a model has a strong success record for this task type (min 20 samples), use it
+3. **Budget fallback** — if monthly spend exceeds your threshold, downgrade non-critical tasks to Haiku
+4. **Ollama** — if Ollama is running locally and the task is eligible (summary, chat), route there
+5. **Task-type defaults** — built-in sensible defaults per task type
+
+## Default routing
+
+| Task type | Default model |
+|---|---|
+| `code` | Claude Sonnet 4.6 |
+| `research` | Claude Sonnet 4.6 |
+| `creative` | Claude Opus 4.6 |
+| `summary` | Claude Haiku 4.5 |
+| `chat` | Claude Haiku 4.5 |
+
+## Configuration
+
+Configure in **Settings → Model Router** in the dashboard, or directly in `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "modelRouter": {
+    "enabled": true,
+    "primaryModel": "anthropic/claude-sonnet-4-6",
+    "fallbackModel": "anthropic/claude-haiku-4-5",
+    "budgetThreshold": 80,
+    "selfLearning": true,
+    "selfLearningSampleThreshold": 20,
+    "ollamaEnabled": false,
+    "ollamaBaseUrl": "http://localhost:11434",
+    "ollamaModel": "llama3.2",
+    "taskTypeOverrides": {
+      "code": "anthropic/claude-opus-4-6"
+    },
+    "lockedTaskTypes": ["code"]
+  }
+}
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `enabled` | boolean | `true` | Enable or disable the router |
+| `primaryModel` | string | `anthropic/claude-sonnet-4-6` | Default model for most tasks |
+| `fallbackModel` | string | `anthropic/claude-haiku-4-5` | Used when over budget |
+| `budgetThreshold` | number | `80` | % of monthly budget that triggers fallback |
+| `selfLearning` | boolean | `true` | Learn from task outcomes |
+| `selfLearningSampleThreshold` | number | `20` | Minimum samples before self-learning overrides defaults |
+| `taskTypeOverrides` | object | `{}` | Pin specific models to task types |
+| `lockedTaskTypes` | array | `[]` | Prevent self-learning from changing these task types |
+| `ollamaEnabled` | boolean | `false` | Route eligible tasks to local Ollama |

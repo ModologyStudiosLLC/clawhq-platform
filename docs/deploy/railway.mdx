@@ -1,0 +1,36 @@
+---
+title: Deploy to Railway
+description: One-click ClawHQ deployment on Railway.
+---
+
+Railway is the fastest way to get ClawHQ running in the cloud without managing a server.
+
+## Deploy
+
+<Note>
+Railway's free tier has usage limits. For production use, the Hobby plan ($5/mo) or Pro plan is recommended.
+</Note>
+
+1. Fork [clawhq-platform](https://github.com/ModologyStudiosLLC/clawhq-platform) to your GitHub account
+2. Go to [railway.app](https://railway.app) and create a new project
+3. Select **Deploy from GitHub repo** and choose your fork
+4. Railway will detect the `docker-compose.yml` automatically
+5. Add your environment variables under **Variables**
+6. Click **Deploy**
+
+## Environment variables
+
+Add these in the Railway dashboard under your service's **Variables** tab. See [Environment Variables](/reference/environment-variables) for the full list.
+
+Required at minimum:
+
+```
+ANTHROPIC_API_KEY=
+BETTER_AUTH_SECRET=
+OPENCLAW_GATEWAY_TOKEN=
+CLAWHQ_PUBLIC_URL=https://your-railway-domain.up.railway.app
+```
+
+## Custom domain
+
+Railway provides a `.railway.app` subdomain by default. To use your own domain, go to **Settings → Domains** in your Railway project and add a custom domain.
