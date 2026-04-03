@@ -4,3 +4,15 @@
 wrangler.lock
 .wrangler/
 node_modules/
+
+# Private packs — kept in separate private repo
+packs/reskilling-docs/
+packs/reskilling-agents/
+packs/reskilling-workflows/
+packs/reskilling-core.yaml
+packs/trades-library/
+packs/creator-suite.yaml
+packs/augmented-engineering.yaml
+packs/augmented-finance.yaml
+packs/augmented-sales.yaml
+packs/augmented-support.yaml

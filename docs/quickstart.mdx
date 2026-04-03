@@ -1,0 +1,98 @@
+---
+title: Quick Start
+description: Deploy ClawHQ in under 2 minutes using Docker.
+---
+
+## Prerequisites
+
+- Docker and Docker Compose v2 installed
+- An Anthropic API key (or any supported provider)
+- A server or VM with at least 2GB RAM
+
+## Deploy
+
+<Steps>
+  <Step title="Clone and run the install script">
+    ```bash
+    git clone https://github.com/ModologyStudiosLLC/clawhq-platform.git
+    cd clawhq-platform
+    bash install.sh
+    ```
+
+    The script will ask for:
+    - Your public URL (e.g. `https://clawhq.yourdomain.com` or `http://localhost`)
+    - Your Anthropic API key
+    - Optional: Discord bot token, Slack token
+
+    It creates a `.env` file and starts all services.
+  </Step>
+
+  <Step title="Open the dashboard">
+    Navigate to your ClawHQ URL (or `http://localhost:3000` for local installs).
+
+    Sign in with the credentials you set during install. You'll be taken through a 6-step onboarding wizard.
+  </Step>
+
+  <Step title="Complete onboarding">
+    The wizard will:
+    1. Ask what you want to use ClawHQ for
+    2. Let you pick which agents to activate
+    3. Confirm your API key
+    4. Connect your first channel (Discord, Slack, or Telegram)
+  </Step>
+
+  <Step title="Talk to your agent">
+    Once connected, message your bot in Discord (or whichever channel you chose). It should respond within a few seconds.
+
+    ```
+    @Felix hey, what can you do?
+    ```
+  </Step>
+</Steps>
+
+## Manual install (without the script)
+
+If you prefer to configure manually:
+
+```bash
+# 1. Copy the env template
+cp .env.example .env
+
+# 2. Fill in required values
+nano .env
+
+# 3. Start all services
+docker compose up -d
+
+# 4. Watch the logs
+docker compose logs -f dashboard
+```
+
+See [Environment Variables](/reference/environment-variables) for the full list of config options.
+
+## Update
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```
+
+ClawHQ services are versioned independently. The `docker compose pull` command fetches the latest image for each service.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect Discord" icon="discord" href="/channels/discord">
+    Full Discord bot setup guide
+  </Card>
+  <Card title="Configure an Agent" icon="robot" href="/guides/first-agent">
+    Customize your first agent
+  </Card>
+  <Card title="Deploy to Railway" icon="train" href="/deploy/railway">
+    One-click cloud deploy
+  </Card>
+  <Card title="Install a Pack" icon="box" href="/guides/packs">
+    Add pre-built agent bundles
+  </Card>
+</CardGroup>

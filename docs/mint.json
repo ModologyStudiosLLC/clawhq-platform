@@ -1,0 +1,120 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "ClawHQ",
+  "logo": {
+    "dark": "/images/logo-dark.svg",
+    "light": "/images/logo-light.svg"
+  },
+  "favicon": "/images/favicon.svg",
+  "colors": {
+    "primary": "#69daff",
+    "light": "#69daff",
+    "dark": "#0c0c0f",
+    "anchors": {
+      "from": "#69daff",
+      "to": "#69f6b8"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/ModologyStudiosLLC/clawhq-platform"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get ClawHQ",
+    "url": "https://clawhqplatform.com"
+  },
+  "tabs": [
+    {
+      "name": "Guides",
+      "url": "guides"
+    },
+    {
+      "name": "Reference",
+      "url": "reference"
+    },
+    {
+      "name": "Templates",
+      "url": "templates"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Discord Community",
+      "icon": "discord",
+      "url": "https://discord.gg/clawhq"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/ModologyStudiosLLC/clawhq-platform"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "deploy/docker",
+        "deploy/railway",
+        "deploy/render",
+        "deploy/digitalocean"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/first-agent",
+        "guides/hermes",
+        "guides/channels",
+        "guides/packs",
+        "guides/model-router",
+        "guides/integrations",
+        "guides/budget"
+      ]
+    },
+    {
+      "group": "Channel Setup",
+      "pages": [
+        "channels/discord",
+        "channels/slack",
+        "channels/telegram"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "reference/agent-config",
+        "reference/pack-schema",
+        "reference/api",
+        "reference/environment-variables",
+        "reference/model-router"
+      ]
+    },
+    {
+      "group": "Templates",
+      "pages": [
+        "templates/overview",
+        "templates/research-assistant",
+        "templates/lead-qualification",
+        "templates/code-review",
+        "templates/content-scheduler",
+        "templates/support-triage",
+        "templates/daily-digest"
+      ]
+    },
+    {
+      "group": "Help",
+      "pages": [
+        "troubleshooting",
+        "faq"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "discord": "https://discord.gg/clawhq",
+    "github": "https://github.com/ModologyStudiosLLC/clawhq-platform"
+  }
+}

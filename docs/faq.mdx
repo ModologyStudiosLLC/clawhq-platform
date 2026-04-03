@@ -1,0 +1,51 @@
+---
+title: FAQ
+description: Common questions about ClawHQ.
+---
+
+## General
+
+**Is ClawHQ really free?**
+Yes. ClawHQ is MIT licensed and self-hosted — you pay nothing to us. You do pay your AI provider (Anthropic, OpenAI, etc.) for API usage. The Model Router helps minimize those costs by routing cheap tasks to cheaper models automatically.
+
+**What's the difference between ClawHQ and just using ChatGPT?**
+ChatGPT is a chat interface. ClawHQ is an agent platform — agents run autonomously, respond to events, execute tools, and work in the channels your team already uses (Discord, Slack, Telegram). They don't need you to start a conversation.
+
+**Do I need technical skills to run this?**
+You need to be comfortable with Docker and a terminal. If you can run `docker compose up`, you can run ClawHQ. The `install.sh` script handles most of the setup.
+
+**Can I use models other than Claude?**
+Yes. ClawHQ supports Anthropic, OpenAI, Groq, OpenRouter, DeepSeek, and local models via Ollama. Set your API keys in **Settings → General** and configure fallbacks in the Model Router.
+
+## Hosting
+
+**Where should I host this?**
+Any VPS with 2GB+ RAM works. Popular options: Railway (one-click deploy), Render (free tier available), DigitalOcean ($6/mo Droplet), Hetzner (cheap EU), your own server.
+
+**Can I run it locally?**
+Yes — `docker compose up` works on your laptop. Use `docker-compose.local.yml` for local dev (skips HTTPS). Note: Discord and Telegram webhooks require a publicly accessible URL; use ngrok or Cloudflare Tunnel for local testing with live channels.
+
+**Does it support HTTPS?**
+Yes. The included Caddy reverse proxy handles TLS automatically. Set `CLAWHQ_URL` to your domain and Caddy will get a certificate from Let's Encrypt.
+
+## Agents
+
+**How many agents can I run?**
+As many as your server can handle. Each agent is lightweight — a 2GB VPS can comfortably run 10+ agents. The main cost is API calls, not compute.
+
+**Can agents talk to each other?**
+Yes. Via Paperclip orchestration, agents can delegate tasks to other agents. See the [gstack task pipeline](/guides/packs) for structured multi-agent workflows.
+
+**Do agents remember past conversations?**
+Each agent has persistent memory (stored in SQLite). Memory search is on by default — agents automatically retrieve relevant past context before responding. You can configure memory settings per-agent.
+
+## Security
+
+**Is my data sent to Anthropic?**
+Your messages are sent to whichever AI provider you configure (Anthropic, OpenAI, etc.) for model inference. ClawHQ itself never stores or transmits your data to any third party — it's self-hosted.
+
+**Can I use it without any cloud AI providers?**
+Yes — with Ollama. Enable **Local Ollama Routing** in the Model Router and install Ollama on your server. Agents will run fully locally with no external API calls.
+
+**How is the dashboard secured?**
+WorkOS authentication is built in — supports email magic links, social login (Google, GitHub), and enterprise SSO (SAML/SCIM). The dashboard is not accessible without signing in.

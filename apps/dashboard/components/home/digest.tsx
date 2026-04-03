@@ -417,6 +417,24 @@ export function HomeDigest() {
             [...Array(4)].map((_, i) => (
               <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: "var(--color-surface-2)" }} />
             ))
+          ) : recentAgents.length === 0 ? (
+            <div
+              className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl text-center"
+              style={{ background: "var(--color-surface-2)", border: "1px dashed var(--color-border)" }}
+            >
+              <span style={{ fontSize: 28 }}>🤖</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>No agents yet</p>
+                <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Add your first agent to get started</p>
+              </div>
+              <Link
+                href="/team"
+                className="text-xs px-4 py-2 rounded-lg font-medium"
+                style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)" }}
+              >
+                Add an agent →
+              </Link>
+            </div>
           ) : recentAgents.map(agent => {
             const isActive = agent.state === "Running";
             return (

@@ -34,8 +34,13 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center justify-between px-4 md:px-6 py-4 border-b flex-shrink-0"
-      style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
+      className="flex items-center justify-between px-4 md:px-6 py-4 border-b flex-shrink-0 sticky top-0 z-10"
+      style={{
+        background: "rgba(5, 5, 7, 0.82)",
+        backdropFilter: "saturate(180%) blur(20px)",
+        WebkitBackdropFilter: "saturate(180%) blur(20px)",
+        borderColor: "var(--color-border)",
+      }}
     >
       <div className="flex items-center gap-3">
         {/* Hamburger — mobile only */}
@@ -48,7 +53,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Menu size={18} />
         </button>
         <div>
-          <h1 className="text-lg font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+          <h1 className="text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
             {page.title}
           </h1>
           {page.subtitle && (

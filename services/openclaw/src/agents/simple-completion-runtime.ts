@@ -1,5 +1,6 @@
 import { complete, type Api, type Model } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../config/config.js";
+import { selectModel } from "../utils/model-router.js";
 import { resolveAgentDir, resolveAgentEffectiveModelPrimary } from "./agent-scope.js";
 import { DEFAULT_PROVIDER } from "./defaults.js";
 import {
@@ -59,36 +60,71 @@ export function resolveSimpleCompletionSelectionForAgent(params: {
   cfg: OpenClawConfig;
   agentId: string;
   modelRef?: string;
+  /** Current user message — passed to model router for task-type detection. */
+  message?: string;
+  /** Budget consumed as a percentage (0–100) — passed to model router. */
+  budgetUsedPercent?: number;
+  /** Task priority — critical tasks always use the primary model. */
+  priority?: "critical" | "standard" | "background";
 }): AgentSimpleCompletionSelection | null {
   const fallbackRef = resolveDefaultModelForAgent({
     cfg: params.cfg,
     agentId: params.agentId,
   });
-  const modelRef =
+
+  // If the caller explicitly specified a model, honour it — skip routing.
+  const explicitModelRef =
     params.modelRef?.trim() || resolveAgentEffectiveModelPrimary(params.cfg, params.agentId);
-  const split = modelRef ? splitTrailingAuthProfile(modelRef) : null;
-  const aliasIndex = buildModelAliasIndex({
-    cfg: params.cfg,
-    defaultProvider: fallbackRef.provider || DEFAULT_PROVIDER,
-  });
-  const resolved = split
-    ? resolveModelRefFromString({
-        raw: split.model,
-        defaultProvider: fallbackRef.provider || DEFAULT_PROVIDER,
-        aliasIndex,
-      })
-    : null;
-  const provider = resolved?.ref.provider ?? fallbackRef.provider;
-  const modelId = resolved?.ref.model ?? fallbackRef.model;
+
+  let provider: string | undefined;
+  let modelId: string | undefined;
+  let profileId: string | undefined;
+
+  if (explicitModelRef) {
+    // User or agent config has specified a model — resolve it normally.
+    const split = splitTrailingAuthProfile(explicitModelRef);
+    const aliasIndex = buildModelAliasIndex({
+      cfg: params.cfg,
+      defaultProvider: fallbackRef.provider || DEFAULT_PROVIDER,
+    });
+    const resolved = resolveModelRefFromString({
+      raw: split.model,
+      defaultProvider: fallbackRef.provider || DEFAULT_PROVIDER,
+      aliasIndex,
+    });
+    provider = resolved?.ref.provider ?? fallbackRef.provider;
+    modelId = resolved?.ref.model ?? fallbackRef.model;
+    profileId = split.profile || undefined;
+  } else if (params.message && (cfg_routerEnabled(params.cfg))) {
+    // No explicit model — let the router decide based on task context.
+    const routed = selectModel(params.cfg, {
+      message: params.message,
+      agentId: params.agentId,
+      budgetUsedPercent: params.budgetUsedPercent,
+      priority: params.priority,
+    });
+    provider = routed.provider;
+    modelId = routed.model;
+  } else {
+    // No message or router disabled — fall back to configured defaults.
+    provider = fallbackRef.provider;
+    modelId = fallbackRef.model;
+  }
+
   if (!provider || !modelId) {
     return null;
   }
   return {
     provider,
     modelId,
-    profileId: split?.profile || undefined,
+    profileId,
     agentDir: resolveAgentDir(params.cfg, params.agentId),
   };
+}
+
+/** Returns true when the model router is not explicitly disabled. */
+function cfg_routerEnabled(cfg: OpenClawConfig): boolean {
+  return cfg.modelRouter?.enabled !== false;
 }
 
 async function setRuntimeApiKeyForCompletion(params: {

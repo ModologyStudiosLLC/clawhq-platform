@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Check, RefreshCw, Eye, EyeOff, Zap, Shield, Bot, Wallet, Sliders,
-  ChevronDown, AlertTriangle, Sparkles, X, Save, Plug
+  ChevronDown, AlertTriangle, Sparkles, X, Save, Plug, Package, Download, Trash2, KeyRound
 } from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
 import { toast } from "sonner";
@@ -16,6 +16,22 @@ interface AgentConfig {
   schedule: string;
 }
 
+type TaskType = "code" | "research" | "summary" | "creative" | "chat";
+
+interface ModelRouterSettings {
+  enabled: boolean;
+  primaryModel: string;
+  fallbackModel: string;
+  budgetThreshold: number;
+  ollamaEnabled: boolean;
+  ollamaBaseUrl: string;
+  ollamaModel: string;
+  selfLearning: boolean;
+  selfLearningSampleThreshold: number;
+  lockedTaskTypes: string[];
+  taskTypeOverrides: Record<string, string>;
+}
+
 interface Settings {
   securityLevel: 0 | 1 | 2 | 3;
   timezone: string;
@@ -25,6 +41,7 @@ interface Settings {
   budgetUnlimited: boolean;
   budgetAlertPercent: number;
   providerCaps: Record<string, number>;
+  modelRouter: ModelRouterSettings;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -39,6 +56,19 @@ const DEFAULT_SETTINGS: Settings = {
   budgetUnlimited: false,
   budgetAlertPercent: 80,
   providerCaps: { anthropic: 0, openai: 0, groq: 0, openrouter: 0 },
+  modelRouter: {
+    enabled: true,
+    primaryModel: "anthropic/claude-sonnet-4-6",
+    fallbackModel: "anthropic/claude-haiku-4-5",
+    budgetThreshold: 80,
+    ollamaEnabled: true,
+    ollamaBaseUrl: "http://localhost:11434",
+    ollamaModel: "llama3.2",
+    selfLearning: true,
+    selfLearningSampleThreshold: 20,
+    lockedTaskTypes: [],
+    taskTypeOverrides: {},
+  },
 };
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -972,6 +1002,468 @@ function IntegrationsTab() {
   );
 }
 
+// ── Tab: Model Router ──────────────────────────────────────────────────────────
+
+const TASK_TYPES: { id: TaskType; label: string; description: string }[] = [
+  { id: "code", label: "Code", description: "Coding, debugging, refactoring, PR review" },
+  { id: "research", label: "Research", description: "Web search, analysis, competitor intel" },
+  { id: "summary", label: "Summary", description: "Summarize documents, transcripts, threads" },
+  { id: "creative", label: "Creative", description: "Writing, newsletters, copy, scripts" },
+  { id: "chat", label: "Chat", description: "General conversation and Q&A" },
+];
+
+const ALL_MODELS = [
+  { id: "anthropic/claude-haiku-4-5", name: "Claude Haiku 4.5", cost: "$", description: "Fastest — summaries & chat" },
+  { id: "anthropic/claude-sonnet-4-6", name: "Claude Sonnet 4.6", cost: "$$", description: "Best balance — code & research" },
+  { id: "anthropic/claude-opus-4-6", name: "Claude Opus 4.6", cost: "$$$", description: "Most capable — creative & complex" },
+  { id: "openai/gpt-4o-mini", name: "GPT-4o mini", cost: "$", description: "OpenAI budget tier" },
+  { id: "openai/gpt-4o", name: "GPT-4o", cost: "$$", description: "OpenAI balanced tier" },
+  { id: "ollama/llama3.2", name: "Llama 3.2 (local)", cost: "free", description: "Local via Ollama — no API cost" },
+];
+
+function ModelRouterTab({ settings, onChange }: { settings: Settings; onChange: (patch: Partial<Settings>) => void }) {
+  const r = settings.modelRouter;
+  const patchRouter = (patch: Partial<ModelRouterSettings>) =>
+    onChange({ modelRouter: { ...r, ...patch } });
+
+  function toggleLocked(taskId: string) {
+    const locked = r.lockedTaskTypes.includes(taskId)
+      ? r.lockedTaskTypes.filter(t => t !== taskId)
+      : [...r.lockedTaskTypes, taskId];
+    patchRouter({ lockedTaskTypes: locked });
+  }
+
+  function setTaskOverride(taskId: string, modelId: string) {
+    patchRouter({
+      taskTypeOverrides: {
+        ...r.taskTypeOverrides,
+        [taskId]: modelId || undefined as unknown as string,
+      },
+    });
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Master toggle */}
+      <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Model Router</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+            Automatically select the best model for each task type. When off, all agents use the primary model.
+          </p>
+        </div>
+        <button
+          onClick={() => patchRouter({ enabled: !r.enabled })}
+          className="flex-shrink-0 w-11 h-6 rounded-full transition-colors relative"
+          style={{ background: r.enabled ? "var(--color-primary)" : "var(--color-border-strong)" }}
+        >
+          <span
+            className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+            style={{ transform: r.enabled ? "translateX(22px)" : "translateX(2px)" }}
+          />
+        </button>
+      </div>
+
+      {r.enabled && (
+        <>
+          {/* Primary + Fallback models */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>
+                Primary Model
+              </label>
+              <select
+                value={r.primaryModel}
+                onChange={e => patchRouter({ primaryModel: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+              >
+                {ALL_MODELS.filter(m => m.id !== "ollama/llama3.2").map(m => (
+                  <option key={m.id} value={m.id}>{m.name} ({m.cost}) — {m.description}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>
+                Budget Fallback Model
+              </label>
+              <select
+                value={r.fallbackModel}
+                onChange={e => patchRouter({ fallbackModel: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg text-sm"
+                style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+              >
+                {ALL_MODELS.map(m => (
+                  <option key={m.id} value={m.id}>{m.name} ({m.cost}) — {m.description}</option>
+                ))}
+              </select>
+              <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+                Switches to this model when budget exceeds {r.budgetThreshold}%
+              </p>
+            </div>
+          </div>
+
+          {/* Budget threshold slider */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>
+                Budget Fallback Threshold
+              </label>
+              <span className="text-xs font-mono" style={{ color: "var(--color-primary)" }}>{r.budgetThreshold}%</span>
+            </div>
+            <input
+              type="range" min={50} max={100} step={5}
+              value={r.budgetThreshold}
+              onChange={e => patchRouter({ budgetThreshold: parseInt(e.target.value) })}
+              className="w-full accent-[var(--color-primary)]"
+            />
+            <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+              Non-critical tasks switch to the fallback model when this % of your monthly budget is consumed.
+            </p>
+          </div>
+
+          {/* Self-learning toggle */}
+          <div className="flex items-start justify-between p-4 rounded-xl" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+            <div className="flex-1 pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Self-Learning</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                Track which models perform best per task type and automatically adjust routing over time.
+                Requires {r.selfLearningSampleThreshold} samples before taking effect.
+              </p>
+            </div>
+            <button
+              onClick={() => patchRouter({ selfLearning: !r.selfLearning })}
+              className="flex-shrink-0 w-11 h-6 rounded-full transition-colors relative mt-0.5"
+              style={{ background: r.selfLearning ? "var(--color-secondary)" : "var(--color-border-strong)" }}
+            >
+              <span
+                className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                style={{ transform: r.selfLearning ? "translateX(22px)" : "translateX(2px)" }}
+              />
+            </button>
+          </div>
+
+          {/* Ollama toggle */}
+          <div className="flex items-start justify-between p-4 rounded-xl" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+            <div className="flex-1 pr-4">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Local Ollama Routing</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                Route background tasks to a local Ollama model when available — zero API cost.
+              </p>
+              {r.ollamaEnabled && (
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={r.ollamaBaseUrl}
+                    onChange={e => patchRouter({ ollamaBaseUrl: e.target.value })}
+                    placeholder="http://localhost:11434"
+                    className="flex-1 px-2 py-1 rounded text-xs"
+                    style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+                  />
+                  <input
+                    type="text"
+                    value={r.ollamaModel}
+                    onChange={e => patchRouter({ ollamaModel: e.target.value })}
+                    placeholder="llama3.2"
+                    className="w-24 px-2 py-1 rounded text-xs"
+                    style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+                  />
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => patchRouter({ ollamaEnabled: !r.ollamaEnabled })}
+              className="flex-shrink-0 w-11 h-6 rounded-full transition-colors relative mt-0.5"
+              style={{ background: r.ollamaEnabled ? "var(--color-accent)" : "var(--color-border-strong)" }}
+            >
+              <span
+                className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                style={{ transform: r.ollamaEnabled ? "translateX(22px)" : "translateX(2px)" }}
+              />
+            </button>
+          </div>
+
+          {/* Per-task-type overrides */}
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Per-Task Overrides</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                Pin a specific model to a task type. Overrides self-learning. Lock to prevent self-learning from changing it.
+              </p>
+            </div>
+            {TASK_TYPES.map(task => {
+              const override = r.taskTypeOverrides[task.id] ?? "";
+              const locked = r.lockedTaskTypes.includes(task.id);
+              return (
+                <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>{task.label}</p>
+                    <p className="text-xs truncate" style={{ color: "var(--color-text-subtle)" }}>{task.description}</p>
+                  </div>
+                  <select
+                    value={override}
+                    onChange={e => setTaskOverride(task.id, e.target.value)}
+                    className="text-xs px-2 py-1 rounded"
+                    style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)", minWidth: 160 }}
+                  >
+                    <option value="">Auto (router decides)</option>
+                    {ALL_MODELS.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => toggleLocked(task.id)}
+                    title={locked ? "Unlock (allow self-learning)" : "Lock (prevent self-learning changes)"}
+                    className="p-1.5 rounded"
+                    style={{
+                      background: locked ? "var(--color-primary-dim)" : "transparent",
+                      color: locked ? "var(--color-primary)" : "var(--color-text-subtle)",
+                      border: `1px solid ${locked ? "var(--color-primary)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    <Shield size={12} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Packs tab ──────────────────────────────────────────────────────────────────
+
+interface PackMeta {
+  id: string;
+  name: string;
+  description: string;
+}
+
+const PACK_CATALOG: Record<string, PackMeta> = {
+  "reskilling-core":       { id: "reskilling-core",       name: "Reskilling Core",        description: "6 agents + workflows for workforce augmentation and AI reskilling programs." },
+  "augmented-engineering": { id: "augmented-engineering", name: "Augmented Engineering",   description: "Engineering team agents — code review, incident response, sprint planning." },
+  "augmented-finance":     { id: "augmented-finance",     name: "Augmented Finance",       description: "Finance and compliance agents — reporting, anomaly detection, forecasting." },
+  "augmented-sales":       { id: "augmented-sales",       name: "Augmented Sales",         description: "Sales team agents — lead qualification, pipeline review, outreach drafting." },
+  "augmented-support":     { id: "augmented-support",     name: "Augmented Support",       description: "Customer support agents — triage, response drafting, escalation routing." },
+  "creator-suite":         { id: "creator-suite",         name: "Creator Suite",           description: "12-agent content system — scripting, scheduling, repurposing, analytics." },
+  "trades-library":        { id: "trades-library",        name: "Trades Library",          description: "Agents and workflows for skilled trades businesses and field service teams." },
+};
+
+function PacksTab() {
+  const [licenseKey, setLicenseKey] = useState("");
+  const [validating, setValidating] = useState(false);
+  const [unlockedPacks, setUnlockedPacks] = useState<string[]>([]);
+  const [installedPacks, setInstalledPacks] = useState<string[]>([]);
+  const [installing, setInstalling] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [keyEmail, setKeyEmail] = useState<string | null>(null);
+  const [keyError, setKeyError] = useState<string | null>(null);
+  const [savedKey, setSavedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("clawhq_pack_license");
+    if (stored) {
+      const parsed = JSON.parse(stored) as { key: string; packs: string[]; email: string };
+      setSavedKey(parsed.key);
+      setLicenseKey(parsed.key);
+      setUnlockedPacks(parsed.packs);
+      setKeyEmail(parsed.email);
+    }
+    fetch("/api/packs/install").then(r => r.json()).then((d: { packs: string[] }) => setInstalledPacks(d.packs ?? []));
+  }, []);
+
+  async function validateKey() {
+    const key = licenseKey.trim().toUpperCase();
+    if (!key) return;
+    setValidating(true);
+    setKeyError(null);
+    try {
+      const res = await fetch("/api/packs/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key }),
+      });
+      const data = await res.json() as { valid: boolean; packs?: string[]; email?: string };
+      if (!data.valid) {
+        setKeyError("Invalid license key. Check your purchase confirmation email.");
+        setUnlockedPacks([]);
+        setSavedKey(null);
+        localStorage.removeItem("clawhq_pack_license");
+      } else {
+        const packs = data.packs ?? [];
+        setUnlockedPacks(packs);
+        setKeyEmail(data.email ?? null);
+        setSavedKey(key);
+        localStorage.setItem("clawhq_pack_license", JSON.stringify({ key, packs, email: data.email ?? "" }));
+        toast.success("License key activated");
+      }
+    } catch {
+      setKeyError("Could not reach the pack registry. Check your connection.");
+    } finally {
+      setValidating(false);
+    }
+  }
+
+  async function installPack(packId: string) {
+    if (!savedKey) return;
+    setInstalling(packId);
+    try {
+      const res = await fetch("/api/packs/install", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: savedKey, packId }),
+      });
+      if (!res.ok) throw new Error();
+      setInstalledPacks(p => [...p, packId]);
+      toast.success(`${PACK_CATALOG[packId]?.name ?? packId} installed`);
+    } catch {
+      toast.error("Failed to install pack. Try again.");
+    } finally {
+      setInstalling(null);
+    }
+  }
+
+  async function removePack(packId: string) {
+    setRemoving(packId);
+    try {
+      await fetch("/api/packs/install", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packId }),
+      });
+      setInstalledPacks(p => p.filter(id => id !== packId));
+      toast.success("Pack removed");
+    } catch {
+      toast.error("Failed to remove pack.");
+    } finally {
+      setRemoving(null);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+
+      {/* License key section */}
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>License Key</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+            Enter the key from your purchase confirmation email to unlock packs.
+          </p>
+        </div>
+
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <KeyRound size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-subtle)" }} />
+            <input
+              value={licenseKey}
+              onChange={e => { setLicenseKey(e.target.value.toUpperCase()); setKeyError(null); }}
+              onKeyDown={e => e.key === "Enter" && validateKey()}
+              placeholder="XXXX-XXXX-XXXX-XXXX"
+              className="w-full pl-8 pr-4 py-2 rounded-lg text-sm font-mono"
+              style={{ background: "var(--color-surface)", border: `1px solid ${keyError ? "#ef4444" : "var(--color-border)"}`, color: "var(--color-text)" }}
+            />
+          </div>
+          <button
+            onClick={validateKey}
+            disabled={validating || !licenseKey.trim()}
+            className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+            style={{ background: "var(--color-primary)", color: "#000", opacity: validating ? 0.6 : 1 }}
+          >
+            {validating ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
+            Activate
+          </button>
+        </div>
+
+        {keyError && (
+          <p className="text-xs flex items-center gap-1.5" style={{ color: "#ef4444" }}>
+            <AlertTriangle size={12} /> {keyError}
+          </p>
+        )}
+        {savedKey && keyEmail && (
+          <p className="text-xs flex items-center gap-1.5" style={{ color: "var(--color-primary)" }}>
+            <Check size={12} /> Active — licensed to {keyEmail}
+          </p>
+        )}
+      </div>
+
+      {/* Unlocked packs */}
+      {unlockedPacks.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+            Your Packs <span className="ml-1.5 px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)" }}>{unlockedPacks.length}</span>
+          </p>
+          <div className="space-y-2">
+            {unlockedPacks.map(packId => {
+              const meta = PACK_CATALOG[packId] ?? { id: packId, name: packId, description: "" };
+              const isInstalled = installedPacks.includes(packId);
+              const isInstalling = installing === packId;
+              const isRemoving = removing === packId;
+              return (
+                <div key={packId} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
+                  <div className="mt-0.5 p-1.5 rounded-lg" style={{ background: "var(--color-primary-dim)" }}>
+                    <Package size={14} style={{ color: "var(--color-primary)" }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{meta.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{meta.description}</p>
+                  </div>
+                  {isInstalled ? (
+                    <button
+                      onClick={() => removePack(packId)}
+                      disabled={isRemoving}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                      style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}
+                    >
+                      {isRemoving ? <RefreshCw size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => installPack(packId)}
+                      disabled={isInstalling}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                      style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid var(--color-primary)" }}
+                    >
+                      {isInstalling ? <RefreshCw size={11} className="animate-spin" /> : <Download size={11} />}
+                      Install
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Empty state — no key yet */}
+      {unlockedPacks.length === 0 && !savedKey && (
+        <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl text-center"
+          style={{ background: "var(--color-surface-2)", border: "1px dashed var(--color-border)" }}>
+          <Package size={28} style={{ color: "var(--color-text-subtle)" }} />
+          <div>
+            <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>No packs unlocked</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+              Purchase a pack to unlock vertical-specific agent bundles for your team.
+            </p>
+          </div>
+          <a
+            href="https://clawhqplatform.com/packs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs px-4 py-2 rounded-lg font-medium"
+            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)" }}
+          >
+            Browse packs →
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -980,6 +1472,8 @@ const TABS = [
   { id: "channels", label: "Channels", icon: Zap },
   { id: "budget", label: "Budget", icon: Wallet },
   { id: "integrations", label: "Integrations", icon: Plug },
+  { id: "router", label: "Model Router", icon: Sparkles },
+  { id: "packs", label: "Packs", icon: Package },
 ];
 
 export function SettingsPanel() {
@@ -1081,9 +1575,11 @@ export function SettingsPanel() {
         {activeTab === "channels" && <ChannelsTab onOpenWizard={ch => { setWizardChannel(ch); setWizardOpen(true); }} />}
         {activeTab === "budget" && <BudgetTab settings={settings} onChange={patch} />}
         {activeTab === "integrations" && <IntegrationsTab />}
+        {activeTab === "router" && <ModelRouterTab settings={settings} onChange={patch} />}
+        {activeTab === "packs" && <PacksTab />}
 
-        {/* NL input (not shown on channels/integrations tabs since they don't affect general settings) */}
-        {activeTab !== "channels" && activeTab !== "integrations" && (
+        {/* NL input (not shown on channels/integrations/router/packs tabs since they don't affect general settings) */}
+        {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && (
           <div className="mt-6">
             <NaturalLanguageInput currentSettings={settings} onPropose={setProposal} />
           </div>

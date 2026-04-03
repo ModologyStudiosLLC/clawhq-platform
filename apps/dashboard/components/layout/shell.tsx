@@ -15,7 +15,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
   const toggle = useCallback(() => setSidebarOpen(prev => !prev), []);
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "var(--color-bg)" }}>
+    <div className="flex h-screen h-dvh overflow-hidden" style={{ background: "var(--color-bg)" }}>
       {/* Mobile backdrop */}
       {sidebarOpen && (
         <div

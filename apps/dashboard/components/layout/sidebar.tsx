@@ -169,7 +169,7 @@ export function Sidebar({ user, onNavigate }: SidebarProps) {
           <button
             onClick={handleSignOut}
             title="Sign out"
-            className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded"
+            className="flex-shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded"
             style={{ color: "var(--color-text-subtle)" }}
           >
             <LogOut size={13} />

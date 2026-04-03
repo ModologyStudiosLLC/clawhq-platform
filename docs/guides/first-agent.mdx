@@ -1,0 +1,86 @@
+---
+title: Your First Agent
+description: Configure an agent and connect it to a messaging channel.
+---
+
+ClawHQ comes with several pre-built agents. This guide walks through activating one and connecting it to Discord.
+
+## Activate an agent
+
+1. Open the dashboard and go to **Team**
+2. Click **Add Agent** or select an agent from the roster
+3. The agent is now active — it will respond to messages in any connected channel
+
+Each agent has a role, a set of tools, and a model. You can configure all three from the agent's settings page.
+
+## Configure the agent
+
+From **Team → [Agent Name] → Settings**:
+
+| Setting | What it does |
+|---------|-------------|
+| **Model** | Which AI model the agent uses (Haiku, Sonnet, Opus) |
+| **Tools** | What the agent can do (web search, code execution, file writes) |
+| **Schedule** | Optional cron schedule for proactive tasks |
+| **Memory** | Whether the agent remembers past conversations |
+
+### Choosing a model
+
+| Model | Best for | Cost |
+|-------|---------|------|
+| Claude Haiku 4.5 | Quick replies, summaries, triage | $ |
+| Claude Sonnet 4.6 | Most tasks — balanced speed and capability | $$ |
+| Claude Opus 4.6 | Complex reasoning, long-form writing | $$$ |
+
+The [Model Router](/guides/model-router) can handle this automatically — routing each task to the right model based on what it is.
+
+## Connect to Discord
+
+See the full [Discord setup guide](/channels/discord), but the short version:
+
+1. Go to **Settings → Channels → Discord**
+2. Click **Connect Discord**
+3. Follow the wizard to create a bot and paste the token
+4. Invite the bot to your server using the generated invite link
+5. Message the bot — it should respond
+
+## Give the agent a task
+
+Once connected, you can delegate tasks directly in Discord:
+
+```
+@Felix research the top 5 competitors to Notion and summarize their pricing
+```
+
+```
+@Scout find recent news about OpenAI this week
+```
+
+Agents respond in the same channel. Long tasks update with progress messages.
+
+## Built-in agents
+
+| Agent | What it does |
+|-------|-------------|
+| **Hermes** | Conversational AI — persistent memory, long-term context, primary interface |
+| **Felix** | General-purpose CEO agent — handles anything |
+| **Scout** | Research and web intelligence |
+| **Codex** | Code review, debugging, PR assistance |
+| **Scribe** | Writing, content, newsletters |
+| **Pixel** | Design feedback, visual analysis |
+| **Fixer** | Debugging, error investigation |
+
+<Note>
+**Hermes is different from the others.** It's the always-on conversational layer with persistent memory — it remembers context across every session. The agents above are specialized execution engines you trigger for specific tasks. See the [Hermes guide](/guides/hermes) for setup and usage.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Install a Pack" icon="box" href="/guides/packs">
+    Add pre-configured agent bundles for your team
+  </Card>
+  <Card title="Model Router" icon="route" href="/guides/model-router">
+    Automatically route tasks to the right model
+  </Card>
+</CardGroup>

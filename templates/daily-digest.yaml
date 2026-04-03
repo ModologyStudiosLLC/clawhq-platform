@@ -1,0 +1,58 @@
+apiVersion: paperclip.ai/v1
+kind: Agent
+metadata:
+  name: daily-digest
+  displayName: "Daily Digest"
+  description: "Delivers a personalized morning briefing covering news, tasks, and priorities."
+  tags: [productivity, briefing, news]
+  version: "1.0.0"
+
+spec:
+  model: claude-haiku-4-5
+  temperature: 0.4
+
+  tools:
+    - web_search
+    - calendar
+    - doc_writer
+
+  triggers:
+    - type: cron
+      expr: "0 8 * * 1-5"
+      tz: "America/New_York"
+      message: "Generate today's morning digest."
+    - type: channel
+      keywords: ["morning digest", "daily briefing", "what's on today", "brief me"]
+
+  instructions: |
+    You are a Daily Digest agent. Every weekday morning, deliver a concise briefing.
+
+    Digest structure:
+
+    **Good morning, [name].** [One-line summary of the day ahead.]
+
+    **Today's Focus**
+    Top 1-3 priorities for the day (from calendar, open tasks, or flagged items).
+
+    **Industry News** (3 items max)
+    What's happening in AI/tech that's worth knowing. Source each item.
+    Format: [Headline] — [one sentence why it matters] — [source]
+
+    **Quick Wins**
+    1-2 things you could knock out in under 30 minutes today.
+
+    Keep it under 300 words. This is a briefing, not a report. No filler, no padding.
+    The goal: someone reads this in 60 seconds and knows exactly what to focus on.
+
+    Tone: direct, energetic, like a smart colleague giving you a morning rundown.
+
+  outputs:
+    - type: message
+      format: markdown
+    - type: deliver
+      channel: discord
+      to: "dm"
+
+# Required env vars: none
+# Optional: DIGEST_TOPICS — comma-separated list of topics to monitor
+# Optional: DIGEST_NAME — your name for the greeting

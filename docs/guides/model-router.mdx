@@ -1,0 +1,72 @@
+---
+title: Model Router
+description: Automatically route each task to the right model based on what it is.
+---
+
+The Model Router analyzes each incoming task and selects the most appropriate model — balancing capability, cost, and budget constraints without manual configuration.
+
+## How it works
+
+Every message is classified into one of five task types:
+
+| Task Type | Examples | Default Model |
+|-----------|---------|--------------|
+| **Code** | Debugging, PR review, refactoring, scripts | Claude Sonnet 4.6 |
+| **Research** | Web search, competitor analysis, summarizing articles | Claude Sonnet 4.6 |
+| **Summary** | TL;DR, key points, digest | Claude Haiku 4.5 |
+| **Creative** | Blog posts, emails, newsletters, copy | Claude Opus 4.6 |
+| **Chat** | General Q&A, quick questions | Claude Haiku 4.5 |
+
+The router then applies rules in priority order:
+
+1. **Per-task override** — if you've pinned a specific model to a task type, it always wins
+2. **Self-learning** — if enough samples have been collected, the router uses the model with the highest success rate
+3. **Budget fallback** — if your monthly budget is above the threshold, non-critical tasks switch to the fallback model
+4. **Ollama routing** — background tasks can be sent to a local Ollama model at zero API cost
+5. **Task-type defaults** — the table above
+
+## Configure the router
+
+Go to **Settings → Model Router**.
+
+### Primary and fallback models
+
+**Primary Model** is used for most tasks. Sonnet 4.6 is a good default — capable enough for most work, cheaper than Opus.
+
+**Budget Fallback Model** kicks in when your monthly budget exceeds the threshold. Haiku is the recommended fallback — fast and very cheap.
+
+### Budget threshold
+
+The slider controls what percentage of your monthly budget triggers the fallback. Default is 80% — meaning the last 20% of your budget is protected for critical tasks.
+
+### Self-learning
+
+When enabled, the router tracks which models succeed or fail on each task type. After collecting enough samples (default: 20), it automatically adjusts routing to prefer higher-performing models.
+
+To prevent self-learning from changing routing for a task type, click the **lock icon** next to that task in the per-task overrides table.
+
+### Ollama (local models)
+
+If you run [Ollama](https://ollama.ai) locally, the router can send background tasks (summaries, chat) to a local model instead of the API — reducing cost to zero for those task types.
+
+Enable it in **Settings → Model Router → Local Ollama Routing** and set your Ollama base URL (default: `http://localhost:11434`).
+
+Recommended local model: `llama3.2` for general use, `codellama` for code tasks.
+
+## Disable the router
+
+Toggle **Model Router** off in Settings. All agents will use the primary model for every task.
+
+## Per-agent overrides
+
+Agents can also have a model set directly in **Team → [Agent] → Settings → Model**. An explicit agent-level model always takes priority over the router.
+
+## Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MODEL_ROUTER_ENABLED` | `true` | Master switch |
+| `MODEL_ROUTER_PRIMARY` | `anthropic/claude-sonnet-4-6` | Primary model |
+| `MODEL_ROUTER_FALLBACK` | `anthropic/claude-haiku-4-5` | Budget fallback |
+| `MODEL_ROUTER_BUDGET_THRESHOLD` | `80` | Fallback trigger % |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama endpoint |

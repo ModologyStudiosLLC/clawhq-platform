@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -7,19 +7,19 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
+  --radius-lg: 1.125rem;
+  --radius-md: 0.625rem;
   --radius-sm: 0.375rem;
 
-  /* Modology brand palette */
-  --color-bg: #0e0e10;
-  --color-surface: #16161a;
-  --color-surface-2: #1c1c22;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.15);
+  /* Modology brand palette — aligned with clawhqplatform.com */
+  --color-bg: #050507;
+  --color-surface: #0c0c0f;
+  --color-surface-2: #111115;
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
 
   --color-primary: #69daff;
   --color-primary-dim: rgba(105, 218, 255, 0.15);
@@ -31,9 +31,9 @@
   --color-accent: #ac8aff;
   --color-accent-dim: rgba(172, 138, 255, 0.15);
 
-  --color-text: #f0f0f5;
-  --color-text-muted: rgba(240, 240, 245, 0.5);
-  --color-text-subtle: rgba(240, 240, 245, 0.3);
+  --color-text: #f5f5f7;
+  --color-text-muted: rgba(245, 245, 247, 0.5);
+  --color-text-subtle: rgba(245, 245, 247, 0.3);
 
   --color-success: #69f6b8;
   --color-warning: #f6d969;
@@ -41,17 +41,17 @@
   --color-info: #69daff;
 
   /* shadcn/radix compatibility */
-  --color-background: #0e0e10;
-  --color-foreground: #f0f0f5;
-  --color-card: #16161a;
-  --color-card-foreground: #f0f0f5;
-  --color-popover: #1c1c22;
-  --color-popover-foreground: #f0f0f5;
-  --color-muted: #1c1c22;
-  --color-muted-foreground: rgba(240, 240, 245, 0.5);
+  --color-background: #050507;
+  --color-foreground: #f5f5f7;
+  --color-card: #0c0c0f;
+  --color-card-foreground: #f5f5f7;
+  --color-popover: #111115;
+  --color-popover-foreground: #f5f5f7;
+  --color-muted: #111115;
+  --color-muted-foreground: rgba(245, 245, 247, 0.5);
   --color-destructive: #ff6b6b;
-  --color-destructive-foreground: #f0f0f5;
-  --color-input: #1c1c22;
+  --color-destructive-foreground: #f5f5f7;
+  --color-input: #111115;
   --color-ring: #69daff;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -108,8 +108,8 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   ::-webkit-scrollbar {
@@ -152,7 +152,7 @@
   .card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
   }
 
   .card-hover {

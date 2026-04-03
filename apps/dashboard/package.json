@@ -31,7 +31,8 @@
     "rehype-highlight": "^7.0.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -39,6 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/pg": "^8.11.10"
   }
 }

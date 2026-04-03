@@ -1,0 +1,48 @@
+---
+title: Agent Templates
+description: Pre-built agent definitions ready to drop into any ClawHQ deployment.
+---
+
+Templates are ready-to-use agent configs. Copy one into your ClawHQ deployment and your agent is configured with the right model, tools, triggers, and instructions for that use case.
+
+## Available templates
+
+<CardGroup cols={2}>
+  <Card title="Research Assistant" icon="magnifying-glass" href="/templates/research-assistant">
+    On-demand research briefings with sources. Give it a topic, get a structured brief.
+  </Card>
+  <Card title="Lead Qualification Bot" icon="user-check" href="/templates/lead-qualification">
+    Researches B2B prospects before your first call. Scores fit, timing, and reachability.
+  </Card>
+  <Card title="Code Review Agent" icon="code" href="/templates/code-review">
+    Reviews code for bugs, security issues, and style. Works via Discord or GitHub PR.
+  </Card>
+  <Card title="Content Scheduler" icon="calendar" href="/templates/content-scheduler">
+    Drafts and schedules social posts and newsletter content. Runs weekly or on demand.
+  </Card>
+  <Card title="Support Triage" icon="headset" href="/templates/support-triage">
+    Classifies support tickets by priority and drafts responses. Built-in HITL for P1/P2.
+  </Card>
+  <Card title="Daily Digest" icon="newspaper" href="/templates/daily-digest">
+    Morning briefing with industry news, priorities, and quick wins. Delivered to Discord DM.
+  </Card>
+</CardGroup>
+
+## Install a template
+
+```bash
+cp templates/research-assistant.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+Or from the dashboard: **Team → Add Agent → Browse Templates**.
+
+## Submit a template
+
+Community templates are welcome. Add your YAML to the `/templates` directory and open a pull request.
+
+Guidelines:
+- One agent per file
+- Include clear `instructions` — the agent should work out of the box
+- Document required env vars in comments at the bottom of the file
+- Keep the model appropriate for the task cost (use Haiku for cheap/frequent tasks)

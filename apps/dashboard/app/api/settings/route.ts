@@ -39,6 +39,20 @@ export const defaultSettings = {
     groq: 0,
     openrouter: 0,
   } as Record<string, number>,
+  // Model Router
+  modelRouter: {
+    enabled: true,
+    primaryModel: "anthropic/claude-sonnet-4-6",
+    fallbackModel: "anthropic/claude-haiku-4-5",
+    budgetThreshold: 80,
+    ollamaEnabled: true,
+    ollamaBaseUrl: "http://localhost:11434",
+    ollamaModel: "llama3.2",
+    selfLearning: true,
+    selfLearningSampleThreshold: 20,
+    lockedTaskTypes: [] as string[],
+    taskTypeOverrides: {} as Record<string, string>,
+  },
 };
 
 type Settings = typeof defaultSettings;
@@ -71,6 +85,14 @@ export async function PATCH(req: Request) {
     ...body,
     agents: { ...current.agents, ...(body.agents ?? {}) },
     providerCaps: { ...current.providerCaps, ...(body.providerCaps ?? {}) },
+    modelRouter: {
+      ...current.modelRouter,
+      ...(body.modelRouter ?? {}),
+      taskTypeOverrides: {
+        ...current.modelRouter.taskTypeOverrides,
+        ...(body.modelRouter?.taskTypeOverrides ?? {}),
+      },
+    },
   };
   await writeSettings(merged);
   return NextResponse.json(merged);
