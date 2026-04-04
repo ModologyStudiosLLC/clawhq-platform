@@ -854,6 +854,7 @@ interface IntegrationDef {
 }
 
 const INTEGRATION_DEFS: IntegrationDef[] = [
+  // ── Tier 1: Infrastructure ──────────────────────────────────────────────────
   {
     id: "filesystem",
     name: "Filesystem",
@@ -885,6 +886,47 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     credentialLabel: "API key",
     credentialType: "password",
     credentialPlaceholder: "BSA...",
+  },
+  // ── Tier 2: Productivity & Dev Tools ───────────────────────────────────────
+  {
+    id: "github",
+    name: "GitHub",
+    description: "Access repos, issues, PRs, and code search",
+    credentialLabel: "Personal access token",
+    credentialType: "password",
+    credentialPlaceholder: "ghp_...",
+  },
+  {
+    id: "slack",
+    name: "Slack",
+    description: "Read channels, post messages, and search workspace",
+    credentialLabel: "Bot token",
+    credentialType: "password",
+    credentialPlaceholder: "xoxb-...",
+  },
+  {
+    id: "notion",
+    name: "Notion",
+    description: "Read and write Notion pages and databases",
+    credentialLabel: "Integration token",
+    credentialType: "password",
+    credentialPlaceholder: "secret_...",
+  },
+  {
+    id: "linear",
+    name: "Linear",
+    description: "Manage issues, projects, and roadmaps",
+    credentialLabel: "API key",
+    credentialType: "password",
+    credentialPlaceholder: "lin_api_...",
+  },
+  {
+    id: "google-drive",
+    name: "Google Drive",
+    description: "Read, search, and create files in Google Drive",
+    credentialLabel: "Service account JSON path",
+    credentialType: "text",
+    credentialPlaceholder: "~/.clawhq/google-sa.json",
   },
 ];
 
@@ -1085,7 +1127,28 @@ function IntegrationsTab() {
           )}
         </div>
 
-        {INTEGRATION_DEFS.map(def => (
+        {/* Tier 1 */}
+        <div style={{ padding: "0.625rem 1.25rem 0.25rem", borderBottom: "1px solid var(--color-border)" }}>
+          <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-subtle)" }}>
+            Infrastructure
+          </p>
+        </div>
+        {INTEGRATION_DEFS.slice(0, 4).map(def => (
+          <IntegrationCard
+            key={def.id}
+            def={def}
+            config={state[def.id] ?? { ...DEFAULT_INTEGRATION_CONFIG }}
+            onChange={patch => updateConfig(def.id, patch)}
+          />
+        ))}
+
+        {/* Tier 2 */}
+        <div style={{ padding: "0.625rem 1.25rem 0.25rem", borderBottom: "1px solid var(--color-border)", borderTop: "1px solid var(--color-border)", marginTop: "0.5rem" }}>
+          <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-subtle)" }}>
+            Productivity &amp; Dev Tools
+          </p>
+        </div>
+        {INTEGRATION_DEFS.slice(4).map(def => (
           <IntegrationCard
             key={def.id}
             def={def}

@@ -86,6 +86,121 @@ async function testBraveSearch(credential: string): Promise<TestResult> {
   }
 }
 
+async function testGitHub(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "Personal access token is required." };
+  }
+  try {
+    const res = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${credential.trim()}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { login?: string };
+      return { ok: true, message: `Connected as @${data.login ?? "unknown"}.` };
+    }
+    if (res.status === 401) {
+      return { ok: false, message: "Invalid or expired GitHub token." };
+    }
+    return { ok: false, message: `GitHub API returned HTTP ${res.status}.` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach GitHub API: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function testSlack(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "Bot token is required." };
+  }
+  try {
+    const res = await fetch("https://slack.com/api/auth.test", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${credential.trim()}`,
+        "Content-Type": "application/json",
+      },
+    });
+    const data = (await res.json()) as { ok: boolean; team?: string; user?: string; error?: string };
+    if (data.ok) {
+      return { ok: true, message: `Connected to workspace "${data.team}" as ${data.user}.` };
+    }
+    return { ok: false, message: `Slack auth failed: ${data.error ?? "unknown error"}.` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach Slack API: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function testNotion(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "Integration token is required." };
+  }
+  try {
+    const res = await fetch("https://api.notion.com/v1/users/me", {
+      headers: {
+        Authorization: `Bearer ${credential.trim()}`,
+        "Notion-Version": "2022-06-28",
+      },
+    });
+    if (res.ok) {
+      const data = (await res.json()) as { name?: string; type?: string };
+      return { ok: true, message: `Connected as "${data.name ?? "integration"}" (${data.type ?? "bot"}).` };
+    }
+    if (res.status === 401) {
+      return { ok: false, message: "Invalid or revoked Notion integration token." };
+    }
+    return { ok: false, message: `Notion API returned HTTP ${res.status}.` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach Notion API: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function testLinear(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "API key is required." };
+  }
+  try {
+    const res = await fetch("https://api.linear.app/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: credential.trim(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query: "{ viewer { name email } }" }),
+    });
+    const data = (await res.json()) as { data?: { viewer?: { name?: string; email?: string } }; errors?: unknown[] };
+    if (data.data?.viewer?.name) {
+      return { ok: true, message: `Connected as ${data.data.viewer.name} (${data.data.viewer.email ?? ""}).` };
+    }
+    if (data.errors) {
+      return { ok: false, message: "Invalid Linear API key." };
+    }
+    return { ok: false, message: `Linear API returned unexpected response.` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach Linear API: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+async function testGoogleDrive(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "Service account JSON path is required." };
+  }
+  const p = credential.trim().replace(/^~/, process.env.HOME ?? "");
+  try {
+    await fs.access(p);
+    const raw = await fs.readFile(p, "utf8");
+    const sa = JSON.parse(raw) as { type?: string; client_email?: string };
+    if (sa.type !== "service_account") {
+      return { ok: false, message: "File is not a service account JSON (missing type: service_account)." };
+    }
+    return { ok: true, message: `Service account loaded: ${sa.client_email ?? "unknown"}.` };
+  } catch (err) {
+    return { ok: false, message: `Could not read service account file: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(
@@ -110,6 +225,21 @@ export async function POST(
       break;
     case "brave-search":
       result = await testBraveSearch(credential);
+      break;
+    case "github":
+      result = await testGitHub(credential);
+      break;
+    case "slack":
+      result = await testSlack(credential);
+      break;
+    case "notion":
+      result = await testNotion(credential);
+      break;
+    case "linear":
+      result = await testLinear(credential);
+      break;
+    case "google-drive":
+      result = await testGoogleDrive(credential);
       break;
     default:
       result = { ok: false, message: `Unknown integration: ${id}` };
