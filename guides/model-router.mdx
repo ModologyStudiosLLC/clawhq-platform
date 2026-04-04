@@ -53,6 +53,68 @@ Enable it in **Settings → Model Router → Local Ollama Routing** and set your
 
 Recommended local model: `llama3.2` for general use, `codellama` for code tasks.
 
+## Enterprise cloud providers
+
+ClawHQ works with your existing cloud provider contracts. Your inference goes directly from your server to your provider — Modology is never in the data path.
+
+### AWS Bedrock
+
+Claude, Llama, and Titan are available via [AWS Bedrock](https://aws.amazon.com/bedrock/). Bedrock is the recommended path for teams with existing AWS spend.
+
+```env
+MODEL_ROUTER_PRIMARY=bedrock/anthropic.claude-sonnet-4-6-v1
+MODEL_ROUTER_FALLBACK=bedrock/anthropic.claude-haiku-4-5-v1
+AWS_ACCESS_KEY_ID=your-key-id
+AWS_SECRET_ACCESS_KEY=your-secret
+AWS_REGION=us-east-1
+```
+
+IAM minimum permissions: `bedrock:InvokeModel`, `bedrock:InvokeModelWithResponseStream`.
+
+### Azure OpenAI
+
+GPT-4o and o-series models are available through [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service), with data residency guarantees in your chosen Azure region.
+
+```env
+MODEL_ROUTER_PRIMARY=azure/gpt-4o
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+AZURE_OPENAI_API_KEY=your-azure-key
+AZURE_OPENAI_API_VERSION=2024-08-01-preview
+```
+
+You can also configure Azure OpenAI in the onboarding provider picker or in **Settings → Model Router**.
+
+### Google Cloud Vertex AI
+
+Gemini and Claude (via Vertex AI Model Garden) are available for GCP customers.
+
+```env
+MODEL_ROUTER_PRIMARY=vertex/gemini-2.0-flash
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_REGION=us-central1
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+```
+
+Minimum IAM role: `roles/aiplatform.user`.
+
+### Admin-controlled provider config
+
+Set provider configuration via environment variables in your `docker-compose.yml` or `.env` file. Environment-level config takes precedence over dashboard settings, giving IT admins central control:
+
+```yaml
+# docker-compose.yml
+services:
+  dashboard:
+    environment:
+      - MODEL_ROUTER_PRIMARY=bedrock/anthropic.claude-sonnet-4-6-v1
+      - MODEL_ROUTER_FALLBACK=bedrock/anthropic.claude-haiku-4-5-v1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=us-east-1
+```
+
+Individual users can still view the router settings in the dashboard but cannot override an environment-level provider.
+
 ## Disable the router
 
 Toggle **Model Router** off in Settings. All agents will use the primary model for every task.

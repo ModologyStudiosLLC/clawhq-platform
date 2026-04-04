@@ -7,7 +7,7 @@ import { ArrowRight, Check, Eye, EyeOff, Cpu, Wifi } from "lucide-react";
 
 type Goal = "research" | "leads" | "content" | "automation" | "custom";
 type AgentId = "felix" | "scout" | "codex" | "pixel" | "scribe" | "fixer";
-type Provider = "openrouter" | "anthropic" | "openai" | "ollama";
+type Provider = "openrouter" | "anthropic" | "openai" | "ollama" | "azure" | "bedrock" | "vertex";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -404,6 +404,42 @@ export function OnboardingWizard() {
             showKey: false,
             keyLabel: "",
           },
+          {
+            id: "azure",
+            label: "Azure OpenAI",
+            tagline: "GPT-4o via Microsoft Azure — data residency, your existing contract",
+            tag: "Enterprise",
+            tagColor: "var(--color-accent)",
+            placeholder: "https://your-resource.openai.azure.com",
+            showKey: true,
+            keyLabel: "Endpoint URL",
+            helpUrl: "https://portal.azure.com",
+            helpText: "Azure AI Foundry portal",
+          },
+          {
+            id: "bedrock",
+            label: "AWS Bedrock",
+            tagline: "Claude & Llama via AWS — IAM auth, stays in your AWS account",
+            tag: "Enterprise",
+            tagColor: "var(--color-accent)",
+            placeholder: "us-east-1",
+            showKey: true,
+            keyLabel: "AWS Region",
+            helpUrl: "https://console.aws.amazon.com/bedrock",
+            helpText: "AWS Bedrock console",
+          },
+          {
+            id: "vertex",
+            label: "Google Vertex AI",
+            tagline: "Gemini & Claude via GCP — service account auth, your GCP project",
+            tag: "Enterprise",
+            tagColor: "var(--color-accent)",
+            placeholder: "your-gcp-project-id",
+            showKey: true,
+            keyLabel: "GCP Project ID",
+            helpUrl: "https://console.cloud.google.com/vertex-ai",
+            helpText: "Vertex AI console",
+          },
         ];
 
         const selected = PROVIDERS.find(p => p.id === provider)!;
@@ -499,6 +535,16 @@ export function OnboardingWizard() {
                 Make sure <strong style={{ color: "var(--color-text)" }}>Ollama</strong> is running on your machine at{" "}
                 <code style={{ color: "var(--color-primary)" }}>localhost:11434</code>. You can pull models with{" "}
                 <code style={{ color: "var(--color-primary)" }}>ollama pull llama3.2</code>.
+              </p>
+            )}
+
+            {(provider === "bedrock" || provider === "vertex") && (
+              <p className="text-xs mb-4 px-3 py-2.5 rounded-lg" style={{ background: "color-mix(in srgb, var(--color-accent) 8%, transparent)", color: "var(--color-text-muted)", border: "1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)" }}>
+                Full auth credentials (IAM keys, service accounts) are configured via environment variables in your{" "}
+                <code style={{ color: "var(--color-accent)" }}>.env</code> file.{" "}
+                <a href="/docs/guides/model-router#enterprise-cloud-providers" target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-accent)", textDecoration: "underline" }}>
+                  See enterprise setup guide →
+                </a>
               </p>
             )}
 
