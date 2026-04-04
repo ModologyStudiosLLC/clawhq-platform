@@ -80,6 +80,7 @@ import {
 } from "hermes-paperclip-adapter";
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
+import { openAgentsServerAdapter } from "@paperclipai/adapter-openagents/server";
 
 const claudeLocalAdapter: ServerAdapterModule = {
   type: "claude_local",
@@ -199,6 +200,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     hermesLocalAdapter,
     processAdapter,
     httpAdapter,
+    openAgentsServerAdapter,
   ].map((a) => [a.type, a]),
 );
 
