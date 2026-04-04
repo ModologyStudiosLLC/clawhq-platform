@@ -201,6 +201,67 @@ async function testGoogleDrive(credential: string): Promise<TestResult> {
   }
 }
 
+async function testFetch(credential: string): Promise<TestResult> {
+  try {
+    const res = await fetch("https://registry.npmjs.org/@modelcontextprotocol/server-fetch/latest");
+    if (res.ok) {
+      return { ok: true, message: `Fetch MCP available${credential.trim() ? ` (user-agent: "${credential.trim()}")` : ""}.` };
+    }
+  } catch { /* ignore */ }
+  return { ok: true, message: "No credential required — Fetch MCP will be enabled on save." };
+}
+
+async function testPuppeteer(credential: string): Promise<TestResult> {
+  const chromePath = credential.trim();
+  if (chromePath) {
+    try {
+      await fs.access(chromePath);
+      return { ok: true, message: `Chrome executable found at ${chromePath}.` };
+    } catch {
+      return { ok: false, message: `Chrome executable not found at: ${chromePath}` };
+    }
+  }
+  return { ok: true, message: "No path set — Puppeteer will use bundled Chromium." };
+}
+
+async function testSequentialThinking(_credential: string): Promise<TestResult> {
+  return { ok: true, message: "No credential required — Sequential Thinking MCP will be enabled on save." };
+}
+
+async function testObsidian(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "API key required. Install the 'Local REST API' plugin in Obsidian and copy the key from its settings." };
+  }
+  try {
+    const res = await fetch("http://localhost:27123/", {
+      headers: { Authorization: `Bearer ${credential.trim()}` },
+    });
+    if (res.ok) return { ok: true, message: "Obsidian Local REST API is reachable." };
+    if (res.status === 401) return { ok: false, message: "Invalid Obsidian API key." };
+    return { ok: false, message: `Obsidian API returned HTTP ${res.status}.` };
+  } catch {
+    return { ok: false, message: "Could not reach Obsidian on localhost:27123. Make sure Obsidian is open with the Local REST API plugin active." };
+  }
+}
+
+async function testCloudflare(credential: string): Promise<TestResult> {
+  if (!credential.trim()) {
+    return { ok: false, message: "API token is required." };
+  }
+  try {
+    const res = await fetch("https://api.cloudflare.com/client/v4/user/tokens/verify", {
+      headers: { Authorization: `Bearer ${credential.trim()}`, "Content-Type": "application/json" },
+    });
+    const data = await res.json() as { success: boolean; result?: { status?: string }; errors?: Array<{ message: string }> };
+    if (data.success && data.result?.status === "active") {
+      return { ok: true, message: "Cloudflare API token is valid and active." };
+    }
+    return { ok: false, message: `Cloudflare: ${data.errors?.[0]?.message ?? "Token invalid or insufficient permissions."}` };
+  } catch (err) {
+    return { ok: false, message: `Could not reach Cloudflare API: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(
@@ -214,33 +275,20 @@ export async function POST(
   let result: TestResult;
 
   switch (id) {
-    case "filesystem":
-      result = await testFilesystem(credential);
-      break;
-    case "memory":
-      result = await testMemory(credential);
-      break;
-    case "postgres":
-      result = await testPostgres(credential);
-      break;
-    case "brave-search":
-      result = await testBraveSearch(credential);
-      break;
-    case "github":
-      result = await testGitHub(credential);
-      break;
-    case "slack":
-      result = await testSlack(credential);
-      break;
-    case "notion":
-      result = await testNotion(credential);
-      break;
-    case "linear":
-      result = await testLinear(credential);
-      break;
-    case "google-drive":
-      result = await testGoogleDrive(credential);
-      break;
+    case "filesystem":           result = await testFilesystem(credential);       break;
+    case "memory":               result = await testMemory(credential);           break;
+    case "postgres":             result = await testPostgres(credential);         break;
+    case "brave-search":         result = await testBraveSearch(credential);      break;
+    case "github":               result = await testGitHub(credential);           break;
+    case "slack":                result = await testSlack(credential);            break;
+    case "notion":               result = await testNotion(credential);           break;
+    case "linear":               result = await testLinear(credential);           break;
+    case "google-drive":         result = await testGoogleDrive(credential);      break;
+    case "fetch":                result = await testFetch(credential);            break;
+    case "puppeteer":            result = await testPuppeteer(credential);        break;
+    case "sequential-thinking":  result = await testSequentialThinking(credential); break;
+    case "obsidian":             result = await testObsidian(credential);         break;
+    case "cloudflare":           result = await testCloudflare(credential);       break;
     default:
       result = { ok: false, message: `Unknown integration: ${id}` };
   }

@@ -928,6 +928,47 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     credentialType: "text",
     credentialPlaceholder: "~/.clawhq/google-sa.json",
   },
+  // ── Tier 3: Utilities & Agent Reasoning ────────────────────────────────────
+  {
+    id: "fetch",
+    name: "Fetch",
+    description: "Let agents fetch any URL and read the response",
+    credentialLabel: "User-agent string (optional)",
+    credentialType: "text",
+    credentialPlaceholder: "ClawHQ/1.0",
+  },
+  {
+    id: "puppeteer",
+    name: "Puppeteer",
+    description: "Browser automation — scrape, screenshot, interact with web pages",
+    credentialLabel: "Chrome executable path (optional)",
+    credentialType: "text",
+    credentialPlaceholder: "/usr/bin/chromium",
+  },
+  {
+    id: "sequential-thinking",
+    name: "Sequential Thinking",
+    description: "Structured multi-step reasoning tool — improves complex problem solving",
+    credentialLabel: "No credential required",
+    credentialType: "text",
+    credentialPlaceholder: "(none needed)",
+  },
+  {
+    id: "obsidian",
+    name: "Obsidian",
+    description: "Read and write notes in your Obsidian vault via the Local REST API plugin",
+    credentialLabel: "Vault REST API key",
+    credentialType: "password",
+    credentialPlaceholder: "API key from Obsidian Local REST API plugin",
+  },
+  {
+    id: "cloudflare",
+    name: "Cloudflare",
+    description: "Manage Workers, DNS records, KV, R2, and D1 databases",
+    credentialLabel: "API token",
+    credentialType: "password",
+    credentialPlaceholder: "cf_...",
+  },
 ];
 
 function IntegrationCard({
@@ -1148,7 +1189,22 @@ function IntegrationsTab() {
             Productivity &amp; Dev Tools
           </p>
         </div>
-        {INTEGRATION_DEFS.slice(4).map(def => (
+        {INTEGRATION_DEFS.slice(4, 9).map(def => (
+          <IntegrationCard
+            key={def.id}
+            def={def}
+            config={state[def.id] ?? { ...DEFAULT_INTEGRATION_CONFIG }}
+            onChange={patch => updateConfig(def.id, patch)}
+          />
+        ))}
+
+        {/* Tier 3 */}
+        <div style={{ padding: "0.625rem 1.25rem 0.25rem", borderBottom: "1px solid var(--color-border)", borderTop: "1px solid var(--color-border)", marginTop: "0.5rem" }}>
+          <p style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-text-subtle)" }}>
+            Utilities &amp; Agent Reasoning
+          </p>
+        </div>
+        {INTEGRATION_DEFS.slice(9).map(def => (
           <IntegrationCard
             key={def.id}
             def={def}

@@ -80,6 +80,39 @@ function buildMcpServerConfig(
         args: ["-y", "@modelcontextprotocol/server-gdrive"],
         env: { GDRIVE_CREDENTIALS_FILE: c.replace(/^~/, os.homedir()) },
       };
+    case "fetch":
+      return {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-fetch"],
+        ...(c ? { env: { USER_AGENT: c } } : {}),
+      };
+    case "puppeteer":
+      return {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-puppeteer"],
+        ...(c ? { env: { PUPPETEER_EXECUTABLE_PATH: c } } : {}),
+      };
+    case "sequential-thinking":
+      return {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      };
+    case "obsidian":
+      return {
+        command: "npx",
+        args: ["-y", "mcp-obsidian"],
+        env: {
+          OBSIDIAN_API_KEY: c,
+          OBSIDIAN_HOST: "localhost",
+          OBSIDIAN_PORT: "27123",
+        },
+      };
+    case "cloudflare":
+      return {
+        command: "npx",
+        args: ["-y", "@cloudflare/mcp-server-cloudflare"],
+        env: { CLOUDFLARE_API_TOKEN: c },
+      };
     default:
       return null;
   }
