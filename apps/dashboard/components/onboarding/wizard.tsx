@@ -193,12 +193,12 @@ export function OnboardingWizard() {
             style={{
               background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
               color: "var(--color-on-brand)",
-              fontFamily: var(--font-display),
+              fontFamily: "var(--font-display)",
             }}
           >
             C
           </div>
-          <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: var(--font-display) }}>
+          <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
             Welcome to ClawHQ
           </h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--color-text-muted)" }}>
@@ -219,7 +219,7 @@ export function OnboardingWizard() {
       {/* ── Goal ── */}
       {step === "goal" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
             What do you want agents to do?
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -263,7 +263,7 @@ export function OnboardingWizard() {
       {/* ── Agents ── */}
       {step === "agents" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
             Choose your starting team
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -347,7 +347,7 @@ export function OnboardingWizard() {
       {/* ── API Key ── */}
       {step === "apikey" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
             Add your Anthropic key
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -385,7 +385,7 @@ export function OnboardingWizard() {
       {/* ── Channel ── */}
       {step === "channel" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
             Where do you want to talk to your agents?
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -442,7 +442,7 @@ export function OnboardingWizard() {
           >
             <Check size={28} style={{ color: "var(--color-secondary)" }} />
           </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: var(--font-display) }}>
+          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "var(--font-display)" }}>
             Your team is ready
           </h2>
           <p className="text-sm mb-2" style={{ color: "var(--color-text-muted)" }}>

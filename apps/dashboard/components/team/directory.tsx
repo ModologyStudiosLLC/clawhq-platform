@@ -171,7 +171,7 @@ function AgentCard({ agent }: { agent: Agent }) {
             {!isActive ? <AlertTriangle size={18} style={{ color: "var(--color-error)" }} /> : emoji}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
+            <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
               {agent.name}
             </p>
             <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{role}</p>

@@ -325,7 +325,7 @@ export function ChannelWizard({ open, defaultChannel = "discord", onClose, onSav
           <div className="flex items-center gap-3">
             <span className="text-xl">{cfg.icon}</span>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
                 Connect {cfg.label}
               </p>
               <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
@@ -381,19 +381,19 @@ export function ChannelWizard({ open, defaultChannel = "discord", onClose, onSav
               <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--color-secondary-dim)" }}>
                 <Check size={24} style={{ color: "var(--color-secondary)" }} />
               </div>
-              <h3 className="text-lg font-bold mb-2" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>{cfg.label} connected!</h3>
+              <h3 className="text-lg font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>{cfg.label} connected!</h3>
               <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Your agents will now respond in {cfg.label}. It may take a moment to go live.</p>
             </div>
           ) : stepIdx < steps.length ? (
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>{steps[stepIdx].title}</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>{steps[stepIdx].title}</h3>
               <div className="rounded-xl p-4" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 {steps[stepIdx].body}
               </div>
             </div>
           ) : (
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>Paste your token</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>Paste your token</h3>
               <div className="rounded-xl p-4" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 <TokenInput channel={activeChannel} onSaved={() => { setDone(true); onSaved?.(activeChannel); }} />
               </div>

@@ -185,7 +185,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
           {emoji}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
+          <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
             {agent?.name || "Loading..."}
           </p>
           <p className="text-xs" style={{ color: agent?.state === "Running" ? "var(--color-secondary)" : "var(--color-error)" }}>
@@ -212,7 +212,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
             >
               {emoji}
             </div>
-            <p className="text-sm font-medium mb-1" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
+            <p className="text-sm font-medium mb-1" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
               {agent?.name || "Agent"}
             </p>
             <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>

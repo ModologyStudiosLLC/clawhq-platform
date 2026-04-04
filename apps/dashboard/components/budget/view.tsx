@@ -106,7 +106,7 @@ export function BudgetView() {
               ))}
             </div>
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
             {loading ? "—" : fmtTokens(totalTokens)}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Tokens this hour</p>
@@ -118,7 +118,7 @@ export function BudgetView() {
           <div className="flex items-center mb-2">
             <DollarSign size={16} style={{ color: "var(--color-secondary)" }} />
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
             {loading ? "—" : `$${totalCost.toFixed(4)}`}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Estimated cost</p>
@@ -130,7 +130,7 @@ export function BudgetView() {
           <div className="flex items-center mb-2">
             <Users size={16} style={{ color: "var(--color-accent)" }} />
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
             {loading ? "—" : String(agentData.length)}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Active agents</p>
@@ -144,7 +144,7 @@ export function BudgetView() {
           </div>
           <p
             className="text-lg font-bold truncate"
-            style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
+            style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}
             title={topAgent}
           >
             {loading ? "—" : topAgent}
@@ -157,7 +157,7 @@ export function BudgetView() {
       {/* ComposedChart: bars for tokens + line for cumulative cost */}
       {!loading && agentData.length > 0 && (
         <div className="card p-6">
-          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: var(--font-display) }}>Token usage &amp; cumulative cost</h2>
+          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "var(--font-display)" }}>Token usage &amp; cumulative cost</h2>
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={chartData} margin={{ top: 4, right: 24, left: -20, bottom: 40 }}>
               <XAxis
@@ -219,7 +219,7 @@ export function BudgetView() {
 
       {/* Breakdown list */}
       <div className="card p-6">
-        <h2 className="font-bold text-sm mb-4" style={{ fontFamily: var(--font-display) }}>Breakdown</h2>
+        <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "var(--font-display)" }}>Breakdown</h2>
         {loading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
@@ -263,7 +263,7 @@ export function BudgetView() {
             })}
             <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
               <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Total</span>
-              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-primary)", fontFamily: var(--font-display) }}>
+              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-primary)", fontFamily: "var(--font-display)" }}>
                 ${totalCost.toFixed(4)}
               </span>
             </div>

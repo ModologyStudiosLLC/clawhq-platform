@@ -94,7 +94,7 @@ export function WorkspacePanel({ agentName }: { agentName: string }) {
       >
         <div className="flex items-center gap-1.5">
           <FolderOpen size={13} style={{ color: "var(--color-text-muted)" }} />
-          <span className="text-xs font-semibold" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
+          <span className="text-xs font-semibold" style={{ color: "var(--color-text)", fontFamily: "var(--font-display)" }}>
             Workspace
           </span>
           {files.length > 0 && (

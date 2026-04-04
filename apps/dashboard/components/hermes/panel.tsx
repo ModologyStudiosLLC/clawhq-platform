@@ -104,7 +104,7 @@ export function HermesPanel() {
               <div className="flex items-center gap-2">
                 <h2
                   className="text-xl font-bold"
-                  style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
+                  style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}
                 >
                   Hermes
                 </h2>
@@ -181,7 +181,7 @@ export function HermesPanel() {
             <p
               className="text-lg font-bold"
               style={{
-                fontFamily: var(--font-display),
+                fontFamily: "var(--font-display)",
                 color: isRunning ? "var(--color-secondary)" : "var(--color-warning)",
               }}
             >
@@ -204,7 +204,7 @@ export function HermesPanel() {
             </div>
             <p
               className="text-sm font-bold truncate"
-              style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
+              style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}
             >
               {MODEL_DISPLAY[status?.model ?? ""] ?? status?.model ?? "—"}
             </p>
@@ -223,7 +223,7 @@ export function HermesPanel() {
             </div>
             <p
               className="text-2xl font-bold"
-              style={{ fontFamily: var(--font-display), color: "var(--color-accent)" }}
+              style={{ fontFamily: "var(--font-display)", color: "var(--color-accent)" }}
             >
               {status?.sessions ?? 0}
             </p>
@@ -238,7 +238,7 @@ export function HermesPanel() {
       <div className="card p-5">
         <h3
           className="text-sm font-bold mb-4"
-          style={{ fontFamily: var(--font-display) }}
+          style={{ fontFamily: "var(--font-display)" }}
         >
           Active Channels
         </h3>
@@ -318,7 +318,7 @@ export function HermesPanel() {
             >
               <Icon size={16} style={{ color }} />
             </div>
-            <p className="text-sm font-semibold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
+            <p className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
               {title}
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{desc}</p>
