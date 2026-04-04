@@ -115,9 +115,8 @@ export function SSOPanel() {
 
   useEffect(() => { load(); }, []);
 
-  const callbackUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/auth/callback`
-    : "/auth/callback";
+  const [callbackUrl, setCallbackUrl] = useState("/auth/callback");
+  useEffect(() => { setCallbackUrl(`${window.location.origin}/auth/callback`); }, []);
 
   return (
     <div className="space-y-6 max-w-3xl animate-fade-in">

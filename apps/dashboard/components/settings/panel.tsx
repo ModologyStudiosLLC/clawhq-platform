@@ -55,7 +55,12 @@ const DEFAULT_SETTINGS: Settings = {
   monthlyBudgetCents: 2000,
   budgetUnlimited: false,
   budgetAlertPercent: 80,
-  providerCaps: { anthropic: 0, openai: 0, groq: 0, openrouter: 0 },
+  providerCaps: {
+    anthropic: 0, openai: 0, deepseek: 0, openrouter: 0,
+    zai: 0, groq: 0, mistral: 0, together: 0,
+    google: 0, cerebras: 0, xiaomi: 0, fireworks: 0,
+    ollama: 0, huggingface: 0, custom: 0,
+  },
   modelRouter: {
     enabled: true,
     primaryModel: "anthropic/claude-sonnet-4-6",
@@ -153,9 +158,9 @@ function useSaved(): [boolean, () => void] {
 }
 
 function KeyRow({
-  emoji, label, placeholder, defaultValue, onSave, wizardChannel, onOpenWizard,
+  emoji, label, placeholder, defaultValue, note, onSave, wizardChannel, onOpenWizard,
 }: {
-  emoji: string; label: string; placeholder: string; defaultValue?: string;
+  emoji: string; label: string; placeholder: string; defaultValue?: string; note?: string;
   onSave: (v: string) => Promise<void>; wizardChannel?: ChannelId;
   onOpenWizard?: (ch: ChannelId) => void;
 }) {
@@ -181,7 +186,10 @@ function KeyRow({
   return (
     <div className="flex items-center gap-3 py-3" style={{ borderBottom: "1px solid var(--color-border)" }}>
       <span className="text-xl w-8 text-center flex-shrink-0">{emoji}</span>
-      <span className="text-sm font-medium w-28 flex-shrink-0" style={{ color: "var(--color-text)" }}>{label}</span>
+      <div className="w-36 flex-shrink-0">
+        <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{label}</span>
+        {note && <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{note}</div>}
+      </div>
       <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg"
         style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
         <input type={show ? "text" : "password"} value={value} onChange={e => setValue(e.target.value)}
@@ -454,12 +462,17 @@ function ChannelsTab({ onOpenWizard }: { onOpenWizard: (ch: ChannelId) => void }
   const anthropicDefault = typeof window !== "undefined" ? localStorage.getItem("clawhq_anthropic_key") ?? "" : "";
 
   async function saveLlmKey(provider: string, key: string) {
-    try {
-      await fetch("/api/openfang/api/config/keys", {
+    // Push to both openfang and openclaw so all agents pick it up
+    await Promise.allSettled([
+      fetch("/api/openfang/api/config/keys", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, key }),
-      });
-    } catch { /* graceful */ }
+      }),
+      fetch("/api/openclaw/config/providers", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider, apiKey: key }),
+      }),
+    ]);
   }
 
   async function saveChannelToken(channel: string, token: string) {
@@ -471,21 +484,63 @@ function ChannelsTab({ onOpenWizard }: { onOpenWizard: (ch: ChannelId) => void }
     } catch { /* graceful */ }
   }
 
+  // Provider groups matching openclaw + hermes supported providers
+  const cloudProviders = [
+    { emoji: "🤖", label: "Anthropic", placeholder: "sk-ant-...", provider: "anthropic",
+      onSave: (key: string) => { localStorage.setItem("clawhq_anthropic_key", key); return saveLlmKey("anthropic", key); },
+      defaultValue: anthropicDefault },
+    { emoji: "🟢", label: "OpenAI", placeholder: "sk-...", provider: "openai" },
+    { emoji: "🔵", label: "DeepSeek", placeholder: "sk-...", provider: "deepseek", note: "Fast + cheap" },
+    { emoji: "🔀", label: "OpenRouter", placeholder: "sk-or-...", provider: "openrouter", note: "100+ models" },
+    { emoji: "✳️", label: "ZAI (GLM)", placeholder: "zai-...", provider: "zai", note: "GLM-5, GLM-4.7" },
+    { emoji: "🐱", label: "Groq", placeholder: "gsk_...", provider: "groq", note: "Ultra-fast inference" },
+    { emoji: "🌟", label: "Mistral", placeholder: "...", provider: "mistral" },
+    { emoji: "🔥", label: "Together AI", placeholder: "...", provider: "together", note: "Open source models" },
+    { emoji: "💎", label: "Google Gemini", placeholder: "AIza...", provider: "google" },
+    { emoji: "🧠", label: "Cerebras", placeholder: "csk-...", provider: "cerebras", note: "Free tier · very fast" },
+    { emoji: "🦙", label: "Xiaomi Mimo", placeholder: "tp-...", provider: "xiaomi", note: "Used by Hermes" },
+    { emoji: "🔮", label: "Fireworks AI", placeholder: "fw-...", provider: "fireworks" },
+  ];
+
+  const openProviders = [
+    { emoji: "🏠", label: "Ollama (local)", placeholder: "http://localhost:11434", provider: "ollama", isUrl: true, note: "No key needed — just base URL" },
+    { emoji: "🤗", label: "Hugging Face", placeholder: "hf_...", provider: "huggingface", note: "Free inference API" },
+    { emoji: "🌐", label: "Custom OpenAI-compat.", placeholder: "https://api.example.com/v1", provider: "custom", isUrl: true, note: "Any OpenAI-compatible endpoint" },
+  ];
+
   return (
     <div className="space-y-6">
+      {/* Cloud providers */}
       <div className="card" style={{ padding: "1.5rem" }}>
         <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
           style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
-          LLM API Keys
+          LLM API Keys — Cloud
         </h2>
         <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
-          Stored locally and pushed to your OpenFang instance.
+          Saved keys are pushed to OpenClaw and OpenFang so all your agents can use them.
         </p>
-        <KeyRow emoji="🤖" label="Anthropic" placeholder="sk-ant-..." defaultValue={anthropicDefault}
-          onSave={key => { localStorage.setItem("clawhq_anthropic_key", key); return saveLlmKey("anthropic", key); }} />
-        <KeyRow emoji="🟢" label="OpenAI" placeholder="sk-..." onSave={key => saveLlmKey("openai", key)} />
-        <KeyRow emoji="⚡" label="Groq" placeholder="gsk_..." onSave={key => saveLlmKey("groq", key)} />
-        <KeyRow emoji="🔀" label="OpenRouter" placeholder="sk-or-..." onSave={key => saveLlmKey("openrouter", key)} />
+        {cloudProviders.map(p => (
+          <KeyRow key={p.provider} emoji={p.emoji} label={p.label} placeholder={p.placeholder}
+            defaultValue={p.defaultValue}
+            note={p.note}
+            onSave={p.onSave ?? ((key: string) => saveLlmKey(p.provider, key))} />
+        ))}
+      </div>
+
+      {/* Open / local providers */}
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
+          style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-display)" }}>
+          Open &amp; Local Providers
+        </h2>
+        <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+          Self-hosted and open-source inference endpoints.
+        </p>
+        {openProviders.map(p => (
+          <KeyRow key={p.provider} emoji={p.emoji} label={p.label} placeholder={p.placeholder}
+            note={p.note}
+            onSave={(key: string) => saveLlmKey(p.provider, key)} />
+        ))}
       </div>
 
       <div className="card" style={{ padding: "1.5rem" }}>
@@ -591,10 +646,18 @@ function BudgetTab({ settings, onChange }: { settings: Settings; onChange: (patc
           Optional per-provider sub-limits (0 = no sub-limit).
         </p>
         <div className="space-y-3">
-          {Object.entries(settings.providerCaps).map(([provider, cents]) => (
+          {Object.entries(settings.providerCaps).map(([provider, cents]) => {
+            const LABELS: Record<string, string> = {
+              anthropic: "Anthropic", openai: "OpenAI", deepseek: "DeepSeek",
+              openrouter: "OpenRouter", zai: "ZAI (GLM)", groq: "Groq",
+              mistral: "Mistral", together: "Together AI", google: "Google Gemini",
+              cerebras: "Cerebras", xiaomi: "Xiaomi Mimo", fireworks: "Fireworks AI",
+              ollama: "Ollama", huggingface: "Hugging Face", custom: "Custom",
+            };
+            return (
             <div key={provider} className="flex items-center gap-3">
-              <span className="text-sm font-medium w-28 capitalize flex-shrink-0"
-                style={{ color: "var(--color-text)" }}>{provider}</span>
+              <span className="text-sm font-medium w-32 flex-shrink-0"
+                style={{ color: "var(--color-text)" }}>{LABELS[provider] ?? provider}</span>
               <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg"
                 style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>$</span>
@@ -610,7 +673,8 @@ function BudgetTab({ settings, onChange }: { settings: Settings; onChange: (patc
                 <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>/mo</span>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

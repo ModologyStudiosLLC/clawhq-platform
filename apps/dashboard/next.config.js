@@ -2,6 +2,14 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'workoscdn.com' },
+      { protocol: 'https', hostname: '*.workoscdn.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+    ],
+  },
   async rewrites() {
     // In Docker, use internal service URLs. In dev, use localhost.
     const openclaw = process.env.OPENCLAW_INTERNAL_URL || process.env.NEXT_PUBLIC_OPENCLAW_URL || 'http://localhost:18789';

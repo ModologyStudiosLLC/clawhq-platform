@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CommandPalette } from "./command-palette";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/home": { title: "Home", subtitle: "What your agents are up to" },
@@ -31,6 +33,19 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const page = resolveTitle(pathname);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // ⌘K / Ctrl+K global shortcut
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setPaletteOpen(v => !v);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <header
@@ -63,14 +78,16 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <div
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer"
+        <button
+          onClick={() => setPaletteOpen(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors"
           style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}
         >
           <Search size={13} />
           <span className="text-xs hidden sm:block">Search</span>
           <kbd className="hidden sm:block text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--color-border)", color: "var(--color-text-subtle)", fontSize: "10px" }}>⌘K</kbd>
-        </div>
+        </button>
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
         <button className="relative p-2 rounded-lg" style={{ color: "var(--color-text-muted)" }}>
           <Bell size={15} />
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-error, #ff6b6b)" }} />

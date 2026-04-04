@@ -10,11 +10,21 @@ interface MetricsData {
 }
 
 const PROVIDER_COST_PER_1M: Record<string, number> = {
-  openrouter: 0.15,
   anthropic: 3.0,
-  groq: 0.05,
-  ollama: 0,
   openai: 2.5,
+  deepseek: 0.14,
+  openrouter: 0.15,
+  zai: 0.14,
+  groq: 0.05,
+  mistral: 0.25,
+  together: 0.20,
+  google: 0.35,
+  cerebras: 0.10,
+  xiaomi: 0.10,
+  fireworks: 0.20,
+  ollama: 0,
+  huggingface: 0,
+  custom: 0.10,
 };
 
 function inferProvider(name: string): string {
