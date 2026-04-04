@@ -77,9 +77,9 @@ export function BudgetView() {
     "var(--color-primary)",
     "var(--color-secondary)",
     "var(--color-accent)",
-    "#f6d969",
-    "#ff9966",
-    "#66ccff",
+    "var(--color-warning)",
+    "var(--color-hermes)",
+    "var(--color-info)",
   ];
 
   return (
@@ -106,7 +106,7 @@ export function BudgetView() {
               ))}
             </div>
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
             {loading ? "—" : fmtTokens(totalTokens)}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Tokens this hour</p>
@@ -118,7 +118,7 @@ export function BudgetView() {
           <div className="flex items-center mb-2">
             <DollarSign size={16} style={{ color: "var(--color-secondary)" }} />
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
             {loading ? "—" : `$${totalCost.toFixed(4)}`}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Estimated cost</p>
@@ -130,7 +130,7 @@ export function BudgetView() {
           <div className="flex items-center mb-2">
             <Users size={16} style={{ color: "var(--color-accent)" }} />
           </div>
-          <p className="text-2xl font-bold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
             {loading ? "—" : String(agentData.length)}
           </p>
           <p className="text-xs font-medium mt-1" style={{ color: "var(--color-text)" }}>Active agents</p>
@@ -144,7 +144,7 @@ export function BudgetView() {
           </div>
           <p
             className="text-lg font-bold truncate"
-            style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}
+            style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
             title={topAgent}
           >
             {loading ? "—" : topAgent}
@@ -157,12 +157,12 @@ export function BudgetView() {
       {/* ComposedChart: bars for tokens + line for cumulative cost */}
       {!loading && agentData.length > 0 && (
         <div className="card p-6">
-          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Token usage &amp; cumulative cost</h2>
+          <h2 className="font-bold text-sm mb-4" style={{ fontFamily: var(--font-display) }}>Token usage &amp; cumulative cost</h2>
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={chartData} margin={{ top: 4, right: 24, left: -20, bottom: 40 }}>
               <XAxis
                 dataKey="shortName"
-                tick={{ fill: "rgba(240,240,245,0.5)", fontSize: 11 }}
+                tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 angle={-35}
@@ -170,7 +170,7 @@ export function BudgetView() {
               />
               <YAxis
                 yAxisId="tokens"
-                tick={{ fill: "rgba(240,240,245,0.5)", fontSize: 10 }}
+                tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v: number) => v > 1000 ? `${(v / 1000).toFixed(0)}K` : String(v)}
@@ -178,15 +178,16 @@ export function BudgetView() {
               <YAxis
                 yAxisId="cost"
                 orientation="right"
-                tick={{ fill: "rgba(240,240,245,0.35)", fontSize: 10 }}
+                tick={{ fill: "var(--color-text-subtle)", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v: number) => `$${v.toFixed(3)}`}
               />
               <Tooltip
                 contentStyle={{
-                  background: "#16161a",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-text)",
+                  border: "1px solid var(--color-border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -206,9 +207,9 @@ export function BudgetView() {
                 yAxisId="cost"
                 type="monotone"
                 dataKey="cumulativeCost"
-                stroke="rgba(240,240,245,0.5)"
+                stroke="var(--color-text-muted)"
                 strokeWidth={1.5}
-                dot={{ fill: "rgba(240,240,245,0.6)", r: 3, strokeWidth: 0 }}
+                dot={{ fill: "var(--color-text-subtle)", r: 3, strokeWidth: 0 }}
                 activeDot={{ r: 4 }}
               />
             </ComposedChart>
@@ -218,7 +219,7 @@ export function BudgetView() {
 
       {/* Breakdown list */}
       <div className="card p-6">
-        <h2 className="font-bold text-sm mb-4" style={{ fontFamily: "Manrope, sans-serif" }}>Breakdown</h2>
+        <h2 className="font-bold text-sm mb-4" style={{ fontFamily: var(--font-display) }}>Breakdown</h2>
         {loading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
@@ -262,7 +263,7 @@ export function BudgetView() {
             })}
             <div className="border-t pt-3 flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
               <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Total</span>
-              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-primary)", fontFamily: "Manrope, sans-serif" }}>
+              <span className="text-sm font-bold font-mono" style={{ color: "var(--color-primary)", fontFamily: var(--font-display) }}>
                 ${totalCost.toFixed(4)}
               </span>
             </div>
@@ -275,7 +276,7 @@ export function BudgetView() {
         <AlertCircle size={16} style={{ color: "var(--color-text-muted)", flexShrink: 0, marginTop: 1 }} />
         <div className="flex-1 min-w-0">
           {totalCost > 0.10 ? (
-            <p className="text-sm" style={{ color: "#f6d969" }}>
+            <p className="text-sm" style={{ color: "var(--color-warning)" }}>
               You&apos;ve spent <strong>${totalCost.toFixed(4)}</strong> this session.{" "}
               <a href="/settings" className="underline" style={{ color: "var(--color-text-muted)" }}>
                 Set a limit →

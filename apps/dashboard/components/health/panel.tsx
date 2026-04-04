@@ -105,7 +105,7 @@ function ServiceCard({
   return (
     <div
       className="card p-4 transition-all"
-      style={{ border: `1px solid ${ok ? "var(--color-border)" : "rgba(255,107,107,0.3)"}` }}
+      style={{ border: `1px solid ${ok ? "var(--color-border)" : "color-mix(in srgb, var(--color-error) 30%, transparent)"}` }}
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ function ServiceCard({
         <span
           className="text-xs font-medium capitalize px-2 py-0.5 rounded-full"
           style={{
-            background: ok ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.15)",
+            background: ok ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 15%, transparent)",
             color: ok ? "var(--color-secondary)" : "var(--color-error)",
           }}
         >
@@ -241,11 +241,11 @@ export function HealthPanel() {
       {/* Summary bar */}
       <div
         className="card px-5 py-4 flex items-center gap-4"
-        style={{ border: `1px solid ${allOk ? "rgba(105,246,184,0.3)" : "rgba(255,107,107,0.3)"}` }}
+        style={{ border: `1px solid ${allOk ? "color-mix(in srgb, var(--color-secondary) 30%, transparent)" : "color-mix(in srgb, var(--color-error) 30%, transparent)"}` }}
       >
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: allOk ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.15)" }}
+          style={{ background: allOk ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 15%, transparent)" }}
         >
           {allOk
             ? <CheckCircle size={20} style={{ color: "var(--color-secondary)" }} />
@@ -274,7 +274,7 @@ export function HealthPanel() {
             href="/api/health/agent"
             download="clawhq-health-monitor.yaml"
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all"
-            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid rgba(105,218,255,0.25)" }}
+            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)" }}
           >
             <Download size={13} />
             Agent YAML
@@ -319,7 +319,7 @@ export function HealthPanel() {
       {/* AgentPack info card */}
       <div
         className="card px-5 py-4"
-        style={{ border: "1px solid rgba(105,218,255,0.2)" }}
+        style={{ border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}
       >
         <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-text)" }}>
           Automated health monitoring

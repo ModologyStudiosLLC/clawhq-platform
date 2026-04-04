@@ -42,10 +42,10 @@ function greeting() {
 }
 
 const PROVIDER_BADGES: { label: string; color: string; dot: string }[] = [
-  { label: "Anthropic", color: "rgba(172,138,255,0.15)", dot: "#ac8aff" },
-  { label: "OpenAI", color: "rgba(105,246,184,0.15)", dot: "#69f6b8" },
-  { label: "Groq", color: "rgba(105,218,255,0.15)", dot: "#69daff" },
-  { label: "OpenRouter", color: "rgba(246,217,105,0.15)", dot: "#f6d969" },
+  { label: "Anthropic", color: "var(--color-accent-dim)", dot: "var(--color-accent)" },
+  { label: "OpenAI", color: "var(--color-secondary-dim)", dot: "var(--color-secondary)" },
+  { label: "Groq", color: "var(--color-primary-dim)", dot: "var(--color-primary)" },
+  { label: "OpenRouter", color: "color-mix(in srgb, var(--color-warning) 15%, transparent)", dot: "var(--color-warning)" },
 ];
 
 function providerFromAgents(agents: Agent[]): string[] {
@@ -56,7 +56,7 @@ function providerFromAgents(agents: Agent[]): string[] {
 function normalizeBadge(provider: string): { label: string; color: string; dot: string } {
   const lower = provider.toLowerCase();
   const found = PROVIDER_BADGES.find(b => lower.includes(b.label.toLowerCase()));
-  return found ?? { label: provider, color: "rgba(240,240,245,0.08)", dot: "rgba(240,240,245,0.4)" };
+  return found ?? { label: provider, color: "rgba(240,240,245,0.08)", dot: "var(--color-text-muted)" };
 }
 
 export function HomeDigest() {
@@ -121,7 +121,7 @@ export function HomeDigest() {
             width: "320px",
             height: "220px",
             borderRadius: "50%",
-            background: "radial-gradient(ellipse at center, rgba(105,218,255,0.12) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse at center, color-mix(in srgb, var(--color-primary) 12%, transparent) 0%, transparent 70%)",
             filter: "blur(32px)",
             pointerEvents: "none",
             animation: "var(--animate-float)",
@@ -156,7 +156,7 @@ export function HomeDigest() {
       {!loading && offline && (
         <div
           className="flex items-start gap-3 p-4 rounded-xl"
-          style={{ background: "rgba(246,217,105,0.08)", border: "1px solid rgba(246,217,105,0.2)" }}
+          style={{ background: "color-mix(in srgb, var(--color-warning) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--color-warning) 20%, transparent)" }}
         >
           <WifiOff size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--color-warning)" }} />
           <div className="flex-1">
@@ -171,9 +171,9 @@ export function HomeDigest() {
             onClick={() => { setLoading(true); setOffline(false); window.location.reload(); }}
             className="text-xs px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: "rgba(246,217,105,0.12)",
+              background: "color-mix(in srgb, var(--color-warning) 12%, transparent)",
               color: "var(--color-warning)",
-              border: "1px solid rgba(246,217,105,0.25)",
+              border: "1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)",
             }}
           >
             Retry
@@ -215,7 +215,7 @@ export function HomeDigest() {
         </span>
         <span className="flex items-center gap-1.5 flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
           <span style={{ color: "var(--color-text-subtle)" }}>gateway</span>
-          <span style={{ color: loading ? "var(--color-text-subtle)" : agents.length > 0 ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)", fontWeight: 700 }}>
+          <span style={{ color: loading ? "var(--color-text-subtle)" : agents.length > 0 ? "var(--color-secondary)" : "var(--color-error)", fontWeight: 700 }}>
             {loading ? "—" : agents.length > 0 ? "online" : "offline"}
           </span>
         </span>
@@ -254,18 +254,18 @@ export function HomeDigest() {
       {needsAttention.length > 0 && (
         <div
           className="flex items-start gap-3 p-4 rounded-xl"
-          style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.2)" }}
+          style={{ background: "color-mix(in srgb, var(--color-error) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--color-error) 20%, transparent)" }}
         >
-          <AlertCircle size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--color-error, #ff6b6b)" }} />
+          <AlertCircle size={16} className="flex-shrink-0 mt-0.5" style={{ color: "var(--color-error)" }} />
           <div>
-            <p className="text-sm font-medium" style={{ color: "var(--color-error, #ff6b6b)" }}>
+            <p className="text-sm font-medium" style={{ color: "var(--color-error)" }}>
               {needsAttention.length} agent{needsAttention.length > 1 ? "s need" : " needs"} attention
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
               {needsAttention.map(a => a.name).join(", ")}
             </p>
           </div>
-          <Link href="/team" className="ml-auto text-xs flex items-center gap-1 flex-shrink-0" style={{ color: "var(--color-error, #ff6b6b)" }}>
+          <Link href="/team" className="ml-auto text-xs flex items-center gap-1 flex-shrink-0" style={{ color: "var(--color-error)" }}>
             View <ArrowRight size={11} />
           </Link>
         </div>
@@ -280,7 +280,7 @@ export function HomeDigest() {
             sub: loading ? "" : `of ${agents.length} total`,
             color: "var(--color-secondary)",
             bg: "var(--color-secondary-dim)",
-            gradientFrom: "rgba(105,246,184,0.08)",
+            gradientFrom: "color-mix(in srgb, var(--color-secondary) 8%, transparent)",
             gradientTo: "transparent",
             icon: CheckCircle2,
             href: "/team",
@@ -291,7 +291,7 @@ export function HomeDigest() {
             sub: "rolling window",
             color: "var(--color-primary)",
             bg: "var(--color-primary-dim)",
-            gradientFrom: "rgba(105,218,255,0.08)",
+            gradientFrom: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
             gradientTo: "transparent",
             icon: Zap,
             href: "/budget",
@@ -302,7 +302,7 @@ export function HomeDigest() {
             sub: loading ? "" : `of ${hands.length} available`,
             color: "var(--color-accent)",
             bg: "var(--color-accent-dim)",
-            gradientFrom: "rgba(172,138,255,0.08)",
+            gradientFrom: "color-mix(in srgb, var(--color-accent) 8%, transparent)",
             gradientTo: "transparent",
             icon: Zap,
             href: "/capabilities",
@@ -353,7 +353,7 @@ export function HomeDigest() {
           className="block card card-hover"
           style={{
             padding: "1.5rem",
-            background: "linear-gradient(135deg, rgba(105,218,255,0.06) 0%, rgba(172,138,255,0.06) 100%), var(--color-surface)",
+            background: "linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 0%, color-mix(in srgb, var(--color-accent) 6%, transparent) 100%), var(--color-surface)",
             borderImage: "linear-gradient(135deg, var(--color-primary), var(--color-accent)) 1",
             borderWidth: "1px",
             borderStyle: "solid",
@@ -467,8 +467,8 @@ export function HomeDigest() {
                 <span
                   className="text-xs px-2.5 py-1 rounded-full font-medium"
                   style={{
-                    background: isActive ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
-                    color: isActive ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
+                    background: isActive ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 12%, transparent)",
+                    color: isActive ? "var(--color-secondary)" : "var(--color-error)",
                   }}
                 >
                   {isActive ? "Active" : "Needs attention"}
@@ -536,7 +536,7 @@ export function HomeDigest() {
           href="/team"
           className="card card-hover card-glow-primary p-5 flex items-center gap-4"
           style={{
-            background: "linear-gradient(135deg, rgba(105,218,255,0.06) 0%, transparent 100%), var(--color-surface)",
+            background: "linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 0%, transparent 100%), var(--color-surface)",
           }}
         >
           <div
@@ -560,7 +560,7 @@ export function HomeDigest() {
           href="/capabilities"
           className="card card-hover card-glow-primary p-5 flex items-center gap-4"
           style={{
-            background: "linear-gradient(135deg, rgba(172,138,255,0.06) 0%, transparent 100%), var(--color-surface)",
+            background: "linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 6%, transparent) 0%, transparent 100%), var(--color-surface)",
           }}
         >
           <div

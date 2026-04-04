@@ -154,8 +154,8 @@ export function AgentSettings({ agentId }: { agentId: string }) {
         className="card p-5 flex items-center gap-4"
         style={{
           background: isActive
-            ? "linear-gradient(135deg, rgba(105,246,184,0.06) 0%, var(--color-surface) 60%)"
-            : "linear-gradient(135deg, rgba(255,107,107,0.06) 0%, var(--color-surface) 60%)",
+            ? "linear-gradient(135deg, color-mix(in srgb, var(--color-secondary) 6%, transparent) 0%, var(--color-surface) 60%)"
+            : "linear-gradient(135deg, color-mix(in srgb, var(--color-error) 6%, transparent) 0%, var(--color-surface) 60%)",
         }}
       >
         <div
@@ -172,8 +172,8 @@ export function AgentSettings({ agentId }: { agentId: string }) {
             <span
               className="text-xs px-2 py-0.5 rounded-full"
               style={{
-                background: isActive ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
-                color: isActive ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
+                background: isActive ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 12%, transparent)",
+                color: isActive ? "var(--color-secondary)" : "var(--color-error)",
               }}
             >
               {isActive ? "Active" : agent.state}
@@ -302,7 +302,7 @@ export function AgentSettings({ agentId }: { agentId: string }) {
         </div>
 
         {saveError && (
-          <p className="mt-3 text-xs px-3 py-2 rounded-lg" style={{ background: "rgba(255,107,107,0.08)", color: "var(--color-error, #ff6b6b)", border: "1px solid rgba(255,107,107,0.2)" }}>
+          <p className="mt-3 text-xs px-3 py-2 rounded-lg" style={{ background: "color-mix(in srgb, var(--color-error) 8%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 20%, transparent)" }}>
             {saveError}
           </p>
         )}
@@ -315,7 +315,7 @@ export function AgentSettings({ agentId }: { agentId: string }) {
             background: saved
               ? "var(--color-secondary-dim)"
               : "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-            color: saved ? "var(--color-secondary)" : "#0e0e10",
+            color: saved ? "var(--color-secondary)" : "var(--color-on-brand)",
             border: saved ? "1px solid var(--color-secondary)" : "none",
           }}
         >
@@ -327,9 +327,9 @@ export function AgentSettings({ agentId }: { agentId: string }) {
       {/* Danger zone */}
       <div
         className="card p-5"
-        style={{ borderColor: "rgba(239,68,68,0.3)", border: "1px solid rgba(239,68,68,0.3)" }}
+        style={{ borderColor: "color-mix(in srgb, var(--color-error) 30%, transparent)", border: "1px solid color-mix(in srgb, var(--color-error) 30%, transparent)" }}
       >
-        <h3 className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#ef4444", fontFamily: "var(--font-display)" }}>
+        <h3 className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "var(--color-error)", fontFamily: "var(--font-display)" }}>
           Danger zone
         </h3>
         <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>Permanent actions that cannot be undone.</p>
@@ -351,7 +351,7 @@ export function AgentSettings({ agentId }: { agentId: string }) {
               }
             }}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold flex-shrink-0 ml-4"
-            style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.35)" }}
+            style={{ background: "color-mix(in srgb, var(--color-error) 10%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 35%, transparent)" }}
           >
             <Trash2 size={12} />
             Delete

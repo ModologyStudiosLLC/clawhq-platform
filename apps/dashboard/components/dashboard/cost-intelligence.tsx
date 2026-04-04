@@ -60,11 +60,11 @@ export function CostIntelligence() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-manrope, Manrope)" }}>Cost Intelligence</h2>
+          <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-display)" }}>Cost Intelligence</h2>
           <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Token usage (rolling 1h window)</p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold" style={{ color: "var(--color-primary)", fontFamily: "var(--font-manrope, Manrope)" }}>
+          <p className="text-lg font-bold" style={{ color: "var(--color-primary)", fontFamily: "var(--font-display)" }}>
             {loading ? "—" : `${(totalTokens / 1000).toFixed(0)}K`}
           </p>
           <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>tokens</p>
@@ -75,17 +75,17 @@ export function CostIntelligence() {
         <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
           <defs>
             <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#69daff" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#69daff" stopOpacity={0} />
+              <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="day" tick={{ fill: "rgba(240,240,245,0.4)", fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: "rgba(240,240,245,0.4)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v.toFixed(2)}`} />
+          <XAxis dataKey="day" tick={{ fill: "var(--color-text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: "var(--color-text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v.toFixed(2)}`} />
           <Tooltip
-            contentStyle={{ background: "#16161a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }}
+            contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 8, fontSize: 12 }}
             formatter={(v) => [`$${Number(v).toFixed(3)}`, "Est. cost"]}
           />
-          <Area type="monotone" dataKey="cost" stroke="#69daff" strokeWidth={2} fill="url(#costGrad)" />
+          <Area type="monotone" dataKey="cost" stroke="var(--color-primary)" strokeWidth={2} fill="url(#costGrad)" />
         </AreaChart>
       </ResponsiveContainer>
 

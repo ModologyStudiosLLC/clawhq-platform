@@ -51,7 +51,7 @@ function TunnelCard({
   envVar: string;
 }) {
   return (
-    <div className="card" style={{ padding: "1.5rem", border: `1px solid ${active ? "rgba(105,246,184,0.3)" : "var(--color-border)"}` }}>
+    <div className="card" style={{ padding: "1.5rem", border: `1px solid ${active ? "color-mix(in srgb, var(--color-secondary) 30%, transparent)" : "var(--color-border)"}` }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -76,7 +76,7 @@ function TunnelCard({
       {/* Status details */}
       {active && (ip || hostname) && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-4"
-          style={{ background: "var(--color-secondary-dim)", border: "1px solid rgba(105,246,184,0.2)" }}>
+          style={{ background: "var(--color-secondary-dim)", border: "1px solid color-mix(in srgb, var(--color-secondary) 20%, transparent)" }}>
           <CheckCircle size={14} style={{ color: "var(--color-secondary)" }} />
           <div className="flex-1 text-xs font-mono" style={{ color: "var(--color-text)" }}>
             {hostname && <div>{hostname}</div>}
@@ -89,7 +89,7 @@ function TunnelCard({
         <>
           {!configured && (
             <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg mb-4"
-              style={{ background: "rgba(246,217,105,0.1)", border: "1px solid rgba(246,217,105,0.2)" }}>
+              style={{ background: "rgba(246,217,105,0.1)", border: "1px solid color-mix(in srgb, var(--color-warning) 20%, transparent)" }}>
               <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-warning)" }} />
               <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                 Set <code className="font-mono" style={{ color: "var(--color-warning)" }}>{envVar}</code> in your <code className="font-mono">.env</code> file to enable this tunnel.

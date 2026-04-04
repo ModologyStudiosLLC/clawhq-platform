@@ -216,7 +216,7 @@ export function DeployPanel() {
       {/* Env variables reminder */}
       <div
         className="p-4 rounded-xl flex items-start gap-3"
-        style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.2)" }}
+        style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}
       >
         <span className="text-lg flex-shrink-0">💡</span>
         <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-muted)" }}>

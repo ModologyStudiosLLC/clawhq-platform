@@ -35,6 +35,11 @@
   --color-hermes: #e879f9;
   --color-hermes-dim: rgba(232, 121, 249, 0.15);
 
+  /* Text color for labels ON bright brand-colored backgrounds (gradient CTAs).
+     Dark mode: gradients are light pastels (cyan/green) → use near-black text.
+     Light mode: gradients are deep saturated (blue/green) → use white text. */
+  --color-on-brand: #050507;
+
   --color-text: #f5f5f7;
   --color-text-muted: rgba(245, 245, 247, 0.6);
   --color-text-subtle: rgba(245, 245, 247, 0.35);
@@ -128,6 +133,8 @@
 
     --color-hermes: #c026d3;
     --color-hermes-dim: rgba(192, 38, 211, 0.10);
+
+    --color-on-brand: #ffffff;
 
     --color-text: #0a0a0c;
     --color-text-muted: rgba(10, 10, 12, 0.6);

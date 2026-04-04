@@ -118,9 +118,9 @@ export function ActivityLog() {
 
   // Badge config per event type/status
   const badgeConfig: Record<string, { label: string; color: string; bg: string }> = {
-    Running: { label: "Active", color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-    session: { label: "Session", color: "#60a5fa", bg: "rgba(96,165,250,0.12)" },
-    Crashed: { label: "Down", color: "#f87171", bg: "rgba(248,113,113,0.12)" },
+    Running: { label: "Active", color: "var(--color-secondary)", bg: "color-mix(in srgb, var(--color-secondary) 12%, transparent)" },
+    session: { label: "Session", color: "var(--color-primary)", bg: "color-mix(in srgb, var(--color-primary) 12%, transparent)" },
+    Crashed: { label: "Down", color: "var(--color-error)", bg: "color-mix(in srgb, var(--color-error) 12%, transparent)" },
   };
 
   function getBadge(event: ActivityEvent) {
@@ -130,7 +130,7 @@ export function ActivityLog() {
 
   const dotColor: Record<string, string> = {
     Running: "var(--color-secondary)",
-    Crashed: "var(--color-error, #ff6b6b)",
+    Crashed: "var(--color-error)",
     info: "var(--color-primary)",
   };
 
@@ -239,7 +239,7 @@ export function ActivityLog() {
               {/* Sticky date header */}
               <div
                 className="sticky top-0 z-10 py-1.5 mb-2"
-                style={{ background: "var(--color-bg, #0e0e12)" }}
+                style={{ background: "var(--color-bg)" }}
               >
                 <span
                   className="text-xs font-semibold uppercase tracking-wider"
@@ -267,7 +267,7 @@ export function ActivityLog() {
                           className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
                           style={{ background: "var(--color-surface)" }}
                           onMouseEnter={e => {
-                            (e.currentTarget as HTMLDivElement).style.background = "var(--color-surface-2, rgba(255,255,255,0.06))";
+                            (e.currentTarget as HTMLDivElement).style.background = "var(--color-surface-2)";
                           }}
                           onMouseLeave={e => {
                             (e.currentTarget as HTMLDivElement).style.background = "var(--color-surface)";

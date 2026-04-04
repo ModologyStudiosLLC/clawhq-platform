@@ -79,10 +79,10 @@ const DEFAULT_SETTINGS: Settings = {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const SECURITY_LEVELS = [
-  { label: "Locked", description: "Agents cannot modify files or run code", color: "#ef4444" },
-  { label: "Balanced", description: "Safe defaults — most tasks work", color: "#f6d969" },
-  { label: "Open", description: "Agents can write files and run commands", color: "#69daff" },
-  { label: "Dev Mode", description: "Unrestricted — use in dev environments only", color: "#ac8aff" },
+  { label: "Locked", description: "Agents cannot modify files or run code", color: "var(--color-error)" },
+  { label: "Balanced", description: "Safe defaults — most tasks work", color: "var(--color-warning)" },
+  { label: "Open", description: "Agents can write files and run commands", color: "var(--color-primary)" },
+  { label: "Dev Mode", description: "Unrestricted — use in dev environments only", color: "var(--color-accent)" },
 ];
 
 const MODELS = [
@@ -202,7 +202,7 @@ function KeyRow({
       {wizardChannel && onOpenWizard && (
         <button onClick={() => onOpenWizard(wizardChannel)}
           className="px-2.5 py-2 rounded-lg text-xs flex items-center gap-1 flex-shrink-0 transition-all"
-          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.25)", color: "var(--color-primary)" }}>
+          style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)", color: "var(--color-primary)" }}>
           <Zap size={12} /><span className="hidden sm:inline">Guide</span>
         </button>
       )}
@@ -297,9 +297,9 @@ function GeneralTab({ settings, onChange }: { settings: Settings; onChange: (pat
       </div>
 
       {/* Danger zone */}
-      <div className="card" style={{ padding: "1.5rem", border: "1px solid rgba(239,68,68,0.35)" }}>
+      <div className="card" style={{ padding: "1.5rem", border: "1px solid color-mix(in srgb, var(--color-error) 35%, transparent)" }}>
         <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
-          style={{ color: "#ef4444", fontFamily: "var(--font-display)" }}>
+          style={{ color: "var(--color-error)", fontFamily: "var(--font-display)" }}>
           Danger Zone
         </h2>
         <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
@@ -317,7 +317,7 @@ function GeneralTab({ settings, onChange }: { settings: Settings; onChange: (pat
             localStorage.removeItem("clawhq_anthropic_key");
             window.location.href = "/onboarding";
           }} className="px-4 py-2 rounded-lg text-xs font-semibold flex-shrink-0 ml-4 transition-all"
-            style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.35)" }}>
+            style={{ background: "color-mix(in srgb, var(--color-error) 10%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 35%, transparent)" }}>
             Reset onboarding
           </button>
         </div>
@@ -344,7 +344,7 @@ function AgentSection({ agentId, config, onChange }: {
         className="w-full flex items-center gap-3 px-5 py-4 transition-colors"
         style={{ borderBottom: open ? "1px solid var(--color-border)" : "none" }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.2)" }}>
+          style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}>
           <Bot size={15} style={{ color: "var(--color-primary)" }} />
         </div>
         <div className="flex-1 text-left">
@@ -394,14 +394,14 @@ function AgentSection({ agentId, config, onChange }: {
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs text-left transition-all"
                       style={{
                         background: enabled ? "var(--color-secondary-dim)" : "var(--color-surface-2)",
-                        border: `1px solid ${enabled ? "rgba(105,246,184,0.3)" : "var(--color-border)"}`,
+                        border: `1px solid ${enabled ? "color-mix(in srgb, var(--color-secondary) 30%, transparent)" : "var(--color-border)"}`,
                       }}>
                       <div className="w-3.5 h-3.5 rounded-sm border flex items-center justify-center flex-shrink-0"
                         style={{
                           background: enabled ? "var(--color-secondary)" : "transparent",
                           borderColor: enabled ? "var(--color-secondary)" : "var(--color-border-strong)",
                         }}>
-                        {enabled && <Check size={9} style={{ color: "#0e0e10" }} />}
+                        {enabled && <Check size={9} style={{ color: "var(--color-on-brand)" }} />}
                       </div>
                       <span style={{ color: enabled ? "var(--color-text)" : "var(--color-text-muted)" }}>
                         {t.label}
@@ -745,7 +745,7 @@ function NaturalLanguageInput({ currentSettings, onPropose }: {
   }
 
   return (
-    <div className="card" style={{ padding: "1rem 1.25rem", border: "1px solid rgba(105,218,255,0.2)" }}>
+    <div className="card" style={{ padding: "1rem 1.25rem", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}>
       <div className="flex items-center gap-2 mb-2">
         <Sparkles size={14} style={{ color: "var(--color-primary)" }} />
         <span className="text-xs font-semibold" style={{ color: "var(--color-primary)" }}>
@@ -761,7 +761,7 @@ function NaturalLanguageInput({ currentSettings, onPropose }: {
           disabled={loading} />
         <button onClick={handleSubmit} disabled={loading || !text.trim()}
           className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-all disabled:opacity-40"
-          style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.3)", color: "var(--color-primary)" }}>
+          style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)", color: "var(--color-primary)" }}>
           {loading ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {loading ? "Thinking…" : "Apply"}
         </button>
@@ -792,7 +792,7 @@ function UnsavedBar({ dirty, saving, onSave, onDiscard }: {
       </button>
       <button onClick={onSave} disabled={saving}
         className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-60"
-        style={{ background: "var(--color-primary)", color: "#0e0e10" }}>
+        style={{ background: "var(--color-primary)", color: "var(--color-on-brand)" }}>
         {saving ? <RefreshCw size={12} className="animate-spin" /> : <Save size={12} />}
         {saving ? "Saving…" : "Save changes"}
       </button>
@@ -807,7 +807,7 @@ function ProposalBanner({ diff, onAccept, onReject }: {
 }) {
   return (
     <div className="rounded-xl px-4 py-3 mb-4 flex items-start gap-3 animate-slide-up"
-      style={{ background: "var(--color-accent-dim)", border: "1px solid rgba(172,138,255,0.3)" }}>
+      style={{ background: "var(--color-accent-dim)", border: "1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)" }}>
       <Sparkles size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-accent)" }} />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text)" }}>
@@ -820,7 +820,7 @@ function ProposalBanner({ diff, onAccept, onReject }: {
       <div className="flex flex-col gap-1.5 flex-shrink-0">
         <button onClick={onAccept}
           className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: "var(--color-secondary-dim)", color: "var(--color-secondary)", border: "1px solid rgba(105,246,184,0.3)" }}>
+          style={{ background: "var(--color-secondary-dim)", color: "var(--color-secondary)", border: "1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent)" }}>
           Apply
         </button>
         <button onClick={onReject}
@@ -914,7 +914,7 @@ function IntegrationCard({
 
   const statusColor =
     config.status === "ok" ? "var(--color-secondary)" :
-    config.status === "error" ? "var(--color-error, #ef4444)" :
+    config.status === "error" ? "var(--color-error, var(--color-error))" :
     "var(--color-text-muted)";
 
   return (
@@ -946,7 +946,7 @@ function IntegrationCard({
             width: "0.875rem",
             height: "0.875rem",
             borderRadius: "50%",
-            background: config.enabled ? "#0e0e10" : "var(--color-text-muted)",
+            background: config.enabled ? "var(--color-on-brand)" : "var(--color-text-muted)",
             position: "absolute",
             top: "50%",
             transform: `translateY(-50%) translateX(${config.enabled ? "1.125rem" : "0.125rem"})`,
@@ -1015,7 +1015,7 @@ function IntegrationCard({
 
       {/* Inline error message */}
       {config.status === "error" && config.errorMsg && (
-        <p style={{ fontSize: "0.75rem", marginTop: "0.375rem", color: "var(--color-error, #ef4444)", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+        <p style={{ fontSize: "0.75rem", marginTop: "0.375rem", color: "var(--color-error, var(--color-error))", display: "flex", alignItems: "center", gap: "0.25rem" }}>
           <AlertTriangle size={11} style={{ flexShrink: 0 }} />
           {config.errorMsg}
         </p>
@@ -1078,7 +1078,7 @@ function IntegrationsTab() {
             Enable Model Context Protocol servers to extend your agents with external capabilities.
           </p>
           {loadError && (
-            <p className="text-xs mt-2" style={{ color: "var(--color-error, #ef4444)" }}>
+            <p className="text-xs mt-2" style={{ color: "var(--color-error, var(--color-error))" }}>
               <AlertTriangle size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "0.25rem" }} />
               Could not load saved integrations — changes will still be saved.
             </p>
@@ -1462,14 +1462,14 @@ function PacksTab() {
               onKeyDown={e => e.key === "Enter" && validateKey()}
               placeholder="XXXX-XXXX-XXXX-XXXX"
               className="w-full pl-8 pr-4 py-2 rounded-lg text-sm font-mono"
-              style={{ background: "var(--color-surface)", border: `1px solid ${keyError ? "#ef4444" : "var(--color-border)"}`, color: "var(--color-text)" }}
+              style={{ background: "var(--color-surface)", border: `1px solid ${keyError ? "var(--color-error)" : "var(--color-border)"}`, color: "var(--color-text)" }}
             />
           </div>
           <button
             onClick={validateKey}
             disabled={validating || !licenseKey.trim()}
             className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
-            style={{ background: "var(--color-primary)", color: "#000", opacity: validating ? 0.6 : 1 }}
+            style={{ background: "var(--color-primary)", color: "var(--color-on-brand)", opacity: validating ? 0.6 : 1 }}
           >
             {validating ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
             Activate
@@ -1477,7 +1477,7 @@ function PacksTab() {
         </div>
 
         {keyError && (
-          <p className="text-xs flex items-center gap-1.5" style={{ color: "#ef4444" }}>
+          <p className="text-xs flex items-center gap-1.5" style={{ color: "var(--color-error)" }}>
             <AlertTriangle size={12} /> {keyError}
           </p>
         )}
@@ -1514,7 +1514,7 @@ function PacksTab() {
                       onClick={() => removePack(packId)}
                       disabled={isRemoving}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
-                      style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}
+                      style={{ background: "color-mix(in srgb, var(--color-error) 10%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 20%, transparent)" }}
                     >
                       {isRemoving ? <RefreshCw size={11} className="animate-spin" /> : <Trash2 size={11} />}
                       Remove

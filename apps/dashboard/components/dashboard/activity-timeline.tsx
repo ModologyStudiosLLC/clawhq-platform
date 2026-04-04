@@ -46,7 +46,7 @@ export function ActivityTimeline() {
 
   return (
     <div>
-      <h2 className="font-bold text-base mb-4" style={{ fontFamily: "var(--font-manrope, Manrope)" }}>Recent Activity</h2>
+      <h2 className="font-bold text-base mb-4" style={{ fontFamily: "var(--font-display)" }}>Recent Activity</h2>
       {agents.length === 0 ? (
         <div className="space-y-2">
           {[...Array(4)].map((_, i) => (

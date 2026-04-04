@@ -4,13 +4,13 @@ const actions = [
   { label: "New Idea Pipeline", icon: Zap, color: "var(--color-primary)", bg: "var(--color-primary-dim)" },
   { label: "Spin Up Agent", icon: Bot, color: "var(--color-secondary)", bg: "var(--color-secondary-dim)" },
   { label: "Brief Scribe", icon: FileText, color: "var(--color-accent)", bg: "var(--color-accent-dim)" },
-  { label: "Research Task", icon: Search, color: "var(--color-warning, #f6d969)", bg: "rgba(246,217,105,0.12)" },
+  { label: "Research Task", icon: Search, color: "var(--color-warning)", bg: "color-mix(in srgb, var(--color-warning) 12%, transparent)" },
 ];
 
 export function QuickActions() {
   return (
     <div>
-      <h2 className="font-bold text-base mb-4" style={{ fontFamily: "var(--font-manrope, Manrope, sans-serif)" }}>Quick Actions</h2>
+      <h2 className="font-bold text-base mb-4" style={{ fontFamily: "var(--font-display)" }}>Quick Actions</h2>
       <div className="grid grid-cols-2 gap-2">
         {actions.map((a) => (
           <button

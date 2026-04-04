@@ -14,13 +14,13 @@ function timeAgo(iso: string): string {
 
 const statusColor: Record<string, string> = {
   Running: "var(--color-secondary)",
-  Crashed: "var(--color-error, #ff6b6b)",
+  Crashed: "var(--color-error)",
   Stopped: "var(--color-text-subtle)",
 };
 const statusBg: Record<string, string> = {
   Running: "var(--color-secondary-dim)",
-  Crashed: "rgba(255,107,107,0.12)",
-  Stopped: "rgba(240,240,245,0.05)",
+  Crashed: "color-mix(in srgb, var(--color-error) 12%, transparent)",
+  Stopped: "color-mix(in srgb, var(--color-text) 5%, transparent)",
 };
 
 export function AgentStatusGrid() {
@@ -86,7 +86,7 @@ export function AgentStatusGrid() {
               <span className="text-xs" style={{ color: "var(--color-text-subtle)" }}>{timeAgo(agent.last_active)}</span>
               <span
                 className="text-xs px-2 py-0.5 rounded-full capitalize"
-                style={{ background: statusBg[state] || "rgba(240,240,245,0.05)", color: statusColor[state] || "var(--color-text-subtle)" }}
+                style={{ background: statusBg[state] || "color-mix(in srgb, var(--color-text) 5%, transparent)", color: statusColor[state] || "var(--color-text-subtle)" }}
               >
                 {state}
               </span>

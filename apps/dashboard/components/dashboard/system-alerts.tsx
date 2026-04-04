@@ -16,8 +16,8 @@ interface HealthData {
 
 const config = {
   healthy: { icon: CheckCircle, color: "var(--color-secondary)", bg: "var(--color-secondary-dim)" },
-  degraded: { icon: AlertCircle, color: "var(--color-warning, #f6d969)", bg: "rgba(246,217,105,0.12)" },
-  offline: { icon: XCircle, color: "var(--color-error, #ff6b6b)", bg: "rgba(255,107,107,0.12)" },
+  degraded: { icon: AlertCircle, color: "var(--color-warning)", bg: "color-mix(in srgb, var(--color-warning) 12%, transparent)" },
+  offline: { icon: XCircle, color: "var(--color-error)", bg: "color-mix(in srgb, var(--color-error) 12%, transparent)" },
 };
 
 export function SystemAlerts() {
@@ -39,14 +39,14 @@ export function SystemAlerts() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-manrope, Manrope)" }}>System Status</h2>
+        <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-display)" }}>System Status</h2>
         {loading && <Loader2 size={14} className="animate-spin" style={{ color: "var(--color-text-muted)" }} />}
         {!loading && health && (
           <span
             className="text-xs px-2 py-0.5 rounded-full"
             style={{
-              background: health.allHealthy ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
-              color: health.allHealthy ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
+              background: health.allHealthy ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 12%, transparent)",
+              color: health.allHealthy ? "var(--color-secondary)" : "var(--color-error)",
             }}
           >
             {health.allHealthy ? "All systems go" : "Issues detected"}

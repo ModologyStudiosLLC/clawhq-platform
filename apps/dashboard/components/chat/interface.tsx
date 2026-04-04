@@ -185,10 +185,10 @@ export function ChatInterface({ agentId }: { agentId: string }) {
           {emoji}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>
+          <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
             {agent?.name || "Loading..."}
           </p>
-          <p className="text-xs" style={{ color: agent?.state === "Running" ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)" }}>
+          <p className="text-xs" style={{ color: agent?.state === "Running" ? "var(--color-secondary)" : "var(--color-error)" }}>
             {agent?.state === "Running" ? "Active" : agent?.state || "..."}
           </p>
         </div>
@@ -212,7 +212,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
             >
               {emoji}
             </div>
-            <p className="text-sm font-medium mb-1" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>
+            <p className="text-sm font-medium mb-1" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
               {agent?.name || "Agent"}
             </p>
             <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
@@ -238,7 +238,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
               className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed${msg.role === "agent" ? " chat-message-agent" : ""}`}
               style={{
                 background: msg.role === "user" ? "var(--color-primary)" : "var(--color-surface-2)",
-                color: msg.role === "user" ? "#0e0e10" : "var(--color-text)",
+                color: msg.role === "user" ? "var(--color-on-brand)" : "var(--color-text)",
                 borderBottomRightRadius: msg.role === "user" ? "4px" : undefined,
                 borderBottomLeftRadius: msg.role === "agent" ? "4px" : undefined,
               }}
@@ -359,7 +359,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
             className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-30"
             style={{
               background: input.trim() ? "var(--color-primary)" : "var(--color-surface)",
-              color: input.trim() ? "#0e0e10" : "var(--color-text-muted)",
+              color: input.trim() ? "var(--color-on-brand)" : "var(--color-text-muted)",
             }}
           >
             {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}

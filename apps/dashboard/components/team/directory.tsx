@@ -94,7 +94,7 @@ export function TeamDirectory() {
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
           style={{
             background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-            color: "#0e0e10",
+            color: "var(--color-on-brand)",
           }}
         >
           <Plus size={14} />
@@ -105,7 +105,7 @@ export function TeamDirectory() {
       {/* Needs attention */}
       {attention.length > 0 && (
         <div>
-          <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--color-error, #ff6b6b)" }}>
+          <p className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--color-error)" }}>
             Needs attention
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -160,7 +160,7 @@ function AgentCard({ agent }: { agent: Agent }) {
   return (
     <div
       className="card card-hover p-5 flex flex-col gap-3"
-      style={{ borderColor: !isActive ? "rgba(255,107,107,0.2)" : undefined }}
+      style={{ borderColor: !isActive ? "color-mix(in srgb, var(--color-error) 20%, transparent)" : undefined }}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -168,10 +168,10 @@ function AgentCard({ agent }: { agent: Agent }) {
             className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
             style={{ background: isActive ? "var(--color-surface-2)" : "rgba(255,107,107,0.1)" }}
           >
-            {!isActive ? <AlertTriangle size={18} style={{ color: "var(--color-error, #ff6b6b)" }} /> : emoji}
+            {!isActive ? <AlertTriangle size={18} style={{ color: "var(--color-error)" }} /> : emoji}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>
+            <p className="text-sm font-semibold truncate" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
               {agent.name}
             </p>
             <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{role}</p>
@@ -180,8 +180,8 @@ function AgentCard({ agent }: { agent: Agent }) {
         <span
           className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"
           style={{
-            background: isActive ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
-            color: isActive ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
+            background: isActive ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 12%, transparent)",
+            color: isActive ? "var(--color-secondary)" : "var(--color-error)",
           }}
         >
           {isActive ? "Active" : "Down"}

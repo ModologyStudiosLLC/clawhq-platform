@@ -71,8 +71,8 @@ export function MetricCards() {
       value: loading ? "—" : panics === 0 ? "Healthy" : `${panics} panics`,
       sub: "panics + restarts",
       icon: Activity,
-      color: panics === 0 ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)",
-      bg: panics === 0 ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.12)",
+      color: panics === 0 ? "var(--color-secondary)" : "var(--color-error)",
+      bg: panics === 0 ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 12%, transparent)",
       badge: `${metrics?.openfang_restarts_total ?? 0} restarts`,
     },
     {
@@ -98,7 +98,7 @@ export function MetricCards() {
               {c.badge}
             </span>
           </div>
-          <p className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-manrope, Manrope)", color: "var(--color-text)" }}>
+          <p className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)", color: "var(--color-text)" }}>
             {c.value}
           </p>
           <p className="text-sm font-medium mt-0.5" style={{ color: "var(--color-text)" }}>{c.label}</p>

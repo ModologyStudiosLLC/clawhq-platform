@@ -177,7 +177,7 @@ export function AddAgentModal({ onClose, onCreated }: Props) {
           </div>
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "rgba(255,107,107,0.08)", color: "var(--color-error, #ff6b6b)", border: "1px solid rgba(255,107,107,0.2)" }}>
+            <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "color-mix(in srgb, var(--color-error) 8%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 20%, transparent)" }}>
               {error}
             </p>
           )}
@@ -198,7 +198,7 @@ export function AddAgentModal({ onClose, onCreated }: Props) {
               className="flex-1 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40"
               style={{
                 background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-                color: "#0e0e10",
+                color: "var(--color-on-brand)",
               }}
             >
               {saving && <Loader2 size={14} className="animate-spin" />}

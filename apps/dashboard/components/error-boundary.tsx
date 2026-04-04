@@ -16,14 +16,14 @@ export function ErrorCard({ message, onReset }: ErrorCardProps) {
       className="flex flex-col items-center justify-center min-h-[240px] rounded-2xl p-8 text-center"
       style={{
         background: "var(--color-surface)",
-        border: "1px solid rgba(255,107,107,0.25)",
+        border: "1px solid color-mix(in srgb, var(--color-error) 25%, transparent)",
       }}
     >
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
         style={{ background: "rgba(255,107,107,0.1)" }}
       >
-        <AlertCircle size={22} style={{ color: "var(--color-error, #ff6b6b)" }} />
+        <AlertCircle size={22} style={{ color: "var(--color-error)" }} />
       </div>
 
       <h2
@@ -50,7 +50,7 @@ export function ErrorCard({ message, onReset }: ErrorCardProps) {
             style={{
               background: "var(--color-primary-dim)",
               color: "var(--color-primary)",
-              border: "1px solid rgba(105,218,255,0.25)",
+              border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)",
             }}
           >
             <RefreshCw size={13} />

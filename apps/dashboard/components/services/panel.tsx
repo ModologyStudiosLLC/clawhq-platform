@@ -28,8 +28,8 @@ function StatusDot({ status }: { status: ContainerSummary["status"] }) {
     status === "running"
       ? "var(--color-primary)"
       : status === "restarting"
-        ? "#f59e0b"
-        : "var(--color-error, #ef4444)";
+        ? "var(--color-warning)"
+        : "var(--color-error)";
   return (
     <span
       className="inline-block w-2 h-2 rounded-full flex-shrink-0"
@@ -99,7 +99,7 @@ function ServiceCard({ container, onRestart, onLogs }: ServiceCardProps) {
             disabled={restarting}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs transition-colors"
             style={{
-              background: confirmRestart ? "var(--color-error, #ef4444)" : "var(--color-surface)",
+              background: confirmRestart ? "var(--color-error)" : "var(--color-surface)",
               color: confirmRestart ? "#fff" : "var(--color-text-muted)",
               border: `1px solid ${confirmRestart ? "transparent" : "var(--color-border)"}`,
               opacity: restarting ? 0.6 : 1,
@@ -122,7 +122,7 @@ function ServiceCard({ container, onRestart, onLogs }: ServiceCardProps) {
           {container.cpuPercent > 0 ? `${container.cpuPercent}%` : "—"}
         </span>
         {container.exitCode !== null && container.exitCode !== 0 && (
-          <span className="flex items-center gap-1" style={{ color: "var(--color-error, #ef4444)" }}>
+          <span className="flex items-center gap-1" style={{ color: "var(--color-error)" }}>
             <AlertCircle size={10} />
             exit {container.exitCode}
           </span>
@@ -155,7 +155,7 @@ function ServiceCard({ container, onRestart, onLogs }: ServiceCardProps) {
               className="h-full rounded-full transition-all duration-500"
               style={{
                 width: `${memPct}%`,
-                background: memPct > 80 ? "var(--color-error, #ef4444)" : "var(--color-primary)",
+                background: memPct > 80 ? "var(--color-error)" : "var(--color-primary)",
               }}
             />
           </div>

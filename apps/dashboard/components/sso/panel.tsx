@@ -86,7 +86,7 @@ function SetupStep({ n, title, children }: { n: number; title: string; children:
   return (
     <div className="flex gap-4">
       <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-        style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid rgba(105,218,255,0.3)" }}>
+        style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)" }}>
         {n}
       </div>
       <div className="flex-1 pb-5">
@@ -134,7 +134,7 @@ export function SSOPanel() {
           </button>
           <a href="https://dashboard.workos.com" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs transition-all"
-            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid rgba(105,218,255,0.25)" }}>
+            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)" }}>
             WorkOS Dashboard <ExternalLink size={12} />
           </a>
         </div>

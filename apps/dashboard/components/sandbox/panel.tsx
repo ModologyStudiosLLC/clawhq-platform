@@ -39,7 +39,7 @@ function PolicyRow({ policy }: { policy: Policy }) {
       <div
         className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
         style={{
-          background: policy.enforced ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.15)",
+          background: policy.enforced ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 15%, transparent)",
         }}
       >
         {policy.enforced
@@ -73,7 +73,7 @@ function PolicyRow({ policy }: { policy: Policy }) {
         <span
           className="text-xs font-medium px-2 py-0.5 rounded-full"
           style={{
-            background: policy.enforced ? "var(--color-secondary-dim)" : "rgba(255,107,107,0.15)",
+            background: policy.enforced ? "var(--color-secondary-dim)" : "color-mix(in srgb, var(--color-error) 15%, transparent)",
             color: policy.enforced ? "var(--color-secondary)" : "var(--color-error)",
           }}
         >
@@ -127,11 +127,11 @@ export function SandboxPanel() {
       {/* Score card */}
       <div
         className="card px-5 py-5 flex items-center gap-5"
-        style={{ border: "1px solid rgba(105,246,184,0.25)" }}
+        style={{ border: "1px solid color-mix(in srgb, var(--color-secondary) 25%, transparent)" }}
       >
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--color-secondary-dim)", border: "1px solid rgba(105,246,184,0.3)" }}
+          style={{ background: "var(--color-secondary-dim)", border: "1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent)" }}
         >
           <Shield size={28} style={{ color: "var(--color-secondary)" }} />
         </div>
@@ -214,7 +214,7 @@ export function SandboxPanel() {
       {/* Note */}
       <div
         className="card px-5 py-4"
-        style={{ border: "1px solid rgba(246,217,105,0.2)" }}
+        style={{ border: "1px solid color-mix(in srgb, var(--color-warning) 20%, transparent)" }}
       >
         <p className="text-xs font-semibold mb-1" style={{ color: "var(--color-warning)" }}>
           Note — Changes require a redeploy

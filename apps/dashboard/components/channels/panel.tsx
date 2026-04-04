@@ -189,7 +189,7 @@ export function ChannelsPanel() {
                       ) : connected ? (
                         <span
                           className="flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-medium"
-                          style={{ background: "rgba(105,246,184,0.15)", color: "var(--color-secondary)" }}
+                          style={{ background: "color-mix(in srgb, var(--color-secondary) 15%, transparent)", color: "var(--color-secondary)" }}
                         >
                           <span className="status-dot active" style={{ width: "6px", height: "6px" }} />
                           Connected

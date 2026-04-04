@@ -167,7 +167,7 @@ export function OnboardingWizard() {
       onClick={onClick}
       disabled={disabled}
       className="flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40"
-      style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "#0e0e10" }}
+      style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "var(--color-on-brand)" }}
     >
       {children}
     </button>
@@ -192,13 +192,13 @@ export function OnboardingWizard() {
             className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-8"
             style={{
               background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-              color: "#0e0e10",
-              fontFamily: "Manrope, sans-serif",
+              color: "var(--color-on-brand)",
+              fontFamily: var(--font-display),
             }}
           >
             C
           </div>
-          <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: var(--font-display) }}>
             Welcome to ClawHQ
           </h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--color-text-muted)" }}>
@@ -208,7 +208,7 @@ export function OnboardingWizard() {
           <button
             onClick={next}
             className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all"
-            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "#0e0e10" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "var(--color-on-brand)" }}
           >
             Get started <ArrowRight size={15} />
           </button>
@@ -219,7 +219,7 @@ export function OnboardingWizard() {
       {/* ── Goal ── */}
       {step === "goal" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
             What do you want agents to do?
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -246,7 +246,7 @@ export function OnboardingWizard() {
                   {selected && (
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ background: "var(--color-primary)" }}>
-                      <Check size={11} color="#0e0e10" />
+                      <Check size={11} color="var(--color-on-brand)" />
                     </div>
                   )}
                 </button>
@@ -263,7 +263,7 @@ export function OnboardingWizard() {
       {/* ── Agents ── */}
       {step === "agents" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
             Choose your starting team
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -290,7 +290,7 @@ export function OnboardingWizard() {
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
                     style={{
                       background: selected ? "var(--color-primary-dim)" : "var(--color-surface-2)",
-                      border: `1px solid ${selected ? "rgba(105,218,255,0.3)" : "var(--color-border)"}`,
+                      border: `1px solid ${selected ? "color-mix(in srgb, var(--color-primary) 30%, transparent)" : "var(--color-border)"}`,
                     }}
                   >
                     {agent.emoji}
@@ -328,7 +328,7 @@ export function OnboardingWizard() {
                       className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{ background: locked ? "var(--color-secondary)" : "var(--color-primary)" }}
                     >
-                      <Check size={11} color="#0e0e10" />
+                      <Check size={11} color="var(--color-on-brand)" />
                     </div>
                   )}
                 </button>
@@ -347,7 +347,7 @@ export function OnboardingWizard() {
       {/* ── API Key ── */}
       {step === "apikey" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
             Add your Anthropic key
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -385,7 +385,7 @@ export function OnboardingWizard() {
       {/* ── Channel ── */}
       {step === "channel" && (
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: var(--font-display) }}>
             Where do you want to talk to your agents?
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
@@ -442,7 +442,7 @@ export function OnboardingWizard() {
           >
             <Check size={28} style={{ color: "var(--color-secondary)" }} />
           </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "Manrope, sans-serif" }}>
+          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: var(--font-display) }}>
             Your team is ready
           </h2>
           <p className="text-sm mb-2" style={{ color: "var(--color-text-muted)" }}>
@@ -456,7 +456,7 @@ export function OnboardingWizard() {
                 <span
                   key={id}
                   className="text-xs px-2 py-1 rounded-full"
-                  style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid rgba(105,218,255,0.2)" }}
+                  style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}
                 >
                   {a.emoji} {a.name}
                 </span>
@@ -469,7 +469,7 @@ export function OnboardingWizard() {
               window.location.href = "/home";
             }}
             className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "#0e0e10" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "var(--color-on-brand)" }}
           >
             Go to dashboard <ArrowRight size={14} />
           </button>

@@ -129,7 +129,7 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
     ? accentColor.replace("var(--color-primary)", "var(--color-primary-dim)")
         .replace("var(--color-secondary)", "var(--color-secondary-dim)")
         .replace("var(--color-accent)", "var(--color-accent-dim)")
-        .replace("var(--color-warning)", "rgba(246,217,105,0.15)")
+        .replace("var(--color-warning)", "color-mix(in srgb, var(--color-warning) 15%, transparent)")
     : "var(--color-surface-2)";
 
   return (
@@ -143,7 +143,7 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
         borderTopLeftRadius: active ? "0px" : "12px",
         borderTopRightRadius: active ? "0px" : "12px",
         transition: "opacity 0.2s, box-shadow 0.2s, border-color 0.2s",
-        boxShadow: active ? `0 0 0 1px ${accentColor}22, 0 4px 24px rgba(0,0,0,0.3)` : undefined,
+        boxShadow: active ? `0 0 0 1px color-mix(in srgb, ${accentColor} 13%, transparent), 0 4px 24px rgba(0,0,0,0.3)` : undefined,
         borderRadius: "12px",
       }}
     >
@@ -177,9 +177,9 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
             <span
               className="text-xs px-2.5 py-0.5 rounded-full font-medium"
               style={{
-                background: `${accentColor}22`,
+                background: `color-mix(in srgb, ${accentColor} 13%, transparent)`,
                 color: accentColor,
-                border: `1px solid ${accentColor}44`,
+                border: `1px solid color-mix(in srgb, ${accentColor} 27%, transparent)`,
               }}
             >
               Active
@@ -188,9 +188,9 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
             <span
               className="text-xs px-2.5 py-0.5 rounded-full font-medium"
               style={{
-                background: "rgba(246,217,105,0.1)",
+                background: "color-mix(in srgb, var(--color-warning) 10%, transparent)",
                 color: "var(--color-warning)",
-                border: "1px solid rgba(246,217,105,0.25)",
+                border: "1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)",
               }}
             >
               Missing requirements
@@ -241,7 +241,7 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
             <span
               className="absolute top-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200"
               style={{
-                background: "white",
+                background: "#ffffff",
                 left: active ? "calc(100% - 22px)" : "2px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
               }}
@@ -258,7 +258,7 @@ function CapabilityCard({ hand, accentColor }: { hand: Hand; accentColor: string
             <span
               className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
               style={{
-                background: "white",
+                background: "#ffffff",
                 left: active ? "calc(100% - 22px)" : "2px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
               }}

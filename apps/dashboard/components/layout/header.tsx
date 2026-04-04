@@ -92,7 +92,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
         <button className="relative p-2 rounded-lg" style={{ color: "var(--color-text-muted)" }}>
           <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-error, #ff6b6b)" }} />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-error)" }} />
         </button>
       </div>
     </header>

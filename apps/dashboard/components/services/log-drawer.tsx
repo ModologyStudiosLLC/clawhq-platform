@@ -148,7 +148,7 @@ export function LogDrawer({ service, open, onClose }: LogDrawerProps) {
                   key={i}
                   style={{
                     color: l.stream === "stderr"
-                      ? "var(--color-error, #f87171)"
+                      ? "var(--color-error)"
                       : "var(--color-text-muted)",
                     display: "block",
                   }}

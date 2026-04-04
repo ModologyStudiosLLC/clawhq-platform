@@ -25,7 +25,7 @@ interface HermesStatus {
 const CHANNEL_META: Record<string, { label: string; color: string }> = {
   telegram: { label: "Telegram", color: "var(--color-primary)" },
   discord: { label: "Discord", color: "#5865f2" },
-  slack: { label: "Slack", color: "#4a154b" },
+  slack: { label: "Slack", color: "var(--color-accent)" },
 };
 
 const MODEL_DISPLAY: Record<string, string> = {
@@ -80,15 +80,15 @@ export function HermesPanel() {
       <div
         className="card p-6 relative overflow-hidden"
         style={{
-          background: "linear-gradient(135deg, rgba(172,138,255,0.08) 0%, var(--color-surface) 60%)",
-          borderColor: "rgba(172,138,255,0.2)",
+          background: "linear-gradient(135deg, var(--color-accent-dim) 0%, var(--color-surface) 60%)",
+          borderColor: "color-mix(in srgb, var(--color-accent) 20%, transparent)",
         }}
       >
         {/* Ambient orb */}
         <div
           className="absolute -top-12 -right-12 w-40 h-40 rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(172,138,255,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--color-accent-dim) 0%, transparent 70%)",
           }}
         />
 
@@ -104,7 +104,7 @@ export function HermesPanel() {
               <div className="flex items-center gap-2">
                 <h2
                   className="text-xl font-bold"
-                  style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}
+                  style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
                 >
                   Hermes
                 </h2>
@@ -152,11 +152,11 @@ export function HermesPanel() {
       ) : error ? (
         <div
           className="card p-4 flex items-center gap-3"
-          style={{ borderColor: "rgba(255,107,107,0.25)", background: "rgba(255,107,107,0.05)" }}
+          style={{ borderColor: "color-mix(in srgb, var(--color-error) 25%, transparent)", background: "color-mix(in srgb, var(--color-error) 5%, transparent)" }}
         >
-          <AlertCircle size={16} style={{ color: "var(--color-error, #ff6b6b)" }} />
+          <AlertCircle size={16} style={{ color: "var(--color-error)" }} />
           <div>
-            <p className="text-sm font-medium" style={{ color: "var(--color-error, #ff6b6b)" }}>
+            <p className="text-sm font-medium" style={{ color: "var(--color-error)" }}>
               Service unreachable
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
@@ -172,7 +172,7 @@ export function HermesPanel() {
               {isRunning ? (
                 <CheckCircle2 size={14} style={{ color: "var(--color-secondary)" }} />
               ) : (
-                <AlertCircle size={14} style={{ color: "var(--color-warning, #f6d969)" }} />
+                <AlertCircle size={14} style={{ color: "var(--color-warning)" }} />
               )}
               <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-subtle)" }}>
                 Gateway
@@ -181,8 +181,8 @@ export function HermesPanel() {
             <p
               className="text-lg font-bold"
               style={{
-                fontFamily: "Manrope, sans-serif",
-                color: isRunning ? "var(--color-secondary)" : "var(--color-warning, #f6d969)",
+                fontFamily: var(--font-display),
+                color: isRunning ? "var(--color-secondary)" : "var(--color-warning)",
               }}
             >
               {isRunning ? "Running" : "Starting"}
@@ -204,7 +204,7 @@ export function HermesPanel() {
             </div>
             <p
               className="text-sm font-bold truncate"
-              style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}
+              style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}
             >
               {MODEL_DISPLAY[status?.model ?? ""] ?? status?.model ?? "—"}
             </p>
@@ -223,7 +223,7 @@ export function HermesPanel() {
             </div>
             <p
               className="text-2xl font-bold"
-              style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-accent)" }}
+              style={{ fontFamily: var(--font-display), color: "var(--color-accent)" }}
             >
               {status?.sessions ?? 0}
             </p>
@@ -238,7 +238,7 @@ export function HermesPanel() {
       <div className="card p-5">
         <h3
           className="text-sm font-bold mb-4"
-          style={{ fontFamily: "Manrope, sans-serif" }}
+          style={{ fontFamily: var(--font-display) }}
         >
           Active Channels
         </h3>
@@ -268,7 +268,7 @@ export function HermesPanel() {
                   </span>
                   <span
                     className="ml-auto text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(105,246,184,0.12)", color: "var(--color-secondary)" }}
+                    style={{ background: "var(--color-secondary-dim)", color: "var(--color-secondary)" }}
                   >
                     Live
                   </span>
@@ -318,7 +318,7 @@ export function HermesPanel() {
             >
               <Icon size={16} style={{ color }} />
             </div>
-            <p className="text-sm font-semibold" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>
+            <p className="text-sm font-semibold" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>
               {title}
             </p>
             <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{desc}</p>

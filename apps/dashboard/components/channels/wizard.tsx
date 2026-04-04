@@ -36,7 +36,7 @@ function CopySnippet({ text }: { text: string }) {
 function StepNum({ n }: { n: number }) {
   return (
     <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold flex-shrink-0"
-      style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid rgba(105,218,255,0.25)" }}>
+      style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)" }}>
       {n}
     </span>
   );
@@ -55,7 +55,7 @@ function ExternalBtn({ href, label }: { href: string; label: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer"
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-      style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.25)", color: "var(--color-primary)" }}>
+      style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)", color: "var(--color-primary)" }}>
       {label} <ExternalLink size={11} />
     </a>
   );
@@ -325,7 +325,7 @@ export function ChannelWizard({ open, defaultChannel = "discord", onClose, onSav
           <div className="flex items-center gap-3">
             <span className="text-xl">{cfg.icon}</span>
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>
                 Connect {cfg.label}
               </p>
               <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
@@ -381,19 +381,19 @@ export function ChannelWizard({ open, defaultChannel = "discord", onClose, onSav
               <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "var(--color-secondary-dim)" }}>
                 <Check size={24} style={{ color: "var(--color-secondary)" }} />
               </div>
-              <h3 className="text-lg font-bold mb-2" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>{cfg.label} connected!</h3>
+              <h3 className="text-lg font-bold mb-2" style={{ fontFamily: var(--font-display), color: "var(--color-text)" }}>{cfg.label} connected!</h3>
               <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Your agents will now respond in {cfg.label}. It may take a moment to go live.</p>
             </div>
           ) : stepIdx < steps.length ? (
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>{steps[stepIdx].title}</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>{steps[stepIdx].title}</h3>
               <div className="rounded-xl p-4" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 {steps[stepIdx].body}
               </div>
             </div>
           ) : (
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: "Manrope, sans-serif" }}>Paste your token</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)", fontFamily: var(--font-display) }}>Paste your token</h3>
               <div className="rounded-xl p-4" style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)" }}>
                 <TokenInput channel={activeChannel} onSaved={() => { setDone(true); onSaved?.(activeChannel); }} />
               </div>
@@ -411,7 +411,7 @@ export function ChannelWizard({ open, defaultChannel = "discord", onClose, onSav
             {stepIdx < steps.length && (
               <button onClick={() => setStepIdx(v => v + 1)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
-                style={{ background: "var(--color-primary-dim)", border: "1px solid rgba(105,218,255,0.3)", color: "var(--color-primary)" }}>
+                style={{ background: "var(--color-primary-dim)", border: "1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)", color: "var(--color-primary)" }}>
                 {isLast ? "Add token" : "Next"} <ArrowRight size={14} />
               </button>
             )}
