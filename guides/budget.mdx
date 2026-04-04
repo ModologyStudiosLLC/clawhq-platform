@@ -1,0 +1,60 @@
+---
+title: Budget & Cost Controls
+description: Set spending limits and monitor AI costs in ClawHQ.
+---
+
+ClawHQ gives you visibility into AI spending and tools to keep costs under control — so you can run agents confidently without surprise bills.
+
+## How costs are tracked
+
+Every model call is logged with:
+- Model used
+- Input and output token counts
+- Estimated cost (based on published pricing)
+- Agent and pipeline that triggered it
+
+View this data in **Dashboard → Metrics** or via the [`/api/metrics`](/reference/api) endpoint.
+
+## Setting a monthly budget
+
+Set a monthly spending threshold in **Settings → General → Budget**, or in `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "modelRouter": {
+    "budgetThreshold": 80
+  }
+}
+```
+
+`budgetThreshold` is a percentage (0–100). When monthly spend reaches this percentage of your limit, the model router automatically downgrades non-critical tasks to Claude Haiku 4.5 as a fallback.
+
+## Budget fallback behavior
+
+When the budget threshold is hit:
+
+- `code` and `research` tasks continue using their configured model (they're considered critical)
+- `summary` and `chat` tasks are routed to `claude-haiku-4-5` automatically
+- A warning banner appears in the dashboard
+
+You can override this by locking task types:
+
+```json
+{
+  "modelRouter": {
+    "lockedTaskTypes": ["code", "research", "creative"]
+  }
+}
+```
+
+Locked task types are never downgraded, even over budget.
+
+## Cost-saving tips
+
+- Use **Haiku** for high-volume, simple tasks (summaries, routing, triage)
+- Use **Sonnet** for most reasoning tasks — best price/performance ratio
+- Reserve **Opus** for genuinely complex tasks (architecture, deep analysis)
+- Enable **self-learning** — the model router learns which models succeed on your tasks and routes accordingly over time
+- Enable **Ollama** for local routing of simple tasks at zero API cost
+
+See [Model Router](/guides/model-router) for full routing configuration.

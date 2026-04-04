@@ -1,0 +1,132 @@
+---
+title: Hermes
+description: ClawHQ's conversational AI layer — persistent memory, skills, and long-term context.
+---
+
+Hermes is the primary conversational agent in ClawHQ. While OpenClaw agents (Felix, Scout, Codex, etc.) are specialized execution engines triggered by commands, Hermes is the always-on brain — it holds context across every conversation, remembers your team, your goals, and past interactions, and gets smarter the more you use it.
+
+Hermes is built on the [Nous Research](https://nousresearch.com) Hermes model series and runs as its own service alongside OpenClaw.
+
+## Hermes vs OpenClaw agents
+
+| | Hermes | OpenClaw agents |
+|---|---|---|
+| **Purpose** | Conversational AI, memory, NL interface | Task execution, automation |
+| **Memory** | Persistent across all sessions | Per-conversation (configurable) |
+| **Triggers** | Always listening in connected channels | Keyword or command triggers |
+| **Model** | Single configurable model (`HERMES_MODEL`) | Model Router — right model per task |
+| **Best for** | "What's going on?", complex Q&A, long-running context | "Research X", "Code review Y", scheduled tasks |
+
+Think of it this way: Hermes is your AI colleague you talk to every day. OpenClaw agents are specialists you bring in for specific jobs.
+
+## Setup
+
+Hermes starts automatically with `docker compose up`. The only required config is an API key for your chosen model provider.
+
+### Environment variables
+
+Add these to your `.env` file:
+
+```bash
+# Required — model for Hermes to use
+HERMES_MODEL=anthropic/claude-sonnet-4-6
+
+# Required — at least one channel token
+HERMES_DISCORD_BOT_TOKEN=your-discord-bot-token
+
+# Optional — additional channels
+HERMES_TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+HERMES_SLACK_BOT_TOKEN=your-slack-bot-token
+HERMES_SLACK_APP_TOKEN=your-slack-app-token
+
+# Optional — port (default: 4300)
+HERMES_PORT=4300
+```
+
+<Note>
+Hermes needs its **own bot tokens** — separate from the OpenClaw bot. Create a second Discord application at [discord.com/developers](https://discord.com/developers/applications) for Hermes. Having two bots lets you address them independently in Discord (`@Hermes` vs `@Felix`).
+</Note>
+
+### Supported models
+
+Hermes uses a single model configured via `HERMES_MODEL`. Use any model string in `provider/model` format:
+
+| Provider | Example value |
+|---|---|
+| Anthropic | `anthropic/claude-sonnet-4-6` |
+| OpenAI | `openai/gpt-4o` |
+| OpenRouter | `openrouter/nousresearch/hermes-3-llama-3.1-70b` |
+| Groq | `groq/llama-3.3-70b-versatile` |
+| Local (Ollama) | `ollama/llama3.2` |
+
+The recommended default is `anthropic/claude-sonnet-4-6` — fast, capable, and cost-effective for conversational use.
+
+## Talking to Hermes
+
+Once configured and your bot is invited to your Discord server:
+
+```
+@Hermes what's on my plate today?
+```
+
+```
+@Hermes summarize what we discussed about the launch last week
+```
+
+```
+@Hermes remember that the Q2 target is $50k MRR
+```
+
+Hermes automatically retrieves relevant context from memory before every response — you don't need to re-explain things you've already told it.
+
+## Memory
+
+Hermes stores conversation history in SQLite and uses semantic search to retrieve relevant past context before each reply. This happens automatically.
+
+You can interact with memory directly:
+
+| Command | What it does |
+|---|---|
+| `@Hermes remember [fact]` | Stores something explicitly |
+| `@Hermes forget [topic]` | Removes memory entries about a topic |
+| `@Hermes what do you know about [topic]` | Shows what Hermes has stored |
+
+Memory is per-deployment — shared across all team members using the same ClawHQ instance.
+
+## Skills
+
+Hermes can load skills from `~/.openclaw/skills/`. Skills extend what Hermes can do — web search, calendar access, file operations, custom integrations.
+
+To see loaded skills:
+
+```
+@Hermes what skills do you have?
+```
+
+Skills are installed via the OpenClaw CLI or by dropping YAML files into the skills directory. See the [Skills reference](/reference/agent-config#skills) for the schema.
+
+## Dashboard
+
+Hermes activity is visible in the ClawHQ dashboard under **Team → Hermes**. From there you can:
+
+- View conversation history
+- See which skills are loaded
+- Adjust the model
+- Clear or export memory
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Connect Discord" icon="discord" href="/channels/discord">
+    Set up a dedicated Hermes bot in Discord
+  </Card>
+  <Card title="Model Router" icon="route" href="/guides/model-router">
+    How OpenClaw agents route tasks to the right model
+  </Card>
+  <Card title="First Agent" icon="robot" href="/guides/first-agent">
+    Configure a specialized OpenClaw agent
+  </Card>
+  <Card title="Environment Variables" icon="gear" href="/reference/environment-variables">
+    Full list of Hermes config options
+  </Card>
+</CardGroup>

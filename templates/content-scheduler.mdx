@@ -1,0 +1,71 @@
+---
+title: Content Scheduler
+description: Drafts and schedules social posts and newsletter content. Runs weekly or on demand.
+---
+
+The Content Scheduler drafts social posts and newsletter content on a weekly schedule or on demand. Give it a topic or let it choose from your content themes.
+
+## Install
+
+```bash
+cp templates/content-scheduler.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+## Usage
+
+Runs automatically every Monday at 8am, or trigger it manually:
+
+```
+@Felix schedule content for this week
+```
+
+```
+/schedule post about our new feature launch
+```
+
+## Output format
+
+```
+**This week's content queue**
+
+Monday — LinkedIn
+"[Post copy — 600-900 chars]"
+📎 Suggested visual: product screenshot
+
+Wednesday — Twitter/X
+"[Post copy — under 280 chars]"
+
+Friday — Newsletter snippet
+**Subject:** [Subject line]
+[150-word email snippet]
+```
+
+## Schedule
+
+Default: every Monday at 8am in your configured timezone.
+
+To change the schedule, edit the `triggers.cron` field in the YAML:
+
+```yaml
+triggers:
+  - type: cron
+    expr: "0 8 * * MON"  # change this
+    tz: "America/New_York"
+```
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Sonnet 4.6 |
+| Temperature | 0.7 (creative) |
+| Tools | web_search, doc_writer, calendar |
+
+## Optional env vars
+
+| Variable | Purpose |
+|---|---|
+| `CONTENT_THEMES` | Comma-separated topics to draw from |
+| `BRAND_VOICE` | Description of tone and style |
+| `PUBLISH_CHANNELS` | `twitter,linkedin,newsletter` |

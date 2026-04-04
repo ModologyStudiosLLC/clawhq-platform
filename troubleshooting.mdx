@@ -1,0 +1,110 @@
+---
+title: Troubleshooting
+description: Common issues and how to fix them.
+---
+
+## Services not starting
+
+**Check logs first:**
+```bash
+docker compose logs -f
+# Or per-service:
+docker compose logs openclaw
+docker compose logs dashboard
+docker compose logs paperclip
+```
+
+**Port conflict:**
+```bash
+# See which ports are in use
+docker compose ps
+# Check if something else is on port 3000
+lsof -i :3000
+```
+
+**Missing env vars:**
+```bash
+# Validate your .env file
+docker compose config
+```
+
+## Dashboard won't load
+
+- Verify `CLAWHQ_URL` in `.env` matches the URL you're visiting
+- Check the dashboard container: `docker compose logs dashboard`
+- If using a reverse proxy, ensure it forwards the `Host` header
+
+## Agent not responding in Discord
+
+1. Check the bot is online in your Discord server (green dot next to the bot name)
+2. Go to **Settings → Channels → Discord** — connection status should be green
+3. Verify **Message Content Intent** is enabled in the [Discord Developer Portal](https://discord.com/developers/applications)
+4. Check logs: `docker compose logs openclaw | grep discord`
+
+## "Rate limit exceeded" errors
+
+Your API provider is throttling requests. Options:
+
+- Add fallback models in **Settings → Agents → [Agent] → Model → Fallbacks**
+- Enable the Model Router budget fallback to switch to cheaper models automatically
+- Add API keys from multiple providers (OpenAI, Groq, OpenRouter) for automatic failover
+
+## Agent responds slowly
+
+- Check your model's average response time in **Health → Metrics**
+- Switch to a faster model (Haiku 4.5 is the fastest Claude model)
+- Enable Ollama local routing for simple tasks — no network latency
+
+## High API costs
+
+- Enable the **Model Router** — it routes cheap tasks to Haiku automatically
+- Set a **Monthly Budget** in **Settings → Budget** — agents stop running expensive models when the threshold is hit
+- Review **Budget → Provider Breakdown** to see which agents are spending the most
+
+## Database connection errors
+
+```bash
+# Check Postgres is running
+docker compose ps postgres
+
+# Check connection
+docker compose exec postgres psql -U clawhq -c "SELECT 1"
+
+# Reset if corrupted
+docker compose down -v  # WARNING: deletes all data
+docker compose up -d
+```
+
+## Updating fails
+
+```bash
+# Pull latest images
+docker compose pull
+
+# If a service won't start after update
+docker compose down
+docker compose pull
+docker compose up -d
+
+# Check for migration errors
+docker compose logs postgres
+```
+
+## Reset to factory defaults
+
+```bash
+# Stop everything and remove volumes (loses all data)
+docker compose down -v
+
+# Restart fresh
+docker compose up -d
+```
+
+<Warning>
+`docker compose down -v` deletes all agent memories, conversation history, and settings. Back up `~/.clawhq/` first.
+</Warning>
+
+## Get help
+
+- **Discord** — [discord.gg/clawhq](https://discord.gg/clawhq) — fastest response
+- **GitHub Issues** — [github.com/ModologyStudiosLLC/clawhq-platform/issues](https://github.com/ModologyStudiosLLC/clawhq-platform/issues)

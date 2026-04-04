@@ -1,0 +1,91 @@
+---
+title: Research Assistant
+description: On-demand research briefings with sources. Give it a topic, get a structured brief.
+---
+
+The Research Assistant produces structured briefings on any topic, company, person, or question. It searches multiple sources, cross-references them, and returns a clean summary with cited facts.
+
+## Install
+
+```bash
+cp templates/research-assistant.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+Or from the dashboard: **Team → Add Agent → Browse Templates → Research Assistant**
+
+## Usage
+
+Trigger it in any connected channel:
+
+```
+@Felix research OpenAI's latest model releases
+```
+
+```
+@Felix find out what Notion's pricing looks like now
+```
+
+```
+/research quantum computing market size 2025
+```
+
+## Output format
+
+```
+**Summary**
+2-3 sentence answer in plain English.
+
+**Key Facts**
+- Fact one — Source
+- Fact two — Source
+
+**Context**
+Background that helps interpret the facts.
+
+**Sources**
+- [Source name](URL) — date
+```
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Sonnet 4.6 |
+| Temperature | 0.3 (factual, low creativity) |
+| Tools | web_search, doc_writer |
+
+## Template YAML
+
+```yaml
+apiVersion: paperclip.ai/v1
+kind: Agent
+metadata:
+  name: research-assistant
+  displayName: "Research Assistant"
+  description: "On-demand research agent. Give it a topic and get a structured briefing with sources."
+  tags: [research, intelligence, web-search]
+  version: "1.0.0"
+
+spec:
+  model: claude-sonnet-4-6
+  temperature: 0.3
+
+  tools:
+    - web_search
+    - doc_writer
+
+  triggers:
+    - type: channel
+      keywords: ["research", "find out", "what do you know about", "look into", "investigate", "brief me on"]
+    - type: command
+      command: "research"
+
+  instructions: |
+    You are a Research Assistant. When given a topic, company, person, or question,
+    you produce a structured briefing with sources.
+```
+
+## Required env vars
+
+None — uses your configured API key.

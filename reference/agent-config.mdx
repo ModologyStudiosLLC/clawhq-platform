@@ -1,0 +1,97 @@
+---
+title: Agent Configuration
+description: Full reference for agent config fields in openclaw.json.
+---
+
+Agents are defined in `~/.openclaw/openclaw.json` under `agents.agents[]`. Most settings are also configurable from **Team → [Agent] → Settings** in the dashboard.
+
+## Core fields
+
+```json
+{
+  "id": "felix",
+  "name": "Felix",
+  "default": true,
+  "model": {
+    "primary": "anthropic/claude-sonnet-4-6",
+    "fallbacks": ["deepseek/deepseek-chat"]
+  },
+  "thinkingDefault": "medium",
+  "skills": [],
+  "workspace": "~/.openclaw/workspace"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique agent identifier. Used in bindings and API calls. |
+| `name` | string | Display name shown in the dashboard and channel responses. |
+| `default` | boolean | If true, this agent handles messages not routed to a specific agent. |
+| `model.primary` | string | Model in `provider/model` format. Overrides the model router for this agent. |
+| `model.fallbacks` | string[] | Fallback models if the primary is rate-limited or unavailable. |
+| `thinkingDefault` | string | Default thinking level: `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `adaptive`. |
+| `skills` | string[] | Allowed skill IDs. Omit for all skills; empty array for none. |
+| `workspace` | string | Working directory for file operations. |
+
+## Thinking levels
+
+| Level | When to use |
+|-------|-------------|
+| `off` | Simple tasks, fast responses, low cost |
+| `low` | Most tasks — good balance |
+| `medium` | Research, analysis, multi-step reasoning |
+| `high` | Complex code, long-form writing |
+| `adaptive` | Model decides based on task complexity |
+
+## Channel bindings
+
+Bindings control which agent handles messages from which channel or user.
+
+```json
+{
+  "bindings": [
+    {
+      "agentId": "felix",
+      "match": {
+        "channel": "discord",
+        "guildId": "123456789"
+      }
+    },
+    {
+      "agentId": "scout",
+      "match": {
+        "channel": "discord",
+        "peer": { "kind": "dm", "id": "user-id" }
+      }
+    }
+  ]
+}
+```
+
+## Memory
+
+```json
+{
+  "memorySearch": {
+    "enabled": true,
+    "topK": 5,
+    "minScore": 0.7
+  }
+}
+```
+
+When enabled, the agent automatically searches its memory for relevant context before each response.
+
+## Human delay
+
+```json
+{
+  "humanDelay": {
+    "enabled": true,
+    "minMs": 500,
+    "maxMs": 2000
+  }
+}
+```
+
+Adds a realistic typing delay before responses — useful for agents that interact directly with customers.

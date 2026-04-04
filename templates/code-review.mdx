@@ -1,0 +1,64 @@
+---
+title: Code Review Agent
+description: Reviews code for bugs, security issues, and style. Works via Discord or GitHub PR.
+---
+
+The Code Review Agent reviews code snippets or files for bugs, security vulnerabilities, and style issues. Paste code directly in Discord or wire it to a GitHub PR workflow.
+
+## Install
+
+```bash
+cp templates/code-review.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+## Usage
+
+Paste code in Discord:
+
+```
+@Felix review this:
+
+def login(username, password):
+    query = f"SELECT * FROM users WHERE username='{username}'"
+    ...
+```
+
+Or trigger by file mention:
+
+```
+/review auth/middleware.ts
+```
+
+## Output format
+
+Issues are rated by severity:
+
+| Icon | Severity |
+|---|---|
+| 🔴 | Critical — security issue or data loss risk |
+| 🟡 | Warning — logic error or reliability concern |
+| 🔵 | Suggestion — style, performance, or readability |
+
+```
+🔴 **SQL Injection** (line 3)
+String interpolation in SQL query. Use parameterized queries.
+
+🟡 **Missing error handling** (line 8)
+No try/catch around database call. Will crash on connection failure.
+
+🔵 **Naming** (line 1)
+`username` parameter could be `email` for clarity given the context.
+```
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Sonnet 4.6 |
+| Temperature | 0.1 (precise, consistent) |
+| Tools | web_search, doc_writer |
+
+## Required env vars
+
+None.

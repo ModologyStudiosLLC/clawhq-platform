@@ -1,0 +1,79 @@
+---
+title: Pack Schema
+description: Reference for the Paperclip AgentPack YAML schema.
+---
+
+Packs are defined using the `paperclip.ai/v1 AgentPack` schema — a YAML file that describes a collection of agents, pipelines, and settings.
+
+## Minimal example
+
+```yaml
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: my-pack
+  version: "1.0.0"
+  description: "What this pack does."
+
+spec:
+  agents:
+    - ref: clawhq://my-agent
+      role: primary
+      config:
+        model: claude-sonnet-4-6
+        tools: [web_search, doc_writer]
+        instructions: |
+          You are a helpful agent.
+
+  pipelines:
+    - name: my-pipeline
+      trigger: command "run"
+      steps:
+        - agent: my-agent
+          action: "Do the thing"
+```
+
+## `metadata` fields
+
+| Field | Required | Description |
+|---|---|---|
+| `name` | ✓ | Unique identifier (kebab-case) |
+| `namespace` | | Grouping namespace |
+| `version` | ✓ | Semver string |
+| `description` | ✓ | One-line description |
+| `tags` | | Array of category tags |
+
+## `spec.agents` fields
+
+| Field | Required | Description |
+|---|---|---|
+| `ref` | ✓ | Agent reference — `clawhq://name` or relative path |
+| `role` | ✓ | Role in the pack (e.g. `primary`, `support`) |
+| `priority` | | Execution order (lower = higher priority) |
+| `config.model` | | Model override for this agent |
+| `config.tools` | | Tool list |
+| `config.temperature` | | 0.0–1.0 |
+| `config.instructions` | | System prompt |
+
+## `spec.pipelines` fields
+
+| Field | Description |
+|---|---|
+| `name` | Pipeline identifier |
+| `trigger` | `cron "expr"`, `command "name"`, or `event "name"` |
+| `steps[].agent` | Agent name to invoke |
+| `steps[].action` | Instruction passed to the agent |
+| `steps[].hitl` | `true` to require human approval before proceeding |
+| `steps[].deliver_to` | Channel or user to send output to |
+
+## `spec.settings.hitl`
+
+```yaml
+settings:
+  hitl:
+    enabled: true
+    human_handles:
+      - "Final approval"
+    ai_handles:
+      - "Research and drafting"
+```

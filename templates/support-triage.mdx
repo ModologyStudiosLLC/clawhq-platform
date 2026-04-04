@@ -1,0 +1,68 @@
+---
+title: Support Triage
+description: Classifies support tickets by priority and drafts responses. Built-in HITL for P1/P2.
+---
+
+The Support Triage agent classifies incoming support tickets by priority and category, then drafts a response. P1 and P2 tickets are held for human review before anything goes out.
+
+## Install
+
+```bash
+cp templates/support-triage.yaml ~/.clawhq/agents/
+docker compose restart paperclip
+```
+
+## Usage
+
+Paste a ticket or customer message:
+
+```
+@Felix triage this: "Your app has been down for 2 hours and we're losing sales"
+```
+
+```
+/triage [paste customer message]
+```
+
+## Output format
+
+```
+**Triage**
+Priority: P1 | Category: Bug | Sentiment: Frustrated
+
+**Suggested Response**
+Hi [Name], I'm so sorry — we're aware of the issue and actively working on a fix.
+Our team is treating this as our top priority. I'll update you every 30 minutes
+until it's resolved. Can you confirm which region you're in?
+
+**Action Required**
+[x] Escalate to engineering
+[ ] Investigate further
+[ ] Follow up in X days
+[ ] No action needed
+```
+
+## Priority levels
+
+| Priority | Meaning |
+|---|---|
+| P1 | Service down, data loss — requires immediate human review |
+| P2 | Major feature broken — requires human review |
+| P3 | Minor bug or degraded experience |
+| P4 | Question, feedback, or feature request |
+
+<Warning>
+P1 and P2 responses are **always held for human approval** before sending. This is enforced by the `hitl` config and cannot be bypassed via chat.
+</Warning>
+
+## Configuration
+
+| Setting | Value |
+|---|---|
+| Model | Claude Haiku 4.5 (fast, cost-effective for high volume) |
+| Temperature | 0.2 |
+| Tools | web_search, doc_writer |
+
+## Required env vars
+
+None.

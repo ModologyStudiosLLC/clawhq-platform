@@ -1,0 +1,60 @@
+---
+title: Deploy with Docker
+description: Self-host ClawHQ on any server with Docker Compose.
+---
+
+The recommended way to run ClawHQ. Works on any VPS, home server, or cloud VM with 2GB+ RAM.
+
+## Quick start
+
+```bash
+git clone https://github.com/ModologyStudiosLLC/clawhq-platform
+cd clawhq-platform
+./install.sh
+```
+
+The install script handles everything — fills in your `.env`, starts all services, and opens the dashboard.
+
+## Manual setup
+
+```bash
+cp .env.example .env
+nano .env          # fill in your API keys and domain
+docker compose up -d
+```
+
+## Requirements
+
+- Docker 24+
+- Docker Compose v2
+- 2GB RAM minimum (4GB recommended)
+- A public domain for HTTPS (optional for local dev)
+
+## HTTPS
+
+Set `CLAWHQ_DOMAIN` in your `.env` to your domain. Caddy handles TLS automatically via Let's Encrypt — no cert management needed.
+
+## Update
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```
+
+## Logs
+
+```bash
+docker compose logs -f dashboard
+docker compose logs -f openclaw
+docker compose logs -f hermes
+```
+
+## Useful commands
+
+```bash
+docker compose ps          # check service status
+docker compose restart     # restart all services
+docker compose down        # stop everything
+docker compose down -v     # stop and wipe volumes (destructive)
+```

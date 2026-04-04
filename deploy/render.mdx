@@ -1,0 +1,25 @@
+---
+title: Deploy to Render
+description: Deploy ClawHQ on Render with a free tier option.
+---
+
+Render offers a free tier and simple Docker deployments. Good for testing and low-traffic production.
+
+## Deploy
+
+1. Fork [clawhq-platform](https://github.com/ModologyStudiosLLC/clawhq-platform) to your GitHub account
+2. Go to [render.com](https://render.com) and create a new **Web Service**
+3. Connect your GitHub repo
+4. Set **Environment** to `Docker`
+5. Add your environment variables under **Environment**
+6. Click **Create Web Service**
+
+## Notes
+
+- Render's free tier spins down after 15 minutes of inactivity — use a paid plan for production
+- Set `CLAWHQ_PUBLIC_URL` to your Render service URL (e.g. `https://clawhq.onrender.com`)
+- Persistent disk is required for SQLite storage — add one under **Disks** in your service settings
+
+## Environment variables
+
+See [Environment Variables](/reference/environment-variables) for the full list.

@@ -1,0 +1,43 @@
+---
+title: Deploy to DigitalOcean
+description: Run ClawHQ on a DigitalOcean Droplet from $6/mo.
+---
+
+A $6/mo DigitalOcean Droplet (1GB RAM) is enough for personal use. Use a $12/mo Droplet (2GB) for team use.
+
+## Create a Droplet
+
+1. Go to [digitalocean.com](https://digitalocean.com) and create a new Droplet
+2. Choose **Ubuntu 24.04 LTS**
+3. Select **Basic → Regular → $12/mo** (2GB RAM recommended)
+4. Add your SSH key
+5. Click **Create Droplet**
+
+## Install ClawHQ
+
+SSH into your Droplet and run:
+
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Clone and install ClawHQ
+git clone https://github.com/ModologyStudiosLLC/clawhq-platform
+cd clawhq-platform
+./install.sh
+```
+
+## Point your domain
+
+In DigitalOcean's DNS (or your registrar), add an **A record** pointing your domain to the Droplet's IP address.
+
+Set `CLAWHQ_DOMAIN` in your `.env` to the domain — Caddy handles TLS automatically.
+
+## Keep it running after reboot
+
+```bash
+docker compose up -d   # already starts in detached mode
+sudo systemctl enable docker   # ensure Docker starts on boot
+```

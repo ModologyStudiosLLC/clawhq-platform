@@ -1,0 +1,57 @@
+---
+title: Telegram
+description: Connect your ClawHQ agents to Telegram.
+---
+
+## Create a Telegram bot
+
+<Steps>
+  <Step title="Message @BotFather">
+    Open Telegram and search for [@BotFather](https://t.me/BotFather).
+
+    Send `/newbot` and follow the prompts to name your bot. BotFather will give you a token like:
+
+    ```
+    110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw
+    ```
+  </Step>
+
+  <Step title="Add the token to ClawHQ">
+    In the ClawHQ dashboard, go to **Settings → Channels → Telegram**.
+
+    Paste your bot token and click **Save**. ClawHQ sets up the webhook automatically.
+  </Step>
+
+  <Step title="Start a conversation">
+    Search for your bot in Telegram by its username and send `/start`.
+
+    The bot will respond and your agent is live.
+  </Step>
+</Steps>
+
+## Talk to your agent
+
+Send messages directly to the bot:
+
+```
+summarize today's top AI news
+help me draft a cold email to a potential customer
+```
+
+Telegram bots don't need to be @mentioned — every message in the DM goes to your agent.
+
+## Add to a group
+
+1. Add the bot to your Telegram group
+2. Send `/start@yourbotname` in the group
+3. The agent will respond to messages that @mention it
+
+## Troubleshooting
+
+**Bot not responding**
+- Verify the token in **Settings → Channels → Telegram**
+- Check that your ClawHQ URL is publicly reachable (webhooks require HTTPS)
+- Review logs: `docker compose logs openclaw`
+
+**HTTPS required**
+Telegram webhooks require HTTPS. Use the included Caddy reverse proxy (configured automatically in `docker-compose.yml`) or set `CLAWHQ_URL` to your HTTPS domain.

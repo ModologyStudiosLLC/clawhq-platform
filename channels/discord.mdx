@@ -1,0 +1,88 @@
+---
+title: Discord
+description: Connect your ClawHQ agents to Discord.
+---
+
+Connecting ClawHQ to Discord lets your agents respond to messages, run tasks, and post updates directly in your server.
+
+## Create a Discord bot
+
+<Steps>
+  <Step title="Open the Discord Developer Portal">
+    Go to [discord.com/developers/applications](https://discord.com/developers/applications) and click **New Application**.
+
+    Give it a name — this becomes your bot's display name (e.g. "Felix").
+  </Step>
+
+  <Step title="Create the bot">
+    In the left sidebar, click **Bot**. Then click **Add Bot** → **Yes, do it!**
+
+    Under **Token**, click **Reset Token** and copy the token. You'll need this in ClawHQ.
+
+    <Warning>
+    Treat your bot token like a password. Never commit it to git or share it publicly.
+    </Warning>
+  </Step>
+
+  <Step title="Enable required intents">
+    Still on the Bot page, scroll to **Privileged Gateway Intents** and enable:
+    - **Server Members Intent**
+    - **Message Content Intent**
+
+    Click **Save Changes**.
+  </Step>
+
+  <Step title="Generate an invite link">
+    In the sidebar, click **OAuth2 → URL Generator**.
+
+    Under **Scopes**, select: `bot`, `applications.commands`
+
+    Under **Bot Permissions**, select:
+    - Read Messages / View Channels
+    - Send Messages
+    - Read Message History
+    - Use Slash Commands
+
+    Copy the generated URL at the bottom and open it in your browser to invite the bot to your server.
+  </Step>
+
+  <Step title="Add the token to ClawHQ">
+    In the ClawHQ dashboard, go to **Settings → Channels → Discord**.
+
+    Paste your bot token and click **Save**. ClawHQ will connect and confirm the bot is online.
+  </Step>
+</Steps>
+
+## Talk to your agent
+
+Once connected, mention your bot in any channel:
+
+```
+@Felix what's on my task list today?
+@Scout research the latest funding rounds in AI tooling
+@Codex review this function: [paste code]
+```
+
+Agents respond in the same channel. Long tasks update with progress.
+
+## Slash commands
+
+ClawHQ registers `/ask` as a global slash command. Type `/ask` in any channel to open a modal for longer messages.
+
+## DM support
+
+Agents respond to direct messages by default. You can disable this per-agent in **Team → [Agent] → Settings → DM access**.
+
+## Troubleshooting
+
+**Bot is offline or not responding**
+- Check **Settings → Channels → Discord** — the connection status should show green
+- Verify the bot has been invited to the server with the correct permissions
+- Check `docker compose logs openclaw` for error details
+
+**Bot doesn't see messages**
+- Make sure **Message Content Intent** is enabled in the Discord Developer Portal
+- The bot needs **Read Messages** and **Read Message History** permissions in the channel
+
+**"Missing permissions" error**
+- Re-invite the bot using the URL Generator with updated permissions

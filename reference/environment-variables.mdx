@@ -1,0 +1,70 @@
+---
+title: Environment Variables
+description: All environment variables recognized by ClawHQ services.
+---
+
+Copy `.env.example` to `.env` and fill in the required values. The `install.sh` script does this interactively.
+
+## Required
+
+| Variable | Description |
+|----------|-------------|
+| `CLAWHQ_URL` | Public URL of your ClawHQ install (e.g. `https://clawhq.yourdomain.com`) |
+| `ANTHROPIC_API_KEY` | Anthropic API key — used by default for all agents |
+| `WORKOS_CLIENT_ID` | WorkOS client ID for authentication |
+| `WORKOS_API_KEY` | WorkOS API key for authentication |
+| `WORKOS_REDIRECT_URI` | OAuth redirect URI — must match your ClawHQ URL |
+| `POSTGRES_PASSWORD` | Password for the internal Postgres database |
+| `GATEWAY_AUTH_TOKEN` | Secret token for internal service communication |
+
+## Optional — AI providers
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key (GPT-4o, o1, etc.) |
+| `GROQ_API_KEY` | Groq API key (fast open-source models) |
+| `OPENROUTER_API_KEY` | OpenRouter key (access to 100+ models) |
+| `DEEPSEEK_API_KEY` | DeepSeek API key |
+| `ZAI_API_KEY` | ZAI API key |
+
+## Optional — Channels
+
+| Variable | Description |
+|----------|-------------|
+| `DISCORD_BOT_TOKEN` | Discord bot token |
+| `SLACK_BOT_TOKEN` | Slack bot user OAuth token (`xoxb-...`) |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token from @BotFather |
+| `WHATSAPP_TOKEN` | WhatsApp Business API token |
+
+## Optional — Integrations
+
+| Variable | Description |
+|----------|-------------|
+| `BRAVE_SEARCH_API_KEY` | Brave Search API key for web search MCP |
+| `GITHUB_TOKEN` | GitHub personal access token for GitHub MCP |
+
+## Model Router
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MODEL_ROUTER_ENABLED` | `true` | Enable the model router |
+| `MODEL_ROUTER_PRIMARY` | `anthropic/claude-sonnet-4-6` | Primary model |
+| `MODEL_ROUTER_FALLBACK` | `anthropic/claude-haiku-4-5` | Budget fallback model |
+| `MODEL_ROUTER_BUDGET_THRESHOLD` | `80` | Budget % to trigger fallback |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama endpoint |
+
+## Networking
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAWHQ_PORT` | `3000` | Dashboard port |
+| `OPENCLAW_GATEWAY_PORT` | `4100` | OpenClaw gateway port |
+| `OPENFANG_PORT` | `4200` | OpenFang API port |
+| `PAPERCLIP_PORT` | `3101` | Paperclip orchestration port |
+
+## Infrastructure profiles
+
+| Variable | Description |
+|----------|-------------|
+| `TAILSCALE_AUTH_KEY` | Enables the Tailscale VPN tunnel profile |
+| `CLOUDFLARE_TUNNEL_TOKEN` | Enables the Cloudflare Tunnel profile |

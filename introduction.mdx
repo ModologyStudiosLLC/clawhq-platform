@@ -1,0 +1,42 @@
+---
+title: What is ClawHQ?
+description: A self-hosted AI agent platform. Run agents in Discord, Slack, and Telegram on your own infrastructure.
+---
+
+ClawHQ is a self-hosted AI agent platform. Run it on your own infrastructure — a VPS, a home server, or a cloud VM — and give your team AI agents that work inside Discord, Slack, and Telegram.
+
+## What it does
+
+- **Agents that live in your channels** — each agent responds to messages, executes tasks, and reports back where your team already communicates
+- **One dashboard** to configure agents, manage API keys, monitor spend, and view activity
+- **Packs** — pre-built agent bundles for engineering teams, sales, ops, customer support, and more
+- **Self-hosted** — your data stays on your infrastructure, no per-seat fees, no SaaS lock-in
+
+## What's inside
+
+ClawHQ bundles five services into a single `docker compose up`:
+
+| Service | What it does |
+|---------|-------------|
+| **OpenClaw** | Agent gateway — routes messages to the right agent, manages model calls |
+| **OpenFang** | Agent OS — handles long-running tasks, memory, tool execution |
+| **Paperclip** | Orchestration — multi-step pipelines, cron jobs, agent-to-agent delegation |
+| **Hermes** | Conversational agent — the primary AI you interact with |
+| **Dashboard** | Web UI — configure everything from a browser |
+
+## Quick links
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Up and running in 2 minutes with Docker
+  </Card>
+  <Card title="First Agent" icon="robot" href="/guides/first-agent">
+    Configure your first agent and connect it to Discord
+  </Card>
+  <Card title="Agent Templates" icon="files" href="/templates/overview">
+    Browse pre-built agent templates
+  </Card>
+  <Card title="Model Router" icon="route" href="/guides/model-router">
+    Route tasks to the right model automatically
+  </Card>
+</CardGroup>

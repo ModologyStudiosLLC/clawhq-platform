@@ -1,0 +1,75 @@
+---
+title: Agent Packs
+description: Pre-built agent bundles for common team use cases.
+---
+
+Packs are pre-configured collections of agents, pipelines, and triggers. Instead of building from scratch, install a pack and your agents are ready to go.
+
+## Available packs
+
+### Team use case packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| [Engineering Team](/templates/code-review) | PR Reviewer, Release Notes Writer, Bug Triage | Dev teams on GitHub |
+| Sales Team | Lead Researcher, Outreach Drafter, CRM Note Taker | Sales and RevOps |
+| Customer Support | Ticket Classifier, KB Search, Reply Drafter | Support teams |
+| Ops & Leadership | Daily Briefing, Meeting Summarizer, Status Reporter | Founders, COOs |
+| Finance & Compliance | Invoice Processor, Expense Auditor, Board Report Generator | Finance teams |
+| HR & Recruiting | Candidate Sourcer, Onboarding Orchestrator, Benefits Q&A | HR teams |
+
+### Workforce augmentation packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| Reskilling Core | Skill Gap Analyst, Learning Path Designer, Augmentation Coach | Companies upskilling their teams |
+| Augmented Support | Ticket Triage, Response Drafter, Tutor | Support teams adopting AI |
+| Augmented Engineering | PR Reviewer, Coder, Architect, Tutor | Engineering with AI copilots |
+
+### Creator packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| Creator Suite | Content Generator, Brand Voice, Trend Scout, SEO Optimizer, + 8 more | Newsletters, YouTube, media |
+
+### Trades library
+
+AI-powered skill building for real-world trades — welding, electrical, HVAC, plumbing, CNC, carpentry.
+
+## Install a pack
+
+```bash
+# Copy the pack YAML to your ClawHQ workspace
+cp packs/engineering-team.yaml ~/.clawhq/packs/
+
+# Restart Paperclip to load the new pack
+docker compose restart paperclip
+```
+
+Or from the dashboard: **Capabilities → Install Pack → Browse**.
+
+## Build your own
+
+Packs follow the `paperclip.ai/v1 AgentPack` schema:
+
+```yaml
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: my-pack
+  displayName: "My Custom Pack"
+
+agents:
+  - id: my-agent
+    name: "My Agent"
+    trigger:
+      - type: channel
+        keywords: ["help me with"]
+    task: |
+      You are a helpful agent. When someone asks for help...
+    tools:
+      - web_search
+      - doc_writer
+```
+
+See the [Pack Schema Reference](/reference/pack-schema) for all available fields.
