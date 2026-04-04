@@ -52,7 +52,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     <header
       className="flex items-center justify-between px-4 md:px-6 py-4 border-b flex-shrink-0 sticky top-0 z-10"
       style={{
-        background: "rgba(5, 5, 7, 0.82)",
+        background: "color-mix(in srgb, var(--color-bg) 82%, transparent)",
         backdropFilter: "saturate(180%) blur(20px)",
         WebkitBackdropFilter: "saturate(180%) blur(20px)",
         borderColor: "var(--color-border)",
