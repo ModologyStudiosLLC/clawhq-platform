@@ -28,7 +28,7 @@ const AGENTS: {
 }[] = [
   {
     id: "felix",
-    name: "Felix",
+    name: "Mike",
     role: "CEO",
     emoji: "🦁",
     desc: "Your lead agent. Delegates tasks, coordinates the team, and answers anything you throw at it.",
@@ -99,7 +99,7 @@ export function OnboardingWizard() {
   }
 
   function toggleAgent(id: AgentId) {
-    // Felix is always required — can't be deselected
+    // Mike is always required — can't be deselected
     if (id === "felix") return;
     setActiveAgents(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -267,7 +267,7 @@ export function OnboardingWizard() {
             Choose your starting team
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
-            Felix is always on. Pick any others to activate — you can add or remove agents anytime.
+            Mike is always on. Pick any others to activate — you can add or remove agents anytime.
           </p>
           <div className="space-y-2 mb-6">
             {AGENTS.map(agent => {

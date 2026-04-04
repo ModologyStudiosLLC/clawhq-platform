@@ -23,7 +23,7 @@ cp templates/research-assistant.yaml ~/.clawhq/agents/
 docker compose restart paperclip
 
 # Test it
-# In Discord: @Felix research [topic]
+# In Discord: @Mike research [topic]
 ```
 
 ## Use in onboarding

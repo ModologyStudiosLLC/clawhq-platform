@@ -131,7 +131,7 @@ export function HomeDigest() {
           className="text-xs font-semibold uppercase tracking-widest mb-3"
           style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-mono)" }}
         >
-          {greeting()}, Felix
+          {greeting()}, Mike
         </p>
         <h1
           className="gradient-text-primary"
