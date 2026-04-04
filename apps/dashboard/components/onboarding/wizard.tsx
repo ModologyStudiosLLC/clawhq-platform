@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Check, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Check, Eye, EyeOff, Cpu, Wifi } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Goal = "research" | "leads" | "content" | "automation" | "custom";
 type AgentId = "felix" | "scout" | "codex" | "pixel" | "scribe" | "fixer";
+type Provider = "openrouter" | "anthropic" | "openai" | "ollama";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -87,6 +88,7 @@ export function OnboardingWizard() {
   const [activeAgents, setActiveAgents] = useState<AgentId[]>(
     AGENTS.filter(a => a.defaultActive).map(a => a.id)
   );
+  const [provider, setProvider] = useState<Provider>("openrouter");
   const [apiKey, setApiKey]   = useState("");
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving]   = useState(false);
@@ -107,14 +109,15 @@ export function OnboardingWizard() {
   }
 
   async function saveApiKey() {
-    if (!apiKey.trim()) { next(); return; }
+    if (provider === "ollama" || !apiKey.trim()) { next(); return; }
     setSaving(true);
-    localStorage.setItem("clawhq_anthropic_key", apiKey);
+    localStorage.setItem("clawhq_provider", provider);
+    localStorage.setItem("clawhq_api_key", apiKey);
     try {
       await fetch("/api/openfang/api/config/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider: "anthropic", key: apiKey }),
+        body: JSON.stringify({ provider, key: apiKey }),
       });
     } catch { /* silent */ }
     setSaving(false);
@@ -202,8 +205,9 @@ export function OnboardingWizard() {
             Welcome to ClawHQ
           </h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--color-text-muted)" }}>
-            Your AI agent team. Researches, generates leads, writes content, and
-            automates your work — while you focus on what matters.
+            Your AI agent team. Works with Claude, GPT-4, Gemini, DeepSeek, local
+            Llama — you choose the model. Researches, generates leads, writes
+            content, and automates your work.
           </p>
           <button
             onClick={next}
@@ -344,43 +348,169 @@ export function OnboardingWizard() {
         </div>
       )}
 
-      {/* ── API Key ── */}
-      {step === "apikey" && (
-        <div>
-          <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
-            Add your Anthropic key
-          </h2>
-          <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
-            This powers your agents. Get one at console.anthropic.com — it takes 30 seconds.
-          </p>
-          <div
-            className="flex items-center gap-2 px-4 py-3 rounded-xl mb-2"
-            style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
-          >
-            <input
-              type={showKey ? "text" : "password"}
-              value={apiKey}
-              onChange={e => setApiKey(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") saveApiKey(); }}
-              placeholder="sk-ant-..."
-              className="flex-1 bg-transparent text-sm outline-none"
-              style={{ color: "var(--color-text)" }}
-            />
-            <button onClick={() => setShowKey(v => !v)} style={{ color: "var(--color-text-muted)" }}>
-              {showKey ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
+      {/* ── API Key / Provider ── */}
+      {step === "apikey" && (() => {
+        const PROVIDERS: {
+          id: Provider;
+          label: string;
+          tagline: string;
+          tag?: string;
+          tagColor?: string;
+          placeholder: string;
+          showKey: boolean;
+          keyLabel: string;
+          helpUrl?: string;
+          helpText?: string;
+        }[] = [
+          {
+            id: "openrouter",
+            label: "OpenRouter",
+            tagline: "One key — Claude, GPT-4, Gemini, DeepSeek, Llama, and 50+ more",
+            tag: "Recommended",
+            tagColor: "var(--color-secondary)",
+            placeholder: "sk-or-...",
+            showKey: true,
+            keyLabel: "API key",
+            helpUrl: "https://openrouter.ai/keys",
+            helpText: "Get a free key at openrouter.ai",
+          },
+          {
+            id: "anthropic",
+            label: "Anthropic (Claude)",
+            tagline: "Direct access to Claude Haiku, Sonnet, and Opus",
+            placeholder: "sk-ant-...",
+            showKey: true,
+            keyLabel: "API key",
+            helpUrl: "https://console.anthropic.com",
+            helpText: "console.anthropic.com",
+          },
+          {
+            id: "openai",
+            label: "OpenAI",
+            tagline: "GPT-4o, GPT-4o mini, and o1 models",
+            placeholder: "sk-...",
+            showKey: true,
+            keyLabel: "API key",
+            helpUrl: "https://platform.openai.com/api-keys",
+            helpText: "platform.openai.com",
+          },
+          {
+            id: "ollama",
+            label: "Local (Ollama)",
+            tagline: "Run Llama, Mistral, Qwen, and more — no API costs, fully private",
+            tag: "Free",
+            tagColor: "var(--color-primary)",
+            placeholder: "",
+            showKey: false,
+            keyLabel: "",
+          },
+        ];
+
+        const selected = PROVIDERS.find(p => p.id === provider)!;
+
+        return (
+          <div>
+            <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
+              Choose your AI provider
+            </h2>
+            <p className="text-sm mb-5" style={{ color: "var(--color-text-muted)" }}>
+              ClawHQ works with any provider. You can switch or add more in Settings at any time.
+            </p>
+
+            {/* Provider cards */}
+            <div className="space-y-2 mb-5">
+              {PROVIDERS.map(p => {
+                const active = provider === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => { setProvider(p.id); setApiKey(""); }}
+                    className="w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition-all"
+                    style={{
+                      background: active ? "var(--color-primary-dim)" : "var(--color-surface)",
+                      border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: active ? "var(--color-primary-dim)" : "var(--color-surface-2)", border: "1px solid var(--color-border)" }}
+                    >
+                      {p.id === "ollama" ? <Cpu size={14} style={{ color: active ? "var(--color-primary)" : "var(--color-text-muted)" }} /> : <Wifi size={14} style={{ color: active ? "var(--color-primary)" : "var(--color-text-muted)" }} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{p.label}</span>
+                        {p.tag && (
+                          <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: `color-mix(in srgb, ${p.tagColor} 15%, transparent)`, color: p.tagColor }}>
+                            {p.tag}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{p.tagline}</p>
+                    </div>
+                    {active && (
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--color-primary)" }}>
+                        <Check size={9} color="var(--color-on-brand)" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Key input — hidden for Ollama */}
+            {selected.showKey && (
+              <div className="mb-4">
+                <div
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl mb-1.5"
+                  style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
+                >
+                  <span className="text-xs font-semibold flex-shrink-0" style={{ color: "var(--color-text-subtle)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    {selected.keyLabel}
+                  </span>
+                  <input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={e => setApiKey(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") saveApiKey(); }}
+                    placeholder={selected.placeholder}
+                    className="flex-1 bg-transparent text-sm outline-none"
+                    style={{ color: "var(--color-text)" }}
+                  />
+                  <button onClick={() => setShowKey(v => !v)} style={{ color: "var(--color-text-muted)" }}>
+                    {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                {selected.helpText && (
+                  <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
+                    Stored locally, never sent to Modology.{" "}
+                    {selected.helpUrl && (
+                      <a href={selected.helpUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)", textDecoration: "underline" }}>
+                        {selected.helpText} →
+                      </a>
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {provider === "ollama" && (
+              <p className="text-xs mb-4 px-3 py-2.5 rounded-lg" style={{ background: "var(--color-primary-dim)", color: "var(--color-text-muted)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}>
+                Make sure <strong style={{ color: "var(--color-text)" }}>Ollama</strong> is running on your machine at{" "}
+                <code style={{ color: "var(--color-primary)" }}>localhost:11434</code>. You can pull models with{" "}
+                <code style={{ color: "var(--color-primary)" }}>ollama pull llama3.2</code>.
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button onClick={back} className="px-4 py-3 rounded-xl text-sm" style={{ color: "var(--color-text-muted)" }}>Back</button>
+              <Btn onClick={saveApiKey} disabled={saving}>
+                {saving ? "Saving..." : (provider === "ollama" || apiKey) ? "Continue" : "Skip for now"} <ArrowRight size={14} />
+              </Btn>
+            </div>
           </div>
-          <p className="text-xs mb-6" style={{ color: "var(--color-text-subtle)" }}>
-            Stored locally. Never sent to Modology servers.
-          </p>
-          <div className="flex gap-3">
-            <button onClick={back} className="px-4 py-3 rounded-xl text-sm" style={{ color: "var(--color-text-muted)" }}>Back</button>
-            <Btn onClick={saveApiKey} disabled={saving}>
-              {saving ? "Saving..." : apiKey ? "Continue" : "Skip for now"} <ArrowRight size={14} />
-            </Btn>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Channel ── */}
       {step === "channel" && (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, ArrowRight, CheckCircle2, Zap, WifiOff } from "lucide-react";
+import { AlertCircle, ArrowRight, CheckCircle2, Zap, WifiOff, X, Cpu } from "lucide-react";
 import Link from "next/link";
 
 interface Agent {
@@ -65,6 +65,17 @@ export function HomeDigest() {
   const [hands, setHands] = useState<Hand[]>([]);
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
+  const [showProviderBanner, setShowProviderBanner] = useState(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem("clawhq_provider_banner_dismissed");
+    if (!dismissed) setShowProviderBanner(true);
+  }, []);
+
+  function dismissBanner() {
+    localStorage.setItem("clawhq_provider_banner_dismissed", "1");
+    setShowProviderBanner(false);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +119,34 @@ export function HomeDigest() {
 
   return (
     <div className="space-y-8 animate-fade-in max-w-4xl">
+
+      {/* Model provider banner */}
+      {showProviderBanner && (
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
+          style={{
+            background: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)",
+          }}
+        >
+          <Cpu size={14} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
+          <p className="flex-1" style={{ color: "var(--color-text-muted)" }}>
+            ClawHQ works with{" "}
+            <span style={{ color: "var(--color-text)" }}>Claude, GPT-4, Gemini, DeepSeek, and local Ollama</span>
+            {" "}— you&apos;re not locked to any one provider.{" "}
+            <Link href="/settings" className="underline" style={{ color: "var(--color-primary)" }}>
+              Configure in Settings → Model Router →
+            </Link>
+          </p>
+          <button
+            onClick={dismissBanner}
+            aria-label="Dismiss"
+            style={{ color: "var(--color-text-subtle)", flexShrink: 0 }}
+          >
+            <X size={13} />
+          </button>
+        </div>
+      )}
 
       {/* Hero section */}
       <div className="relative pt-4 pb-2">
