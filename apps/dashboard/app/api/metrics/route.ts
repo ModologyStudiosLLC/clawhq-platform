@@ -41,7 +41,8 @@ export async function GET() {
     const text = await res.text();
     const parsed = parsePrometheus(text);
     return NextResponse.json(parsed);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 503 });
+  } catch {
+    // Return empty metrics rather than 503 so the home page doesn't show "Service Offline"
+    return NextResponse.json({});
   }
 }

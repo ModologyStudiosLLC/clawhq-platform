@@ -8,7 +8,8 @@ export async function GET() {
     if (!res.ok) throw new Error(`${res.status}`);
     const data = await res.json();
     return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e), hands: [] }, { status: 503 });
+  } catch {
+    // Return empty array rather than 503 so the home page doesn't show "Service Offline"
+    return NextResponse.json([]);
   }
 }

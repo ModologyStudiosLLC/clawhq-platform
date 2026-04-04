@@ -552,14 +552,46 @@ function ChannelsTab({ onOpenWizard }: { onOpenWizard: (ch: ChannelId) => void }
           Connect external channels so your agents can receive and send messages.
           Hit <span style={{ color: "var(--color-primary)" }}>Guide</span> for step-by-step setup.
         </p>
+        {/* Popular */}
         <KeyRow emoji="💬" label="Discord" placeholder="Bot token..." wizardChannel="discord" onOpenWizard={onOpenWizard}
           onSave={token => saveChannelToken("discord", token)} />
         <KeyRow emoji="✈️" label="Telegram" placeholder="Bot token..." wizardChannel="telegram" onOpenWizard={onOpenWizard}
           onSave={token => saveChannelToken("telegram", token)} />
         <KeyRow emoji="🟣" label="Slack" placeholder="xoxb-..." wizardChannel="slack" onOpenWizard={onOpenWizard}
           onSave={token => saveChannelToken("slack", token)} />
-        <KeyRow emoji="📱" label="WhatsApp" placeholder="Token..."
+        <KeyRow emoji="📱" label="WhatsApp" placeholder="Token..." wizardChannel="whatsapp" onOpenWizard={onOpenWizard}
           onSave={token => saveChannelToken("whatsapp", token)} />
+        {/* Privacy */}
+        <KeyRow emoji="🔒" label="Signal" placeholder="Phone number..." wizardChannel="signal" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("signal", token)} note="Via Signal CLI bridge" />
+        <KeyRow emoji="💬" label="iMessage" placeholder="Apple ID..." wizardChannel="imessage" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("imessage", token)} note="Mac + BlueBubbles" />
+        {/* Enterprise */}
+        <KeyRow emoji="🔷" label="MS Teams" placeholder="Webhook URL..." wizardChannel="msteams" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("msteams", token)} />
+        <KeyRow emoji="🔵" label="Google Chat" placeholder="Webhook URL..." wizardChannel="googlechat" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("googlechat", token)} />
+        {/* Open Source */}
+        <KeyRow emoji="🌐" label="Matrix" placeholder="Access token..." wizardChannel="matrix" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("matrix", token)} note="Homeserver token" />
+        <KeyRow emoji="🟠" label="Mattermost" placeholder="Bot token..." wizardChannel="mattermost" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("mattermost", token)} />
+        {/* Streaming */}
+        <KeyRow emoji="🟣" label="Twitch" placeholder="OAuth token..." wizardChannel="twitch" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("twitch", token)} />
+        {/* Classic */}
+        <KeyRow emoji="📡" label="IRC" placeholder="NickServ password..." wizardChannel="irc" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("irc", token)} />
+        {/* Decentralised */}
+        <KeyRow emoji="🦋" label="Nostr" placeholder="nsec private key..." wizardChannel="nostr" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("nostr", token)} />
+        {/* Asia */}
+        <KeyRow emoji="💚" label="LINE" placeholder="Channel token..." wizardChannel="line" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("line", token)} />
+        <KeyRow emoji="🦅" label="Feishu / Lark" placeholder="App secret..." wizardChannel="feishu" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("feishu", token)} />
+        <KeyRow emoji="🇻🇳" label="Zalo" placeholder="Access token..." wizardChannel="zalo" onOpenWizard={onOpenWizard}
+          onSave={token => saveChannelToken("zalo", token)} />
       </div>
     </div>
   );

@@ -214,8 +214,10 @@ export function HomeDigest() {
           <span style={{ color: "var(--color-primary)", fontWeight: 700 }}>{tokenDisplay}</span>
         </span>
         <span className="flex items-center gap-1.5 flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
-          <span style={{ color: "var(--color-text-subtle)" }}>uptime</span>
-          <span style={{ color: "var(--color-accent)", fontWeight: 700 }}>99.9%</span>
+          <span style={{ color: "var(--color-text-subtle)" }}>gateway</span>
+          <span style={{ color: loading ? "var(--color-text-subtle)" : agents.length > 0 ? "var(--color-secondary)" : "var(--color-error, #ff6b6b)", fontWeight: 700 }}>
+            {loading ? "—" : agents.length > 0 ? "online" : "offline"}
+          </span>
         </span>
         {/* Provider badges */}
         <span
@@ -476,6 +478,57 @@ export function HomeDigest() {
           })}
         </div>
       </div>
+
+      {/* Recent activity */}
+      {!loading && agents.length > 0 && (
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-base" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>
+              Recent activity
+            </h2>
+            <Link href="/activity" className="text-xs flex items-center gap-1" style={{ color: "var(--color-primary)" }}>
+              Full log <ArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="space-y-0">
+            {[...agents]
+              .sort((a, b) => new Date(b.last_active).getTime() - new Date(a.last_active).getTime())
+              .slice(0, 5)
+              .map((agent, i) => {
+                const isActive = agent.state === "Running";
+                return (
+                  <div
+                    key={agent.id}
+                    className="flex items-center gap-3 py-2.5"
+                    style={{
+                      borderBottom: i < 4 ? "1px solid var(--color-border)" : "none",
+                    }}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm flex-shrink-0"
+                      style={{ background: "var(--color-surface-2)" }}>
+                      🤖
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: "var(--color-text)" }}>
+                        {agent.name}
+                      </p>
+                      <p className="text-xs" style={{ color: "var(--color-text-muted)", fontFamily: "var(--font-mono)" }}>
+                        {isActive ? "Active" : "Last seen"} · {timeAgo(agent.last_active)}
+                      </p>
+                    </div>
+                    <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={{
+                        background: isActive ? "var(--color-secondary-dim)" : "var(--color-surface-2)",
+                        color: isActive ? "var(--color-secondary)" : "var(--color-text-subtle)",
+                      }}>
+                      {agent.model_provider}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
 
       {/* Quick actions — bento style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
