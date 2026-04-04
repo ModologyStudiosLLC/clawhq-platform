@@ -1,0 +1,132 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "ClawHQ Docs",
+  "colors": {
+    "primary": "#69daff",
+    "light": "#69daff",
+    "dark": "#0c0c0f"
+  },
+  "favicon": "/images/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "deploy/docker",
+              "deploy/railway",
+              "deploy/render",
+              "deploy/digitalocean"
+            ]
+          },
+          {
+            "group": "Channel Setup",
+            "pages": [
+              "channels/discord",
+              "channels/slack",
+              "channels/telegram"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "troubleshooting",
+              "faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/first-agent",
+              "guides/hermes",
+              "guides/channels",
+              "guides/packs",
+              "guides/model-router",
+              "guides/integrations",
+              "guides/budget"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/agent-config",
+              "reference/pack-schema",
+              "reference/api",
+              "reference/environment-variables",
+              "reference/model-router"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Templates",
+        "groups": [
+          {
+            "group": "Templates",
+            "pages": [
+              "templates/overview",
+              "templates/research-assistant",
+              "templates/lead-qualification",
+              "templates/code-review",
+              "templates/content-scheduler",
+              "templates/support-triage",
+              "templates/daily-digest"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Discord Community",
+          "href": "https://discord.gg/clawhq",
+          "icon": "discord"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/ModologyStudiosLLC/clawhq-platform",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/images/logo-light.svg",
+    "dark": "/images/logo-dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/ModologyStudiosLLC/clawhq-platform"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get ClawHQ",
+      "href": "https://clawhqplatform.com"
+    }
+  },
+  "footer": {
+    "socials": {
+      "discord": "https://discord.gg/clawhq",
+      "github": "https://github.com/ModologyStudiosLLC/clawhq-platform"
+    }
+  }
+}

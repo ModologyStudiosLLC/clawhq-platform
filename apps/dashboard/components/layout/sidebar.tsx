@@ -67,21 +67,18 @@ export function Sidebar({ user, onNavigate }: SidebarProps) {
       className="w-56 h-full flex-shrink-0 flex flex-col border-r"
       style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "var(--color-border)" }}>
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
-          style={{
-            background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-            color: "#0e0e10",
-            fontFamily: "Manrope, sans-serif",
-          }}
-        >
-          C
-        </div>
+      {/* Logo — claw mark + serif wordmark, matches clawhqplatform.com */}
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: "var(--color-border)" }}>
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 22, height: 22, flexShrink: 0 }}>
+          <polygon points="2,24 6,24 13,4 9,4" fill="var(--color-primary)" opacity="0.45"/>
+          <polygon points="8,24 12,24 19,4 15,4" fill="var(--color-primary)" opacity="0.72"/>
+          <polygon points="14,24 18,24 25,4 21,4" fill="var(--color-primary)"/>
+        </svg>
         <div>
-          <p className="font-bold text-sm leading-none" style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}>ClawHQ</p>
-          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-subtle)" }}>Modology Studios</p>
+          <p className="leading-none" style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em", color: "var(--color-text)" }}>
+            Claw<span style={{ color: "var(--color-primary)" }}>HQ</span>
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-sans)" }}>Modology Studios</p>
         </div>
       </div>
 
@@ -89,8 +86,8 @@ export function Sidebar({ user, onNavigate }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {nav.map(({ href, label, icon: Icon, accent }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
-          const accentColor = accent ? "var(--color-accent)" : "var(--color-primary)";
-          const accentDim = accent ? "var(--color-accent-dim)" : "var(--color-primary-dim)";
+          const accentColor = accent ? "var(--color-hermes)" : "var(--color-primary)";
+          const accentDim = accent ? "var(--color-hermes-dim)" : "var(--color-primary-dim)";
           return (
             <Link
               key={href}

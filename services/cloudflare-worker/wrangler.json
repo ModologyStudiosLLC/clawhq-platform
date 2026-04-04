@@ -1,0 +1,12 @@
+{
+  "name": "clawhq-docs-proxy",
+  "main": "docs-proxy.js",
+  "compatibility_date": "2024-01-01",
+  "account_id": "74f7c3d5809a9ace79a919b3faf7aa32",
+  "routes": [
+    {
+      "pattern": "clawhqplatform.com/docs*",
+      "zone_name": "clawhqplatform.com"
+    }
+  ]
+}

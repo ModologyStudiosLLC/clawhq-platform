@@ -1,0 +1,52 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome back, Creator. Here's your empire at a glance.</p>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid-4" style="margin-bottom:28px;">
+    <div class="stat-card">
+      <div class="stat-label">Monthly Revenue</div>
+      <div class="stat-value accent" data-count="12847" data-prefix="$">$0</div>
+      <div class="stat-change up">↑ 12.3% vs last month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Subscribers</div>
+      <div class="stat-value" data-count="34200">0</div>
+      <div class="stat-change up">↑ 8.7% growth</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Engagement Rate</div>
+      <div class="stat-value success" data-count="4" data-suffix=".2%">0%</div>
+      <div class="stat-change down">↓ 0.3% vs last month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Content Published</div>
+      <div class="stat-value" data-count="247">0</div>
+      <div class="stat-change neutral">+18 drafts pending</div>
+    </div>
+  </div>
+
+  <!-- Revenue Chart -->
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header">
+      <div class="card-title">Revenue Trend (30 Days)</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" style="font-size:12px;padding:4px 10px;">7D</button>
+        <button class="btn btn-secondary" style="font-size:12px;padding:4px 10px;background:var(--accent-subtle);color:var(--accent-primary);">30D</button>
+        <button class="btn btn-secondary" style="font-size:12px;padding:4px 10px;">90D</button>
+      </div>
+    </div>
+    <div class="chart-placeholder" id="revenue-chart" style="height:200px;display:flex;align-items:flex-end;gap:3px;padding-bottom:24px;">
+    </div>
+  </div>
+
+  <!-- Agents Section -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <h2 style="font-family:var(--font-display);font-size:18px;font-weight:600;">AI Agent Fleet</h2>
+    <a href="#/tools" class="btn btn-secondary" style="font-size:12px;">Manage Agents →</a>
+  </div>
+  <div class="grid-3" id="agents-grid">
+  </div>
+</div>

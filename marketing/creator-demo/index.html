@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreatorCore Suite — AI-Powered Creator Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Top Navigation -->
+  <div id="nav-container" data-include="templates/nav.html"></div>
+
+  <!-- Main App Layout -->
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-mark">CC</div>
+        <div class="logo-text">CreatorCore<span class="logo-dot">.</span></div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <a href="#/" class="nav-item active" data-route="/">
+            <span class="nav-icon">&#9673;</span>
+            <span>Dashboard</span>
+          </a>
+          <a href="#/tools" class="nav-item" data-route="/tools">
+            <span class="nav-icon">&#9881;</span>
+            <span>AI Tools</span>
+          </a>
+          <a href="#/analytics" class="nav-item" data-route="/analytics">
+            <span class="nav-icon">&#9670;</span>
+            <span>Analytics</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Creator</div>
+          <a href="#/creator" class="nav-item" data-route="/creator">
+            <span class="nav-icon">&#9733;</span>
+            <span>Creator Studio</span>
+          </a>
+          <a href="#/discover" class="nav-item" data-route="/discover">
+            <span class="nav-icon">&#9906;</span>
+            <span>Discover</span>
+          </a>
+          <a href="#/collaborate" class="nav-item" data-route="/collaborate">
+            <span class="nav-icon">&#9827;</span>
+            <span>Collaborate</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">System</div>
+          <a href="#/settings" class="nav-item" data-route="/settings">
+            <span class="nav-icon">&#9881;</span>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="agent-status">
+          <div class="status-dot active"></div>
+          <span>12 Agents Active</span>
+        </div>
+        <div class="agent-status">
+          <div class="status-dot syncing"></div>
+          <span>3 Syncing</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" id="app-content">
+      <div class="loading-screen" id="loading-screen">
+        <div class="loading-cc">CC</div>
+        <div class="loading-text">Initializing CreatorCore Suite...</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <div id="footer-container" data-include="templates/footer.html"></div>
+
+  <!-- Scripts -->
+  <script src="js/router.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/agents.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

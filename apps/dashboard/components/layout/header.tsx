@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Bell, Menu, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CommandPalette } from "./command-palette";
+import { ThemeToggle } from "./theme-toggle";
 
 const titles: Record<string, { title: string; subtitle: string }> = {
   "/home": { title: "Home", subtitle: "What your agents are up to" },
@@ -78,6 +79,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <button
           onClick={() => setPaletteOpen(true)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors"

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -8,13 +8,13 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono: "SF Mono", "Geist Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --radius-lg: 1.125rem;
   --radius-md: 0.625rem;
   --radius-sm: 0.375rem;
 
-  /* Modology brand palette — aligned with clawhqplatform.com */
+  /* Modology brand palette — dark mode (default) */
   --color-bg: #050507;
   --color-surface: #0c0c0f;
   --color-surface-2: #111115;
@@ -31,9 +31,13 @@
   --color-accent: #ac8aff;
   --color-accent-dim: rgba(172, 138, 255, 0.15);
 
+  /* Hermes magenta — matches clawhqplatform.com */
+  --color-hermes: #e879f9;
+  --color-hermes-dim: rgba(232, 121, 249, 0.15);
+
   --color-text: #f5f5f7;
-  --color-text-muted: rgba(245, 245, 247, 0.5);
-  --color-text-subtle: rgba(245, 245, 247, 0.3);
+  --color-text-muted: rgba(245, 245, 247, 0.6);
+  --color-text-subtle: rgba(245, 245, 247, 0.35);
 
   --color-success: #69f6b8;
   --color-warning: #f6d969;
@@ -48,7 +52,7 @@
   --color-popover: #111115;
   --color-popover-foreground: #f5f5f7;
   --color-muted: #111115;
-  --color-muted-foreground: rgba(245, 245, 247, 0.5);
+  --color-muted-foreground: rgba(245, 245, 247, 0.6);
   --color-destructive: #ff6b6b;
   --color-destructive-foreground: #f5f5f7;
   --color-input: #111115;
@@ -60,6 +64,7 @@
   --animate-fade-in: fade-in 0.3s ease-out;
   --animate-slide-up: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-reveal: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes accordion-down {
     from { height: 0; }
@@ -85,6 +90,10 @@
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-8px); }
   }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
@@ -95,6 +104,52 @@
 
   html {
     color-scheme: dark;
+  }
+
+  /* ── Light mode — matches clawhqplatform.com light theme ───────────────── */
+  html:not(.dark) {
+    color-scheme: light;
+
+    --color-bg: #fafaf8;
+    --color-surface: #f0f0ee;
+    --color-surface-2: #e6e6e4;
+    --color-border: rgba(0, 0, 0, 0.07);
+    --color-border-strong: rgba(0, 0, 0, 0.14);
+
+    --color-primary: #0066cc;
+    --color-primary-dim: rgba(0, 102, 204, 0.10);
+    --color-primary-glow: rgba(0, 102, 204, 0.25);
+
+    --color-secondary: #1a9c6e;
+    --color-secondary-dim: rgba(26, 156, 110, 0.10);
+
+    --color-accent: #6e44cf;
+    --color-accent-dim: rgba(110, 68, 207, 0.10);
+
+    --color-hermes: #c026d3;
+    --color-hermes-dim: rgba(192, 38, 211, 0.10);
+
+    --color-text: #0a0a0c;
+    --color-text-muted: rgba(10, 10, 12, 0.6);
+    --color-text-subtle: rgba(10, 10, 12, 0.35);
+
+    --color-success: #1a9c6e;
+    --color-warning: #b45309;
+    --color-error: #dc2626;
+    --color-info: #0066cc;
+
+    --color-background: #fafaf8;
+    --color-foreground: #0a0a0c;
+    --color-card: #f0f0ee;
+    --color-card-foreground: #0a0a0c;
+    --color-popover: #e6e6e4;
+    --color-popover-foreground: #0a0a0c;
+    --color-muted: #e6e6e4;
+    --color-muted-foreground: rgba(10, 10, 12, 0.6);
+    --color-destructive: #dc2626;
+    --color-destructive-foreground: #fafaf8;
+    --color-input: #e6e6e4;
+    --color-ring: #0066cc;
   }
 
   body {
@@ -120,11 +175,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(128, 128, 128, 0.2);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(128, 128, 128, 0.35);
   }
 }
 
@@ -144,7 +199,7 @@
   .border-strong { border-color: var(--color-border-strong); }
 
   .glass {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(128, 128, 128, 0.04);
     backdrop-filter: blur(12px);
     border: 1px solid var(--color-border);
   }
@@ -156,11 +211,12 @@
   }
 
   .card-hover {
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
   .card-hover:hover {
     border-color: var(--color-border-strong);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
   }
 
   .gradient-text-primary {
@@ -179,6 +235,7 @@
     height: 8px;
     border-radius: 50%;
     display: inline-block;
+    flex-shrink: 0;
   }
   .status-dot.active { background: var(--color-secondary); box-shadow: 0 0 8px var(--color-secondary); }
   .status-dot.idle { background: var(--color-warning); }
@@ -193,12 +250,43 @@
   }
 
   .card-glow-primary:hover {
-    box-shadow: 0 0 0 1px var(--color-primary-glow), 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 1px var(--color-primary-glow), 0 8px 32px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
   }
 
   .card-active-border {
     border-top: 2px solid var(--color-primary);
   }
+
+  /* Pill button — matches landing page CTA style */
+  .btn-pill {
+    padding: 7px 18px;
+    border-radius: 980px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: opacity 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .btn-pill:hover { opacity: 0.86; transform: translateY(-1px); }
+
+  .btn-pill-solid {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+  .btn-pill-outline {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-strong);
+  }
+  .btn-pill-outline:hover { color: var(--color-text); border-color: var(--color-text-muted); }
+
+  /* Staggered reveal utility */
+  .reveal { animation: var(--animate-reveal); }
+  .reveal-delay-1 { animation-delay: 80ms; }
+  .reveal-delay-2 { animation-delay: 160ms; }
+  .reveal-delay-3 { animation-delay: 240ms; }
+  .reveal-delay-4 { animation-delay: 320ms; }
 }
 
 .chat-message-agent pre {
