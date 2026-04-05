@@ -74,6 +74,7 @@ const PACK_NAMES: Record<string, string> = {
   "augmented-sales":       "Augmented Sales Pack",
   "augmented-support":     "Augmented Support Pack",
   "creator-suite":         "Creator Suite Pack",
+  "decision-brief":        "Decision Brief Pack",
 };
 
 async function sendLicenseEmail(
