@@ -239,6 +239,13 @@ export function costRoutes(db: Db) {
     },
   );
 
+  router.get("/companies/:companyId/costs/efficiency", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const report = await costs.efficiency(companyId);
+    res.json(report);
+  });
+
   router.get("/companies/:companyId/costs/by-project", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);

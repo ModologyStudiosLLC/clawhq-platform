@@ -143,7 +143,7 @@ async function computeObservedAmount(
   db: Db,
   policy: Pick<PolicyRow, "companyId" | "scopeType" | "scopeId" | "windowKind" | "metric">,
 ) {
-  if (policy.metric !== "billed_cents") return 0;
+  if (policy.metric !== "billed_cents" && policy.metric !== "tokens_total") return 0;
 
   const conditions = [eq(costEvents.companyId, policy.companyId)];
   if (policy.scopeType === "agent") conditions.push(eq(costEvents.agentId, policy.scopeId));
@@ -154,10 +154,12 @@ async function computeObservedAmount(
     conditions.push(lt(costEvents.occurredAt, end));
   }
 
+  const totalExpr = policy.metric === "tokens_total"
+    ? sql<number>`coalesce(sum(${costEvents.inputTokens} + ${costEvents.outputTokens}), 0)::int`
+    : sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`;
+
   const [row] = await db
-    .select({
-      total: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
-    })
+    .select({ total: totalExpr })
     .from(costEvents)
     .where(and(...conditions));
 
@@ -664,7 +666,8 @@ export function budgetService(db: Db, hooks: BudgetServiceHooks = {}) {
       });
 
       for (const policy of relevantPolicies) {
-        if (policy.metric !== "billed_cents" || policy.amount <= 0) continue;
+        if (policy.amount <= 0) continue;
+        if (policy.metric !== "billed_cents" && policy.metric !== "tokens_total") continue;
         const observedAmount = await computeObservedAmount(db, policy);
         const softThreshold = Math.ceil((policy.amount * policy.warnPercent) / 100);
 
@@ -761,7 +764,7 @@ export function budgetService(db: Db, hooks: BudgetServiceHooks = {}) {
             eq(budgetPolicies.scopeType, "company"),
             eq(budgetPolicies.scopeId, companyId),
             eq(budgetPolicies.isActive, true),
-            eq(budgetPolicies.metric, "billed_cents"),
+            inArray(budgetPolicies.metric, ["billed_cents", "tokens_total"]),
           ),
         )
         .then((rows) => rows[0] ?? null);
@@ -795,7 +798,7 @@ export function budgetService(db: Db, hooks: BudgetServiceHooks = {}) {
             eq(budgetPolicies.scopeType, "agent"),
             eq(budgetPolicies.scopeId, agentId),
             eq(budgetPolicies.isActive, true),
-            eq(budgetPolicies.metric, "billed_cents"),
+            inArray(budgetPolicies.metric, ["billed_cents", "tokens_total"]),
           ),
         )
         .then((rows) => rows[0] ?? null);
@@ -836,7 +839,7 @@ export function budgetService(db: Db, hooks: BudgetServiceHooks = {}) {
             eq(budgetPolicies.scopeType, "project"),
             eq(budgetPolicies.scopeId, project.id),
             eq(budgetPolicies.isActive, true),
-            eq(budgetPolicies.metric, "billed_cents"),
+            inArray(budgetPolicies.metric, ["billed_cents", "tokens_total"]),
           ),
         )
         .then((rows) => rows[0] ?? null);

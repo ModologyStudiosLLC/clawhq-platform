@@ -311,6 +311,130 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
         .orderBy(costEvents.provider, costEvents.biller, costEvents.billingType, costEvents.model);
     },
 
+    efficiency: async (companyId: string) => {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // rolling 30 days
+
+      const rows = await db
+        .select({
+          agentId: costEvents.agentId,
+          agentName: agents.name,
+          model: costEvents.model,
+          provider: costEvents.provider,
+          costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          inputTokens: sql<number>`coalesce(sum(${costEvents.inputTokens}), 0)::int`,
+          cachedInputTokens: sql<number>`coalesce(sum(${costEvents.cachedInputTokens}), 0)::int`,
+          outputTokens: sql<number>`coalesce(sum(${costEvents.outputTokens}), 0)::int`,
+          runCount: sql<number>`count(distinct ${costEvents.heartbeatRunId})::int`,
+        })
+        .from(costEvents)
+        .leftJoin(agents, eq(costEvents.agentId, agents.id))
+        .where(and(eq(costEvents.companyId, companyId), gte(costEvents.occurredAt, since)))
+        .groupBy(costEvents.agentId, agents.name, costEvents.model, costEvents.provider)
+        .orderBy(desc(sql`coalesce(sum(${costEvents.costCents}), 0)::int`));
+
+      // Collapse model rows per agent — pick primary model by cost, aggregate tokens
+      const agentMap = new Map<string, {
+        agentId: string;
+        agentName: string | null;
+        totalCostCents: number;
+        totalInputTokens: number;
+        totalCachedInputTokens: number;
+        totalOutputTokens: number;
+        runCount: number;
+        primaryModel: string;
+        primaryProvider: string;
+        primaryModelCost: number;
+      }>();
+
+      for (const row of rows) {
+        const existing = agentMap.get(row.agentId);
+        if (!existing) {
+          agentMap.set(row.agentId, {
+            agentId: row.agentId,
+            agentName: row.agentName,
+            totalCostCents: row.costCents,
+            totalInputTokens: row.inputTokens,
+            totalCachedInputTokens: row.cachedInputTokens,
+            totalOutputTokens: row.outputTokens,
+            runCount: row.runCount,
+            primaryModel: row.model,
+            primaryProvider: row.provider,
+            primaryModelCost: row.costCents,
+          });
+        } else {
+          existing.totalCostCents += row.costCents;
+          existing.totalInputTokens += row.inputTokens;
+          existing.totalCachedInputTokens += row.cachedInputTokens;
+          existing.totalOutputTokens += row.outputTokens;
+          existing.runCount = Math.max(existing.runCount, row.runCount);
+          if (row.costCents > existing.primaryModelCost) {
+            existing.primaryModel = row.model;
+            existing.primaryProvider = row.provider;
+            existing.primaryModelCost = row.costCents;
+          }
+        }
+      }
+
+      const agentEfficiency = Array.from(agentMap.values()).map((a) => {
+        const cacheHitRate = a.totalInputTokens > 0
+          ? Number((a.totalCachedInputTokens / a.totalInputTokens).toFixed(4))
+          : 0;
+        const totalTokens = a.totalInputTokens + a.totalOutputTokens;
+        const avgTokensPerRun = a.runCount > 0 ? Math.round(totalTokens / a.runCount) : 0;
+
+        const modelLower = a.primaryModel.toLowerCase();
+        const isOpus = modelLower.includes("opus");
+        const isSonnet = modelLower.includes("sonnet");
+
+        let downgradeSuggestion: string | null = null;
+        let wasteSignal: "none" | "low" | "medium" | "high" = "none";
+
+        if (isOpus && avgTokensPerRun < 2000 && a.runCount >= 3) {
+          downgradeSuggestion = `Avg ${avgTokensPerRun} tokens/run on Opus — consider claude-sonnet-4-6`;
+          wasteSignal = avgTokensPerRun < 800 ? "high" : "medium";
+        } else if ((isOpus || isSonnet) && avgTokensPerRun < 500 && a.runCount >= 3) {
+          downgradeSuggestion = `Avg ${avgTokensPerRun} tokens/run — consider claude-haiku-4-5 for this agent`;
+          wasteSignal = "medium";
+        } else if (cacheHitRate < 0.2 && a.totalInputTokens > 5000) {
+          downgradeSuggestion = `Cache hit rate is ${Math.round(cacheHitRate * 100)}% — review system prompt caching`;
+          wasteSignal = cacheHitRate < 0.05 ? "high" : "low";
+        }
+
+        return {
+          agentId: a.agentId,
+          agentName: a.agentName ?? a.agentId,
+          cacheHitRate,
+          totalInputTokens: a.totalInputTokens,
+          cachedInputTokens: a.totalCachedInputTokens,
+          totalOutputTokens: a.totalOutputTokens,
+          totalTokens,
+          avgTokensPerRun,
+          runCount: a.runCount,
+          totalCostCents: a.totalCostCents,
+          primaryModel: a.primaryModel,
+          primaryProvider: a.primaryProvider,
+          wasteSignal,
+          downgradeSuggestion,
+        };
+      });
+
+      const totalInput = agentEfficiency.reduce((s, a) => s + a.totalInputTokens, 0);
+      const totalCached = agentEfficiency.reduce((s, a) => s + a.cachedInputTokens, 0);
+      const totalOutput = agentEfficiency.reduce((s, a) => s + a.totalOutputTokens, 0);
+
+      return {
+        companyId,
+        windowDays: 30,
+        agents: agentEfficiency,
+        companyCacheHitRate: totalInput > 0 ? Number((totalCached / totalInput).toFixed(4)) : 0,
+        totalInputTokens: totalInput,
+        totalCachedInputTokens: totalCached,
+        totalOutputTokens: totalOutput,
+        totalTokens: totalInput + totalOutput,
+        highWasteAgentCount: agentEfficiency.filter((a) => a.wasteSignal === "high").length,
+      };
+    },
+
     byProject: async (companyId: string, range?: CostDateRange) => {
       const issueIdAsText = sql<string>`${issues.id}::text`;
       const runProjectLinks = db
