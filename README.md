@@ -47,6 +47,34 @@ git pull
 docker compose up -d --build
 ```
 
+## Agent Packs
+
+Pre-configured agent bundles. Install in one command, ready to work.
+
+**Free packs**
+
+| Pack | What it does |
+|---|---|
+| **Data Analyst** | CSV, JSON, and database → charts, tables, and statistical summaries |
+| **Weekly Briefing** | Friday morning digest of Slack, GitHub, Linear, and email |
+| **Content Engine** | Draft LinkedIn, Twitter, newsletters, and blog outlines from raw notes |
+
+**Pro packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
+
+| Pack | What it does |
+|---|---|
+| **Executive Assistant** | Calendar, inbox triage, travel, meeting prep, and expense tracking |
+| **Competitor Intel** | Monitor competitor pricing, job posts, GitHub, and social — weekly digest |
+| **Deal Room** | Prospect research, personalized outreach, pre-call briefings, CRM logging |
+
+```bash
+# Install a pack
+cp packs/weekly-briefing.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+Or from the dashboard: **Packs → Install**.
+
 ## Architecture
 
 ```
@@ -66,6 +94,20 @@ clawhq-platform/
 
 ## Key Features
 
+**Sentinel — built-in security**
+- Prompt injection detection — blocks jailbreak attempts before they reach your agents
+- PII filtering — strips emails, phone numbers, SSNs, and card numbers from inputs and outputs
+- Toxicity guardrails — configurable content policy enforcement
+- Rate limiting — per-agent request and token limits
+- Audit logging — every agent action tracked with full context
+
+Full docs: [clawhqplatform.com/docs/guides/sentinel](https://clawhqplatform.com/docs/guides/sentinel)
+
+**Model Router**
+- Route tasks to the right model automatically — Opus for complex reasoning, Haiku for fast ops
+- Works with Anthropic, OpenAI, Groq, Gemini, DeepSeek, and local Ollama
+- Per-agent model overrides and budget caps
+
 **Security (packages/security)**
 - Agent sandboxing — filesystem traversal + dangerous command blocking
 - Audit logging — every agent action tracked to SQLite
@@ -73,7 +115,7 @@ clawhq-platform/
 - Scoped API keys — per-agent credentials with permissions
 - Cost tracking — per-agent budgets, 12 model pricing, waste detection
 
-**Cost Optimization (via ClawCost integration)**
+**Cost Optimization**
 - Transparent proxy for Anthropic + OpenAI APIs
 - Per-model, per-session, per-agent cost tracking
 - Budget enforcement with 80% warning / 100% block
