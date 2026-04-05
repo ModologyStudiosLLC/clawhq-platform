@@ -510,6 +510,31 @@ function ChannelsTab({ onOpenWizard }: { onOpenWizard: (ch: ChannelId) => void }
 
   return (
     <div className="space-y-6">
+      {/* Anthropic subscription deprecation notice */}
+      <div
+        className="flex items-start gap-3 px-4 py-3 rounded-xl text-sm"
+        style={{
+          background: "color-mix(in srgb, var(--color-warning) 8%, transparent)",
+          border: "1px solid color-mix(in srgb, var(--color-warning) 25%, transparent)",
+        }}
+      >
+        <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>⚠️</span>
+        <p style={{ color: "var(--color-text-muted)", lineHeight: 1.55 }}>
+          <span style={{ color: "var(--color-warning)", fontWeight: 600 }}>Claude subscription tokens no longer work here.</span>
+          {" "}As of April 2025, Anthropic blocks third-party tools from using subscription-based inference.
+          {" "}Enter a paid{" "}
+          <a
+            href="https://console.anthropic.com/settings/keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--color-warning)", textDecoration: "underline" }}
+          >
+            Anthropic API key
+          </a>
+          {" "}below — your agents won&apos;t run without one.
+        </p>
+      </div>
+
       {/* Cloud providers */}
       <div className="card" style={{ padding: "1.5rem" }}>
         <h2 className="text-sm font-bold uppercase tracking-widest mb-1"
