@@ -76,6 +76,12 @@
       ]
     },
     {
+      "group": "Security",
+      "pages": [
+        "guides/sentinel"
+      ]
+    },
+    {
       "group": "Channel Setup",
       "pages": [
         "channels/discord",
