@@ -9,6 +9,14 @@ export default {
       return Response.redirect(dest.toString(), 301);
     }
 
+    // Serve extension-less paths as .html (e.g. /packs → /packs.html)
+    if (!url.pathname.includes(".") && url.pathname !== "/") {
+      const htmlUrl = new URL(request.url);
+      htmlUrl.pathname = url.pathname + ".html";
+      const htmlResponse = await env.ASSETS.fetch(new Request(htmlUrl.toString(), request));
+      if (htmlResponse.status === 200) return htmlResponse;
+    }
+
     // Fall through to static assets (index.html, packs.html, etc.)
     return env.ASSETS.fetch(request);
   },
