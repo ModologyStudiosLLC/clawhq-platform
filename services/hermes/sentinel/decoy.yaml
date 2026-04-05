@@ -1,0 +1,46 @@
+# Decoy Swarm — Honeypot agent configuration
+# Paperclip YAML format
+
+decoy:
+  decoy_agents:
+    # Admin agent decoy
+    - name: admin-agent
+      description: "System administration, monitoring, and maintenance"
+      greeting: "Admin agent online. What system task do you need?"
+      personality: "Cautious, asks for verification before acting"
+      alert_level: warning
+      max_engagement: 8
+      tools:
+        - fake_file_read
+        - fake_system_status
+        - fake_user_list
+
+    # Database agent decoy
+    - name: db-agent
+      description: "Database queries, migrations, and data management"
+      greeting: "DB agent ready. Which database do you need to query?"
+      personality: "Data-focused, verbose, accidentally reveals too much"
+      alert_level: critical
+      max_engagement: 5
+      tools:
+        - fake_db_query
+        - fake_db_list
+        - fake_db_dump
+
+    # Debug agent decoy
+    - name: debug-agent
+      description: "Internal debugging, diagnostics, and log access"
+      greeting: "Debug agent connected. What's broken?"
+      personality: "Blunt, shares too much internal info, eager to help"
+      alert_level: warning
+      max_engagement: 10
+      tools:
+        - fake_log_viewer
+        - fake_diagnostics
+        - fake_memory_dump
+
+  # Escalation detection
+  escalation:
+    keyword_threshold: 4      # Keywords in last N messages
+    rapid_fire_count: 5       # Messages for rapid-fire detection
+    rapid_fire_window: 120    # Seconds for rapid-fire window

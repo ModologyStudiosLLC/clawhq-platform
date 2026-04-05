@@ -1,0 +1,67 @@
+# Shield Layer — Alerting and auto-response
+# Paperclip YAML format
+
+shield:
+  # Alert delivery channels
+  alert_channels:
+    discord:
+      webhook: ${DISCORD_SECURITY_WEBHOOK}
+      severity_threshold: warning
+      mention_role: ""
+    slack:
+      webhook: ${SLACK_SECURITY_WEBHOOK}
+      severity_threshold: warning
+    email:
+      to: security@clawhq.dev
+      severity_threshold: critical
+    pagerduty:
+      integration_key: ${PAGERDUTY_INTEGRATION_KEY}
+      severity_threshold: emergency
+
+  # Automated response rules
+  auto_response:
+    ip_block:
+      enabled: true
+      trigger: "3 warnings from same IP in 10 minutes"
+      duration: 3600
+      method: iptables
+
+    session_kill:
+      enabled: true
+      trigger: critical
+      action: terminate_session
+
+    lockdown:
+      enabled: true
+      trigger: emergency
+      actions:
+        - block_all_non_whitelisted
+        - disable_new_agent_spawns
+        - require_manual_approval_for_all_tools
+        - increase_log_level_to_debug
+        - snapshot_current_state
+
+    canary_rotation:
+      enabled: true
+      trigger: canary_external_use
+      action: regenerate_all_canaries
+      notify: true
+
+  # Forensic capture
+  forensics:
+    snapshot:
+      enabled: true
+      capture:
+        - agent_conversation_history
+        - tool_call_logs
+        - system_state
+        - network_connections
+        - active_sessions
+      storage: /var/log/clawhq/sentinel/snapshots/
+      retention_days: 90
+
+  # Lockdown whitelist (never blocked even in lockdown)
+  lockdown_whitelist:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClawHQ — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #050507;
+  --surface:   #0c0c0f;
+  --surface-2: #111115;
+  --border:    rgba(255,255,255,0.07);
+  --border-2:  rgba(255,255,255,0.14);
+  --primary:   #69daff;
+  --secondary: #69f6b8;
+  --accent:    #ac8aff;
+  --hermes:    #e879f9;
+  --warning:   #f6d969;
+  --error:     #ff6b6b;
+  --text:      #f5f5f7;
+  --muted:     rgba(245,245,247,0.58);
+  --subtle:    rgba(245,245,247,0.3);
+  --sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --disp: "Newsreader", Georgia, serif;
+  --mono: "SF Mono", "Geist Mono", ui-monospace, monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SLIDE ENGINE
+═══════════════════════════════════════════ */
+.deck {
+  width: 100vw; height: 100vh;
+  position: relative;
+}
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+  overflow: hidden;
+}
+.slide.active  { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit    { opacity: 0; transform: translateY(-20px); transition: opacity 0.28s ease, transform 0.28s ease; }
+
+/* Every slide has a fixed top bar and a content area */
+.slide-top {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex; align-items: center;
+  padding: 0 64px;
+  border-bottom: 1px solid var(--border);
+}
+.slide-body {
+  flex: 1;
+  padding: 36px 64px 40px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* Logo in top bar */
+.logo {
+  display: flex; align-items: center; gap: 9px;
+}
+.logo svg { width: 20px; height: 20px; flex-shrink: 0; }
+.logo-text {
+  font-family: var(--disp); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--text);
+}
+.logo-text span { color: var(--primary); }
+
+/* Section label + page indicator in top bar */
+.slide-top-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 16px;
+}
+.section-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--subtle);
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY
+═══════════════════════════════════════════ */
+h1 { font-family: var(--disp); font-size: 66px; font-weight: 500; line-height: 1.05; letter-spacing: -0.03em; }
+h2 { font-family: var(--disp); font-size: 46px; font-weight: 500; line-height: 1.1; letter-spacing: -0.025em; }
+h3 { font-family: var(--disp); font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+h4 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+
+.lead  { font-size: 18px; line-height: 1.6; color: var(--muted); }
+.body  { font-size: 13px; line-height: 1.65; color: var(--muted); }
+.label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--subtle); }
+
+.g-cyan   { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-purple { background: linear-gradient(135deg, var(--accent) 0%, var(--hermes) 100%);    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.g-warm   { background: linear-gradient(135deg, var(--warning) 0%, var(--primary) 100%);  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ═══════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════ */
+.tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.t-cyan   { background: rgba(105,218,255,0.12); color: var(--primary);   border: 1px solid rgba(105,218,255,0.25); }
+.t-green  { background: rgba(105,246,184,0.12); color: var(--secondary); border: 1px solid rgba(105,246,184,0.25); }
+.t-purple { background: rgba(172,138,255,0.12); color: var(--accent);    border: 1px solid rgba(172,138,255,0.25); }
+.t-hermes { background: rgba(232,121,249,0.12); color: var(--hermes);    border: 1px solid rgba(232,121,249,0.25); }
+.t-warn   { background: rgba(246,217,105,0.12); color: var(--warning);   border: 1px solid rgba(246,217,105,0.25); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+
+.stat-num {
+  font-family: var(--disp); font-size: 38px; font-weight: 500;
+  letter-spacing: -0.03em; line-height: 1;
+}
+
+.glow {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); pointer-events: none;
+  animation: floatY 9s ease-in-out infinite;
+}
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+.nav {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; z-index: 200;
+}
+.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-2); cursor: pointer; transition: background .2s, transform .2s; }
+.dot.on { background: var(--primary); transform: scale(1.5); }
+.nbtn { background: var(--surface); border: 1px solid var(--border-2); color: var(--muted); border-radius: 7px; padding: 5px 13px; font-size: 11px; cursor: pointer; transition: color .15s, border-color .15s; font-family: var(--sans); }
+.nbtn:hover { color: var(--text); border-color: var(--primary); }
+.pgnum { position: fixed; bottom: 28px; right: 36px; font-size: 10px; font-family: var(--mono); color: var(--subtle); z-index: 200; }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- Shared logo snippet (inline for each slide to avoid duplication issues) -->
+
+<!-- ══════════════════════════════════════════════════════
+     01 · TITLE
+══════════════════════════════════════════════════════ -->
+<div class="slide active" id="s01" style="background: radial-gradient(ellipse at 75% 40%, rgba(105,218,255,0.07) 0%, transparent 55%), var(--bg);">
+  <div class="glow" style="width:500px;height:500px;top:-150px;right:-80px;background:radial-gradient(circle,rgba(105,218,255,0.07) 0%,transparent 70%);"></div>
+  <div class="glow" style="width:350px;height:350px;bottom:-80px;left:180px;background:radial-gradient(circle,rgba(105,246,184,0.05) 0%,transparent 70%);animation-delay:4s;"></div>
+
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Modology Studios · 2025</span></div>
+  </div>
+
+  <div class="slide-body" style="justify-content:center; padding-top:28px;">
+    <p class="label" style="color:var(--primary);margin-bottom:18px;">AI Agent Management Platform</p>
+    <h1 style="max-width:720px;">Your AI Agent<br><span class="g-cyan">Command Center</span></h1>
+    <p class="lead" style="max-width:520px;margin-top:20px;">Deploy, manage, and scale AI agents across your organization — with full visibility, cost control, and zero chaos.</p>
+    <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
+      <span class="tag t-cyan">13 Live Agents</span>
+      <span class="tag t-green">11 MCP Integrations</span>
+      <span class="tag t-purple">Multi-model Router</span>
+      <span class="tag t-hermes">Hermes Autonomous Agent</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     02 · MARKET TIMING — WHY NOW
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s02">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Market Timing</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Why Now</p>
+    <h2 style="margin-bottom:24px;">The agent era has<br><span class="g-cyan">already started</span></h2>
+    <div class="grid2" style="flex:1;align-content:start;gap:14px;">
+      <div class="card" style="border-left:3px solid var(--primary);">
+        <p style="font-size:22px;margin-bottom:6px;">📈</p>
+        <h4 style="margin-bottom:5px;">LLMs hit production maturity</h4>
+        <p class="body">GPT-4, Claude 3, Gemini, and DeepSeek are reliable enough to run unattended. The "too unreliable" objection is gone — companies are deploying, not piloting.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--secondary);">
+        <p style="font-size:22px;margin-bottom:6px;">🔌</p>
+        <h4 style="margin-bottom:5px;">MCP becomes the universal standard</h4>
+        <p class="body">Anthropic's Model Context Protocol is becoming the USB-C of AI tools. Every major agent framework is adopting it — creating an ecosystem that needs a control plane.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--accent);">
+        <p style="font-size:22px;margin-bottom:6px;">💸</p>
+        <h4 style="margin-bottom:5px;">Cost is the #1 enterprise concern</h4>
+        <p class="body">AI API spend is unpredictable. Finance teams demand cost visibility. No one has a dashboard that shows per-agent spend, model routing, and budget enforcement in one place.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--hermes);">
+        <p style="font-size:22px;margin-bottom:6px;">🏢</p>
+        <h4 style="margin-bottom:5px;">Teams, not solo developers</h4>
+        <p class="body">AI agents are moving from personal tools to team infrastructure. IT and DevOps need centralized management — the same transition that made Kubernetes and UniFi essential.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     03 · TAM / MARKET SIZE
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s03">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Market Size</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Total Addressable Market</p>
+    <h2 style="margin-bottom:28px;">A <span class="g-cyan">$47B</span> category<br>being built right now</h2>
+    <div class="grid3" style="flex:1;align-content:start;gap:14px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;">
+        <p class="label">TAM · Total Market</p>
+        <p class="stat-num" style="color:var(--primary);">$47B</p>
+        <p class="body" style="font-size:12px;">Global AI agent & orchestration software by 2028. Includes enterprise copilots, autonomous agents, and AI workflow automation. <span style="color:var(--subtle);font-size:11px;">(McKinsey, 2024)</span></p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:4px;"><div style="width:100%;height:100%;background:var(--primary);border-radius:2px;"></div></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;">
+        <p class="label">SAM · Serviceable Market</p>
+        <p class="stat-num" style="color:var(--secondary);">$8.4B</p>
+        <p class="body" style="font-size:12px;">Teams actively running LLM-based agents in production today. Growing at 63% CAGR. Primarily SMB, startup, and mid-market tech companies — our exact target.</p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:4px;"><div style="width:70%;height:100%;background:var(--secondary);border-radius:2px;"></div></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;">
+        <p class="label">SOM · Our Target</p>
+        <p class="stat-num" style="color:var(--accent);">$420M</p>
+        <p class="body" style="font-size:12px;">MSPs + tech-forward SMBs deploying agent stacks in 2025–2026. At $500–2K/mo per MSP and $99–499/mo direct — 5% of SAM is achievable with this team.</p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:4px;"><div style="width:35%;height:100%;background:var(--accent);border-radius:2px;"></div></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);">
+        <span style="font-size:16px;">⚡</span>
+        <p style="font-size:12px;color:var(--muted);"><strong style="color:var(--text);">63% CAGR</strong> — AI agent adoption 2023–2028</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);">
+        <span style="font-size:16px;">🏢</span>
+        <p style="font-size:12px;color:var(--muted);"><strong style="color:var(--text);">77% of enterprises</strong> plan to deploy AI agents by 2026</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);">
+        <span style="font-size:16px;">💰</span>
+        <p style="font-size:12px;color:var(--muted);">No dominant <strong style="color:var(--text);">management layer</strong> exists yet</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     04 · THE PROBLEM
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s04">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">The Problem</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Pain Points</p>
+    <h2 style="margin-bottom:24px;">AI agents are powerful.<br>Managing them is <em style="color:var(--muted);">chaos.</em></h2>
+    <div style="display:flex;flex-direction:column;gap:12px;flex:1;justify-content:center;">
+      <div style="display:flex;align-items:flex-start;gap:20px;padding:20px 22px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+        <span style="font-family:var(--disp);font-size:40px;font-weight:500;letter-spacing:-0.03em;color:rgba(105,218,255,0.2);line-height:1;flex-shrink:0;width:44px;">01</span>
+        <div><h4 style="margin-bottom:4px;">Scattered configurations across every machine</h4><p class="body">API keys in .env files, agent configs in random repos, MCP servers configured differently per developer. No single source of truth — onboarding a new team member takes days.</p></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:20px;padding:20px 22px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+        <span style="font-family:var(--disp);font-size:40px;font-weight:500;letter-spacing:-0.03em;color:rgba(105,218,255,0.2);line-height:1;flex-shrink:0;width:44px;">02</span>
+        <div><h4 style="margin-bottom:4px;">Zero visibility into what agents are doing or costing</h4><p class="body">Agents run tasks in the background with no audit trail. You don't know what ran, what failed, or how much it cost until the API bill arrives — sometimes 10× what you expected.</p></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:20px;padding:20px 22px;background:var(--surface);border:1px solid var(--border);border-radius:12px;">
+        <span style="font-family:var(--disp);font-size:40px;font-weight:500;letter-spacing:-0.03em;color:rgba(105,218,255,0.2);line-height:1;flex-shrink:0;width:44px;">03</span>
+        <div><h4 style="margin-bottom:4px;">No team-level control or governance</h4><p class="body">Every developer manages their own agents independently. Spinning up, updating, or shutting down agents requires touching every machine manually. Security and compliance teams can't audit anything.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     05 · THE SOLUTION
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s05">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Solution</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">ClawHQ</p>
+    <h2 style="margin-bottom:22px;">One platform.<br><span class="g-cyan">Total agent control.</span></h2>
+    <div class="grid2" style="flex:1;align-content:start;gap:12px;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🤖</span>Unified agent roster with live status</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">⚡</span>One-click MCP capability toggling</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">💬</span>Real-time chat with any agent</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">📊</span>Live activity feed and full audit trail</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">💰</span>Per-agent budget tracking and alerts</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🔀</span>Intelligent multi-model router</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🌐</span>Cloudflare tunnel management</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🚀</span>One-click deploy to Railway / Render</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🔒</span>WorkOS SSO + SAML enterprise auth</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">🧠</span>Hermes autonomous cognitive agent</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">📦</span>Pre-built workflow kit registry</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);"><span style="font-size:15px;">❤️</span>Health monitoring across all services</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     06 · AGENT TEAM
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s06">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Agent Team</span></div>
+  </div>
+  <div class="slide-body">
+    <div class="split" style="flex:1;align-items:start;padding-top:8px;">
+      <div>
+        <p class="label" style="margin-bottom:10px;">Your AI Workforce</p>
+        <h2 style="font-size:40px;margin-bottom:16px;">Managed centrally,<br><span class="g-cyan">deployed everywhere</span></h2>
+        <p class="lead" style="font-size:15px;margin-bottom:24px;">Each agent has a role, a model, a personality, and a set of MCP tools. Spin them up, chat live, or update configs — no config files required.</p>
+        <div style="display:flex;gap:24px;">
+          <div><p class="stat-num" style="color:var(--primary);">13</p><p class="label" style="margin-top:4px;">Active agents</p></div>
+          <div><p class="stat-num" style="color:var(--secondary);">6</p><p class="label" style="margin-top:4px;">Model providers</p></div>
+          <div><p class="stat-num" style="color:var(--accent);">11</p><p class="label" style="margin-top:4px;">MCP tools live</p></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(105,218,255,0.15);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">F</div>
+          <div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;">Felix (CEO)</p><p style="font-size:11px;color:var(--subtle);">mimo-v2-pro · decision-making, strategy</p></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--secondary);box-shadow:0 0 6px var(--secondary);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(172,138,255,0.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">C</div>
+          <div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;">Codex (Lead Developer)</p><p style="font-size:11px;color:var(--subtle);">glm-5 · code generation, review, architecture</p></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--secondary);box-shadow:0 0 6px var(--secondary);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(232,121,249,0.15);color:var(--hermes);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">P</div>
+          <div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;">Pixel (Design Lead)</p><p style="font-size:11px;color:var(--subtle);">glm-4.7-flash · UI design, visual direction</p></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--warning);box-shadow:0 0 6px var(--warning);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(105,246,184,0.15);color:var(--secondary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">S</div>
+          <div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;">Scout (Market Research)</p><p style="font-size:11px;color:var(--subtle);">mimo-v2-pro · competitive intel, trends</p></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--secondary);box-shadow:0 0 6px var(--secondary);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border-2);">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(246,217,105,0.12);color:var(--warning);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">+9</div>
+          <div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;">9 more agents</p><p style="font-size:11px;color:var(--subtle);">Operations, Finance, Sales, Content, Support…</p></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--secondary);box-shadow:0 0 6px var(--secondary);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     07 · HERMES
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s07" style="background:radial-gradient(ellipse at 70% 45%, rgba(232,121,249,0.06) 0%, transparent 55%), var(--bg);">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Hermes · Autonomous Agent</span></div>
+  </div>
+  <div class="slide-body">
+    <div class="split" style="flex:1;align-items:start;padding-top:8px;">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;background:rgba(232,121,249,0.1);border:1px solid rgba(232,121,249,0.3);font-size:10px;font-weight:600;color:var(--hermes);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;">
+          <span style="width:5px;height:5px;border-radius:50%;background:var(--hermes);display:inline-block;box-shadow:0 0 8px var(--hermes);"></span>Hermes · Autonomous Agent
+        </div>
+        <h2 style="font-size:40px;color:var(--hermes);margin-bottom:16px;">Think. Plan.<br>Execute.</h2>
+        <p class="lead" style="font-size:15px;margin-bottom:20px;">ClawHQ's built-in autonomous agent. Give it a multi-step goal — it uses your MCP tools, self-corrects, and reports back. No babysitting required.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="tag t-hermes">Long-horizon tasks</span>
+          <span class="tag t-hermes">Multi-tool orchestration</span>
+          <span class="tag t-hermes">Self-correction</span>
+          <span class="tag t-hermes">Powered by Nous Research</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:rgba(232,121,249,0.06);border:1px solid rgba(232,121,249,0.18);border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.65;color:var(--muted);font-style:italic;">
+          "Analyze last quarter's Stripe revenue, cross-reference with our LinkedIn ad spend, identify underperforming channels, and draft a reallocation proposal in Notion."
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;background:rgba(232,121,249,0.05);border:1px solid rgba(232,121,249,0.14);">
+            <span style="color:var(--hermes);font-size:11px;">→</span>
+            <span style="font-size:12px;color:var(--muted);">Querying Stripe MCP for Q3 revenue data…</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--secondary);">✓ done</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;background:rgba(232,121,249,0.05);border:1px solid rgba(232,121,249,0.14);">
+            <span style="color:var(--hermes);font-size:11px;">→</span>
+            <span style="font-size:12px;color:var(--muted);">Browsing LinkedIn Ads dashboard via Playwright…</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--secondary);">✓ done</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;background:rgba(232,121,249,0.05);border:1px solid rgba(232,121,249,0.14);">
+            <span style="color:var(--hermes);font-size:11px;">→</span>
+            <span style="font-size:12px;color:var(--muted);">Cross-referencing channel ROI against 12-month baseline…</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--secondary);">✓ done</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:8px;background:rgba(232,121,249,0.05);border:1px solid rgba(232,121,249,0.14);">
+            <span style="color:var(--hermes);font-size:11px;">→</span>
+            <span style="font-size:12px;color:var(--muted);">Writing reallocation proposal to Notion workspace…</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--hermes);">● in progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     08 · OBSERVABILITY & BUDGET
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s08">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Observability & Budget</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Full Visibility</p>
+    <h2 style="margin-bottom:22px;">See everything.<br><span class="g-cyan">Control costs.</span></h2>
+    <div class="grid3" style="gap:14px;margin-bottom:14px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;">
+        <p class="label" style="margin-bottom:8px;">Monthly Spend</p>
+        <p class="stat-num" style="color:var(--primary);">$47.20</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px;">of $150 budget · 31%</p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:10px;"><div style="width:31%;height:100%;background:var(--primary);border-radius:2px;"></div></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;">
+        <p class="label" style="margin-bottom:8px;">Tasks This Week</p>
+        <p class="stat-num" style="color:var(--secondary);">1,248</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px;">↑ 14% vs last week</p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:10px;"><div style="width:78%;height:100%;background:var(--secondary);border-radius:2px;"></div></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;">
+        <p class="label" style="margin-bottom:8px;">Success Rate</p>
+        <p class="stat-num" style="color:var(--accent);">97.3%</p>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px;">34 retries · 0 blocked</p>
+        <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:10px;"><div style="width:97%;height:100%;background:var(--accent);border-radius:2px;"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;padding:13px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🔀</span>
+        <div><p style="font-size:12px;font-weight:600;">Model Router</p><p style="font-size:11px;color:var(--subtle);">Routing 40% of tasks to DeepSeek to stay under budget</p></div>
+      </div>
+      <div style="flex:1;padding:13px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🔔</span>
+        <div><p style="font-size:12px;font-weight:600;">Budget alerts</p><p style="font-size:11px;color:var(--subtle);">Auto-notify at 75%, auto-throttle at 90%</p></div>
+      </div>
+      <div style="flex:1;padding:13px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">📋</span>
+        <div><p style="font-size:12px;font-weight:600;">Full audit trail</p><p style="font-size:11px;color:var(--subtle);">Every agent action logged with timestamps and context</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     09 · MSP / ENTERPRISE
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s09" style="background:radial-gradient(ellipse at 30% 60%, rgba(172,138,255,0.07) 0%, transparent 55%), var(--bg);">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">MSP &amp; Enterprise</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Go-to-Market</p>
+    <h2 style="margin-bottom:20px;">White-label for MSPs.<br><span class="g-purple">Recurring revenue on autopilot.</span></h2>
+    <div class="grid2" style="gap:14px;margin-bottom:14px;">
+      <div class="card" style="border-left:3px solid var(--accent);">
+        <h4 style="margin-bottom:6px;">🏢 Multi-tenant architecture</h4>
+        <p class="body">Each MSP client gets an isolated workspace. One ClawHQ instance manages hundreds of tenants — like UniFi for your agent stack. Onboard a new client in minutes.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--hermes);">
+        <h4 style="margin-bottom:6px;">🎨 Full white-label</h4>
+        <p class="body">Custom logo, domain, and colors. Your clients see your brand. SSO per tenant, custom agent personas, your own workflow kit registry.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--primary);">
+        <h4 style="margin-bottom:6px;">📊 Centralized billing & markup</h4>
+        <p class="body">Roll up per-client AI spend into one dashboard. Charge clients a markup over API costs. Monthly recurring revenue that scales with usage, not headcount.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--secondary);">
+        <h4 style="margin-bottom:6px;">🔒 Enterprise SSO & compliance</h4>
+        <p class="body">WorkOS SAML + SCIM. Supports Azure AD, Okta, Google Workspace. Full audit logs for compliance teams. SOC2-ready architecture.</p>
+      </div>
+    </div>
+    <div style="padding:13px 18px;border-radius:10px;background:rgba(172,138,255,0.07);border:1px solid rgba(172,138,255,0.2);display:flex;align-items:center;justify-content:space-between;">
+      <p style="font-size:13px;color:var(--muted);">MSP licensing: <strong style="color:var(--text);">$500–$2,000/month per MSP</strong> · unlimited client tenants · 2–3 day setup</p>
+      <span class="tag t-purple">High-margin ARR</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     10 · COMPETITIVE LANDSCAPE
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Competitive Landscape</span></div>
+  </div>
+  <div class="slide-body">
+    <p class="label" style="margin-bottom:10px;">Why ClawHQ Wins</p>
+    <h2 style="margin-bottom:20px;">No one owns the<br><span class="g-cyan">management layer</span> yet</h2>
+    <div style="overflow:hidden;border-radius:12px;border:1px solid var(--border);margin-bottom:14px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:var(--surface-2);">
+            <th style="padding:10px 16px;text-align:left;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--subtle);font-weight:600;">Capability</th>
+            <th style="padding:10px 16px;text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--primary);font-weight:600;">ClawHQ</th>
+            <th style="padding:10px 16px;text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--subtle);font-weight:600;">LangChain</th>
+            <th style="padding:10px 16px;text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--subtle);font-weight:600;">Flowise</th>
+            <th style="padding:10px 16px;text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--subtle);font-weight:600;">Custom built</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-top:1px solid var(--border);">
+            <td style="padding:10px 16px;color:var(--muted);">Multi-agent dashboard</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--secondary);">✓</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Partial</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Months</td>
+          </tr>
+          <tr style="border-top:1px solid var(--border);background:rgba(255,255,255,0.015);">
+            <td style="padding:10px 16px;color:var(--muted);">MCP integration management</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--secondary);">✓</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Months</td>
+          </tr>
+          <tr style="border-top:1px solid var(--border);">
+            <td style="padding:10px 16px;color:var(--muted);">Budget tracking per agent</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--secondary);">✓</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Months</td>
+          </tr>
+          <tr style="border-top:1px solid var(--border);background:rgba(255,255,255,0.015);">
+            <td style="padding:10px 16px;color:var(--muted);">White-label / MSP tier</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--secondary);">✓</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Custom</td>
+          </tr>
+          <tr style="border-top:1px solid var(--border);">
+            <td style="padding:10px 16px;color:var(--muted);">One-click deploy</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--secondary);">✓</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">—</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Partial</td>
+            <td style="padding:10px 16px;text-align:center;color:var(--subtle);">Months</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--subtle);font-style:italic;">LangChain and Flowise focus on building agents, not managing them at scale. Custom builds take months and need ongoing maintenance.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     11 · CTA
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s11" style="background:radial-gradient(ellipse at 50% 50%, rgba(105,218,255,0.06) 0%, transparent 60%), var(--bg);">
+  <div class="glow" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(105,218,255,0.05) 0%,transparent 70%);animation:none;"></div>
+  <div class="slide-top">
+    <div class="logo"><svg viewBox="0 0 28 28" fill="none"><polygon points="2,24 6,24 13,4 9,4" fill="#69daff" opacity="0.4"/><polygon points="8,24 12,24 19,4 15,4" fill="#69daff" opacity="0.72"/><polygon points="14,24 18,24 25,4 21,4" fill="#69daff"/></svg><span class="logo-text">Claw<span>HQ</span></span></div>
+    <div class="slide-top-right"><span class="section-badge">Modology Studios · 2025</span></div>
+  </div>
+  <div class="slide-body" style="justify-content:center;align-items:flex-start;">
+    <p class="label" style="color:var(--primary);margin-bottom:18px;">Live today. Ready to scale.</p>
+    <h1 style="max-width:780px;font-size:62px;">Ready to run<br><span class="g-cyan">your AI team?</span></h1>
+    <p class="lead" style="max-width:500px;margin-top:18px;">ClawHQ is running live. One platform for every agent you build — from a personal assistant to an enterprise workforce of hundreds.</p>
+    <div style="display:flex;align-items:center;gap:16px;margin-top:32px;flex-wrap:wrap;">
+      <div style="padding:10px 22px;border-radius:10px;background:rgba(105,218,255,0.08);border:1px solid rgba(105,218,255,0.25);font-family:var(--mono);font-size:13px;color:var(--primary);letter-spacing:0.02em;">clawhqplatform.com</div>
+      <div style="padding:10px 22px;border-radius:10px;background:rgba(105,218,255,0.08);border:1px solid rgba(105,218,255,0.25);font-family:var(--mono);font-size:13px;color:var(--primary);letter-spacing:0.02em;">hello@modologystudios.com</div>
+    </div>
+    <div style="display:flex;gap:14px;margin-top:24px;flex-wrap:wrap;">
+      <span class="tag t-cyan">$47B TAM</span>
+      <span class="tag t-green">63% CAGR</span>
+      <span class="tag t-purple">MSP white-label ready</span>
+      <span class="tag t-hermes">Running live today</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div class="nav" id="nav"></div>
+<div class="pgnum" id="pgnum">1 / 11</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const nav = document.getElementById('nav');
+const pgnum = document.getElementById('pgnum');
+let cur = 0;
+
+const pb = document.createElement('button'); pb.className='nbtn'; pb.textContent='← Prev'; nav.appendChild(pb);
+slides.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'+(i===0?' on':''); d.onclick=()=>go(i); nav.appendChild(d); });
+const nb = document.createElement('button'); nb.className='nbtn'; nb.textContent='Next →'; nav.appendChild(nb);
+
+function go(n){
+  if(n<0||n>=slides.length)return;
+  slides[cur].classList.remove('active'); slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),350);
+  cur=n; slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+  pgnum.textContent=(cur+1)+' / '+slides.length;
+}
+pb.onclick=()=>go(cur-1); nb.onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','ArrowDown',' '].includes(e.key)){e.preventDefault();go(cur+1);}
+  if(['ArrowLeft','ArrowUp'].includes(e.key)){e.preventDefault();go(cur-1);}
+});
+</script>
+</body>
+</html>

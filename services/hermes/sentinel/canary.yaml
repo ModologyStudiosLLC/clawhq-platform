@@ -1,0 +1,59 @@
+# Canary Engine — Token-based compromise detection
+# Paperclip YAML format
+
+canary:
+  # Callback server for canary URLs
+  callback_base: "https://canary.clawhq.dev"
+
+  # API key canaries
+  api_keys:
+    enabled: true
+    providers:
+      - openai
+      - anthropic
+      - aws
+      - github
+      - stripe
+
+  # URL canaries
+  urls:
+    enabled: true
+    endpoints:
+      - admin-panel
+      - secrets-vault
+      - internal-metrics
+      - db-admin
+      - config-dump
+
+  # Credential canaries
+  credentials:
+    enabled: true
+    accounts:
+      - name: admin
+        username: claw_admin
+        note: "Emergency access — use only if LDAP is down"
+      - name: database
+        username: claw_prod_rw
+        note: "Production database read-write"
+
+  # File content canaries
+  files:
+    enabled: true
+    decoy_files:
+      - path: ~/.ssh/id_rsa_backup
+        type: ssh_private_key
+      - path: ~/.env.backup
+        type: env_file
+
+  # Prompt bait canaries
+  prompt_bait:
+    enabled: true
+    types:
+      - elevation_code
+      - admin_override
+
+  # Canary rotation policy
+  rotation:
+    auto_rotate_on_trigger: true
+    max_age_days: 90
+    notify_on_rotation: true

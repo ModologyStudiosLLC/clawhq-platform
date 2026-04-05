@@ -32,7 +32,8 @@ ENV HERMES_HOME=/opt/data
 
 # ── Health server ────────────────────────────────────────────────────────────
 COPY health_server.py /opt/health_server.py
-RUN /opt/venv/bin/pip install fastapi uvicorn[standard]
+COPY sentinel/ /opt/sentinel/
+RUN /opt/venv/bin/pip install fastapi uvicorn[standard] pyyaml
 
 # ── Coordination skills ──────────────────────────────────────────────────────
 # These skills let Hermes delegate tasks to OpenFang agents and trigger

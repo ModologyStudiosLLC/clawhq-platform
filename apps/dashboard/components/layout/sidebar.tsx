@@ -19,6 +19,7 @@ import {
   Network,
   Shield,
   KeyRound,
+  Package,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -36,6 +37,8 @@ const nav = [
   { href: "/hermes", label: "Hermes", icon: Brain, accent: true },
   { href: "/channels", label: "Channels", icon: Radio },
   { href: "/activity", label: "Activity", icon: ScrollText },
+  { href: "/packs", label: "Packs", icon: Package },
+  { href: "/security", label: "Security", icon: Shield },
   { href: "/services", label: "Services", icon: Container },
   { href: "/health", label: "Health", icon: HeartPulse },
   { href: "/tunnels", label: "Tunnels", icon: Network },
@@ -166,7 +169,7 @@ export function Sidebar({ user, onNavigate }: SidebarProps) {
           <button
             onClick={handleSignOut}
             title="Sign out"
-            className="flex-shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-1 rounded"
+            className="flex-shrink-0 opacity-40 hover:opacity-100 transition-opacity p-1 rounded"
             style={{ color: "var(--color-text-subtle)" }}
           >
             <LogOut size={13} />

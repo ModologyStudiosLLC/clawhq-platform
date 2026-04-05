@@ -111,54 +111,6 @@
     color-scheme: dark;
   }
 
-  /* ── Light mode — matches clawhqplatform.com light theme ───────────────── */
-  html:not(.dark) {
-    color-scheme: light;
-
-    --color-bg: #fafaf8;
-    --color-surface: #f0f0ee;
-    --color-surface-2: #e6e6e4;
-    --color-border: rgba(0, 0, 0, 0.07);
-    --color-border-strong: rgba(0, 0, 0, 0.14);
-
-    --color-primary: #0066cc;
-    --color-primary-dim: rgba(0, 102, 204, 0.10);
-    --color-primary-glow: rgba(0, 102, 204, 0.25);
-
-    --color-secondary: #1a9c6e;
-    --color-secondary-dim: rgba(26, 156, 110, 0.10);
-
-    --color-accent: #6e44cf;
-    --color-accent-dim: rgba(110, 68, 207, 0.10);
-
-    --color-hermes: #c026d3;
-    --color-hermes-dim: rgba(192, 38, 211, 0.10);
-
-    --color-on-brand: #ffffff;
-
-    --color-text: #0a0a0c;
-    --color-text-muted: rgba(10, 10, 12, 0.6);
-    --color-text-subtle: rgba(10, 10, 12, 0.35);
-
-    --color-success: #1a9c6e;
-    --color-warning: #b45309;
-    --color-error: #dc2626;
-    --color-info: #0066cc;
-
-    --color-background: #fafaf8;
-    --color-foreground: #0a0a0c;
-    --color-card: #f0f0ee;
-    --color-card-foreground: #0a0a0c;
-    --color-popover: #e6e6e4;
-    --color-popover-foreground: #0a0a0c;
-    --color-muted: #e6e6e4;
-    --color-muted-foreground: rgba(10, 10, 12, 0.6);
-    --color-destructive: #dc2626;
-    --color-destructive-foreground: #fafaf8;
-    --color-input: #e6e6e4;
-    --color-ring: #0066cc;
-  }
-
   body {
     background: var(--color-bg);
     color: var(--color-text);
@@ -294,6 +246,54 @@
   .reveal-delay-2 { animation-delay: 160ms; }
   .reveal-delay-3 { animation-delay: 240ms; }
   .reveal-delay-4 { animation-delay: 320ms; }
+}
+
+/* ── Light mode overrides (unlayered — wins over @theme layer) ─────────── */
+html:not(.dark) {
+  color-scheme: light;
+
+  --color-bg: #fafaf8;
+  --color-surface: #f0f0ee;
+  --color-surface-2: #e6e6e4;
+  --color-border: rgba(0, 0, 0, 0.07);
+  --color-border-strong: rgba(0, 0, 0, 0.14);
+
+  --color-primary: #0066cc;
+  --color-primary-dim: rgba(0, 102, 204, 0.10);
+  --color-primary-glow: rgba(0, 102, 204, 0.25);
+
+  --color-secondary: #1a9c6e;
+  --color-secondary-dim: rgba(26, 156, 110, 0.10);
+
+  --color-accent: #6e44cf;
+  --color-accent-dim: rgba(110, 68, 207, 0.10);
+
+  --color-hermes: #c026d3;
+  --color-hermes-dim: rgba(192, 38, 211, 0.10);
+
+  --color-on-brand: #ffffff;
+
+  --color-text: #0a0a0c;
+  --color-text-muted: rgba(10, 10, 12, 0.6);
+  --color-text-subtle: rgba(10, 10, 12, 0.35);
+
+  --color-success: #1a9c6e;
+  --color-warning: #b45309;
+  --color-error: #dc2626;
+  --color-info: #0066cc;
+
+  --color-background: #fafaf8;
+  --color-foreground: #0a0a0c;
+  --color-card: #f0f0ee;
+  --color-card-foreground: #0a0a0c;
+  --color-popover: #e6e6e4;
+  --color-popover-foreground: #0a0a0c;
+  --color-muted: #e6e6e4;
+  --color-muted-foreground: rgba(10, 10, 12, 0.6);
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #fafaf8;
+  --color-input: #e6e6e4;
+  --color-ring: #0066cc;
 }
 
 .chat-message-agent pre {

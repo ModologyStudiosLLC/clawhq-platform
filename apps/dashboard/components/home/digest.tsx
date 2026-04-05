@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, ArrowRight, CheckCircle2, Zap, WifiOff, X, Cpu } from "lucide-react";
 import Link from "next/link";
+import { Recommendations } from "@/components/home/recommendations";
 
 interface Agent {
   id: string;
@@ -89,7 +90,7 @@ export function HomeDigest() {
       setOffline(isOffline);
       setAgents(Array.isArray(a) ? a : []);
       setMetrics(m ?? {});
-      setHands(Array.isArray(h) ? h : []);
+      setHands(Array.isArray(h) ? h : Array.isArray(h?.hands) ? h.hands : []);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -288,6 +289,9 @@ export function HomeDigest() {
           ))}
         </span>
       </div>
+
+      {/* AI Recommendations */}
+      <Recommendations />
 
       {/* Needs attention */}
       {needsAttention.length > 0 && (

@@ -15,7 +15,9 @@ const titles: Record<string, { title: string; subtitle: string }> = {
   "/activity": { title: "Activity", subtitle: "Everything your agents have done" },
   "/budget": { title: "Budget", subtitle: "What you're spending" },
   "/settings": { title: "Settings", subtitle: "API keys and configuration" },
-  "/deploy":   { title: "Deploy",   subtitle: "One-click deploy to Railway, Render, or DigitalOcean" },
+  "/deploy":    { title: "Deploy",   subtitle: "One-click deploy to Railway, Render, or DigitalOcean" },
+  "/packs":     { title: "Packs",    subtitle: "Workflow kits for your agents" },
+  "/security":  { title: "Security", subtitle: "Sentinel — 6-layer AI agent defense" },
 };
 
 function resolveTitle(pathname: string): { title: string; subtitle: string } {
@@ -90,9 +92,12 @@ export function Header({ onMenuClick }: HeaderProps) {
           <kbd className="hidden sm:block text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--color-border)", color: "var(--color-text-subtle)", fontSize: "10px" }}>⌘K</kbd>
         </button>
         <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-        <button className="relative p-2 rounded-lg" style={{ color: "var(--color-text-muted)" }}>
+        <button
+          className="relative p-2 rounded-lg transition-colors"
+          title="Notifications (coming soon)"
+          style={{ color: "var(--color-text-muted)", cursor: "default", opacity: 0.5 }}
+        >
           <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-error)" }} />
         </button>
       </div>
     </header>

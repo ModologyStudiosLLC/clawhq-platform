@@ -1,0 +1,119 @@
+# Sentinel Layer — Prompt guard + Tool guard
+# Paperclip YAML format
+
+sentinel:
+  prompt_guard:
+    # Injection detection signatures
+    injection_signatures:
+      # Direct system prompt extraction
+      - name: system_prompt_extraction
+        pattern: "ignore (all|previous|above) (instructions|prompts|rules)"
+        severity: critical
+        action: block
+      - name: reveal_instructions
+        pattern: "(reveal|show|print|output|dump) (your|the) (system|initial|hidden) (prompt|instructions|rules)"
+        severity: critical
+        action: block
+      # Jailbreak patterns
+      - name: jailbreak_dan
+        pattern: "you are now (DAN|evil|unrestricted|jailbroken|freed)"
+        severity: critical
+        action: block
+      - name: jailbreak_roleplay
+        pattern: "(pretend|act as|roleplay) (you are|you're|being) (an? )?(evil|malicious|unrestricted|hacked)"
+        severity: high
+        action: block
+      # Indirect injection
+      - name: indirect_injection_html
+        pattern: "<!-- (ignore|disregard) (previous|above) -->"
+        severity: high
+        action: quarantine
+      - name: indirect_injection_markdown
+        pattern: "IMPORTANT: (new|updated|revised) instructions:"
+        severity: high
+        action: quarantine
+      # Encoding-based extraction
+      - name: base64_extraction
+        pattern: "(base64|rot13|hex) (decode|encode).*(prompt|instruction|system)"
+        severity: high
+        action: quarantine
+      # Privilege escalation
+      - name: privilege_escalation
+        pattern: "(elevate|escalate|override|bypass) (permission|privilege|access|auth)"
+        severity: critical
+        action: block
+
+    # Context coherence monitoring
+    context_monitor:
+      coherence_threshold: 0.6
+      check_interval: 3
+      alert_on_drop: true
+
+    # System prompt fingerprint detection
+    prompt_fingerprint:
+      enabled: true
+      ngram_size: 5
+      similarity_threshold: 0.8
+
+  tool_guard:
+    # Dangerous tool combinations
+    dangerous_combos:
+      - name: data_exfil
+        tools: [read_file, web_fetch]
+        context: "Reading files and making external requests"
+        severity: critical
+        action: block_chain
+      - name: data_exfil_search
+        tools: [read_file, web_search]
+        context: "Reading files and searching web"
+        severity: high
+        action: block_chain
+      - name: shell_escalation
+        tools: [read_file, execute_code]
+        context: "Reading auth files then executing"
+        severity: critical
+        action: block_chain
+      - name: config_tamper_exec
+        tools: [write_file, execute_code]
+        context: "Writing files then executing"
+        severity: high
+        action: require_approval
+
+    # Sandbox boundaries
+    sandbox:
+      file_access:
+        deny_paths:
+          - /etc/shadow
+          - /etc/passwd
+          - ~/.ssh/
+          - ~/.aws/
+          - ~/.hermes/.env
+          - ~/.gnupg/
+          - ~/.config/gcloud/
+          - "*credentials*"
+          - "*secrets*"
+        allow_paths:
+          - ~/workspace/
+          - /tmp/
+
+      network:
+        deny_ports: [22, 23, 3389]
+        deny_internal: true
+        allow_domains:
+          - "*.github.com"
+          - "*.googleapis.com"
+          - "api.openai.com"
+          - "api.anthropic.com"
+
+      terminal:
+        deny_commands:
+          - "curl * | bash"
+          - "wget * | sh"
+          - "rm -rf /"
+          - "chmod 777"
+          - "nc -l *"
+          - "python -c *socket*"
+        require_sudo_approval: true
+
+  # Disabled tools globally
+  disabled_tools: []

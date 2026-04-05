@@ -55,6 +55,12 @@
               "guides/integrations",
               "guides/budget"
             ]
+          },
+          {
+            "group": "Security",
+            "pages": [
+              "guides/sentinel"
+            ]
           }
         ]
       },

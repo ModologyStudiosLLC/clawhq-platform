@@ -946,6 +946,204 @@
     .cap-desc { font-size: 14px; color: var(--text-3); line-height: 1.65; }
 
     /* ─────────────────────────────────────────────────────────────
+       SENTINEL SECURITY
+    ───────────────────────────────────────────────────────────── */
+    .sentinel-section {
+      background: var(--bg-raised);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .sentinel-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 120px 32px;
+    }
+    .sentinel-header { margin-bottom: 64px; }
+    .g-cyan {
+      background: linear-gradient(135deg, #69daff 0%, #ac8aff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sentinel-layers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+    .sentinel-layer {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 24px 20px;
+      background: var(--bg-raised);
+      transition: background 200ms ease;
+    }
+    .sentinel-layer:hover { background: var(--bg-float); }
+    .sentinel-layer-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      opacity: 0.7;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .sentinel-layer-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+    .sentinel-layer-desc {
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
+    .sentinel-threats { margin-bottom: 40px; }
+    .sentinel-threats-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-4);
+      margin-bottom: 16px;
+    }
+    .sentinel-threat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .threat-chip {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: var(--radius-xs);
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      color: var(--text-2);
+    }
+    .sentinel-note {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-glow);
+      border-radius: var(--radius-sm);
+    }
+    .sentinel-note-icon { font-size: 18px; flex-shrink: 0; }
+    .sentinel-note p {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .sentinel-docs-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 150ms ease;
+    }
+    .sentinel-docs-link:hover { opacity: 0.75; }
+    @media (max-width: 768px) {
+      .sentinel-layers { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       FEATURED PACKS
+    ───────────────────────────────────────────────────────────── */
+    #featured-packs {
+      padding: 120px 32px;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .packs-header { margin-bottom: 48px; }
+    .featured-packs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .fpack-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    }
+    .fpack-card:hover {
+      border-color: var(--border-light);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    }
+    .fpack-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .fpack-icon { font-size: 22px; }
+    .fpack-tier {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .fpack-tier--free {
+      background: rgba(105,246,184,0.12);
+      color: var(--green);
+      border: 1px solid rgba(105,246,184,0.2);
+    }
+    .fpack-tier--pro {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
+    }
+    .fpack-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .fpack-desc {
+      font-size: 13px;
+      color: var(--text-3);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .fpack-agents { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fpack-cta {
+      display: block; width: 100%; padding: 10px;
+      border-radius: 8px; font-size: 13px; font-weight: 600;
+      text-align: center; margin-top: 16px;
+      transition: opacity 0.15s;
+    }
+    .fpack-cta:hover { opacity: 0.8; }
+    .fpack-cta--free { background: rgba(105,246,184,0.1); color: #69f6b8; border: 1px solid rgba(105,246,184,0.25); }
+    .fpack-cta--pro  { background: rgba(105,218,255,0.1); color: var(--accent); border: 1px solid rgba(105,218,255,0.2); }
+    .featured-packs-footer { text-align: center; margin-top: 40px; }
+    .featured-packs-footer a { font-size: 14px; color: var(--accent); border-bottom: 1px solid rgba(105,218,255,0.3); padding-bottom: 1px; transition: border-color 0.15s; }
+    .featured-packs-footer a:hover { border-color: var(--accent); }
+    @media (max-width: 900px) {
+      .featured-packs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .featured-packs-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
        PRIVACY — SPLIT
     ───────────────────────────────────────────────────────────── */
     .privacy-section {
@@ -1183,6 +1381,7 @@
     <div class="nav-links">
       <a href="#stack">The Stack</a>
       <a href="#usecases">Use Cases</a>
+      <a href="#security">Security</a>
       <a href="#enterprise">Enterprise</a>
       <a href="/packs">Packs</a>
       <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
@@ -1702,6 +1901,9 @@
     </div>
 
     <div class="ent-trust-row reveal">
+      <div class="ent-trust-chip"><span class="dot">●</span> Sentinel 6-layer AI security</div>
+      <div class="ent-trust-chip"><span class="dot">●</span> Prompt injection defense</div>
+      <div class="ent-trust-chip"><span class="dot">●</span> Canary token compromise detection</div>
       <div class="ent-trust-chip"><span class="dot">●</span> SOC 2 fast track</div>
       <div class="ent-trust-chip"><span class="dot">●</span> Self-hosted · data never leaves</div>
       <div class="ent-trust-chip"><span class="dot">●</span> Full audit trails</div>
@@ -1831,6 +2033,156 @@
       <div class="cap-title">Cost Dashboard</div>
       <p class="cap-desc">Real-time token usage, per-agent cost tracking, and budget alerts built in.</p>
     </div>
+  </div>
+</section>
+
+<!-- ── SENTINEL SECURITY ──────────────────────────────────── -->
+<div class="sentinel-section" id="security">
+  <div class="sentinel-inner">
+    <div class="sentinel-header reveal">
+      <p class="section-eyebrow">Security</p>
+      <h2 class="section-h2">Built-in AI agent defense.<br><span class="g-cyan">Six layers deep.</span></h2>
+      <p class="section-body" style="max-width:560px;">AI agents face threats that traditional security tools weren't built for. ClawHQ ships with Sentinel — a purpose-built, always-on security system that runs automatically inside every deployment.</p>
+    </div>
+
+    <div class="sentinel-layers reveal reveal-delay-1">
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">01</span>
+        <div>
+          <div class="sentinel-layer-title">Gate</div>
+          <div class="sentinel-layer-desc">Rate limiting, IP reputation, and auth — the perimeter.</div>
+        </div>
+      </div>
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">02</span>
+        <div>
+          <div class="sentinel-layer-title">Prompt Guard</div>
+          <div class="sentinel-layer-desc">Detects and blocks prompt injection, jailbreaks, system prompt extraction, and indirect injection via tool outputs.</div>
+        </div>
+      </div>
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">03</span>
+        <div>
+          <div class="sentinel-layer-title">Tool Guard</div>
+          <div class="sentinel-layer-desc">Sandboxes file access, blocks dangerous terminal commands, and catches data exfiltration via tool chains before they execute.</div>
+        </div>
+      </div>
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">04</span>
+        <div>
+          <div class="sentinel-layer-title">Canary Engine</div>
+          <div class="sentinel-layer-desc">Fake API keys, URLs, and credentials planted in the agent environment. If any are used externally, you have confirmed compromise — not a guess.</div>
+        </div>
+      </div>
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">05</span>
+        <div>
+          <div class="sentinel-layer-title">Decoy Swarm</div>
+          <div class="sentinel-layer-desc">Honeypot agents in the registry — admin-agent, db-agent, debug-agent. Attackers find them and probe them. You get alerts. They get synthetic noise.</div>
+        </div>
+      </div>
+      <div class="sentinel-layer">
+        <span class="sentinel-layer-num">06</span>
+        <div>
+          <div class="sentinel-layer-title">Shield</div>
+          <div class="sentinel-layer-desc">Automated response: block IPs, terminate sessions, enter lockdown, capture forensic snapshots. Alerts to Discord, Slack, email, or PagerDuty.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sentinel-threats reveal reveal-delay-2">
+      <p class="sentinel-threats-label">What Sentinel catches</p>
+      <div class="sentinel-threat-grid">
+        <div class="threat-chip">Prompt injection</div>
+        <div class="threat-chip">Jailbreak attempts</div>
+        <div class="threat-chip">System prompt extraction</div>
+        <div class="threat-chip">Indirect injection via tool outputs</div>
+        <div class="threat-chip">Tool chain exfiltration</div>
+        <div class="threat-chip">Privilege escalation</div>
+        <div class="threat-chip">Malicious shell commands</div>
+        <div class="threat-chip">Reverse shells</div>
+        <div class="threat-chip">Brute force / credential stuffing</div>
+        <div class="threat-chip">MCP server compromise</div>
+        <div class="threat-chip">Canary token exfiltration</div>
+        <div class="threat-chip">Token burn / denial of service</div>
+      </div>
+    </div>
+
+    <div class="sentinel-note reveal">
+      <span class="sentinel-note-icon">🛡</span>
+      <p>Sentinel is not a plugin. It is infrastructure — running automatically inside every ClawHQ deployment, zero configuration required.</p>
+      <a href="/guides/sentinel" class="sentinel-docs-link">Read the Sentinel docs →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW PACKS ───────────────────────────────────────────── -->
+<section id="featured-packs">
+  <div class="packs-header">
+    <p class="section-eyebrow reveal">Featured Packs</p>
+    <h2 class="section-h2 reveal reveal-delay-1">New packs. Ready to install.</h2>
+  </div>
+  <div class="featured-packs-grid">
+    <div class="fpack-card reveal">
+      <div class="fpack-header">
+        <span class="fpack-icon">📊</span>
+        <span class="fpack-tier fpack-tier--free">Free</span>
+      </div>
+      <h3 class="fpack-title">Data Analyst</h3>
+      <p class="fpack-desc">Turn any CSV, JSON, or spreadsheet into charts, tables, and statistical summaries. No code. No setup. Works on any data source your agents can reach.</p>
+      <div class="fpack-agents">
+        <span class="bento-agent-pill">Chart Generator</span>
+        <span class="bento-agent-pill">Stats Analyst</span>
+        <span class="bento-agent-pill">Report Writer</span>
+      </div>
+      <a href="/docs/quickstart" class="fpack-cta fpack-cta--free">Install free →</a>
+    </div>
+    <div class="fpack-card reveal reveal-delay-1">
+      <div class="fpack-header">
+        <span class="fpack-icon">🗂️</span>
+        <span class="fpack-tier fpack-tier--pro">Pro</span>
+      </div>
+      <h3 class="fpack-title">Executive Assistant</h3>
+      <p class="fpack-desc">Your AI chief of staff. Calendar, inbox, travel, meeting prep, stakeholder briefings, and expense tracking — one pack, fully automated.</p>
+      <div class="fpack-agents">
+        <span class="bento-agent-pill">Scheduler</span>
+        <span class="bento-agent-pill">Inbox Triage</span>
+        <span class="bento-agent-pill">Meeting Prep</span>
+        <span class="bento-agent-pill">Travel Coordinator</span>
+      </div>
+      <a href="/packs" class="fpack-cta fpack-cta--pro">See pricing →</a>
+    </div>
+    <div class="fpack-card reveal reveal-delay-2">
+      <div class="fpack-header">
+        <span class="fpack-icon">📰</span>
+        <span class="fpack-tier fpack-tier--free">Free</span>
+      </div>
+      <h3 class="fpack-title">Weekly Briefing</h3>
+      <p class="fpack-desc">Every Friday: a synthesized digest from Slack, GitHub, Linear, and email. What mattered, what is at risk, what needs a decision — in 2 minutes.</p>
+      <div class="fpack-agents">
+        <span class="bento-agent-pill">Digest Collector</span>
+        <span class="bento-agent-pill">Priority Ranker</span>
+        <span class="bento-agent-pill">Briefing Writer</span>
+      </div>
+      <a href="/docs/quickstart" class="fpack-cta fpack-cta--free">Install free →</a>
+    </div>
+    <div class="fpack-card reveal">
+      <div class="fpack-header">
+        <span class="fpack-icon">🔭</span>
+        <span class="fpack-tier fpack-tier--pro">Pro</span>
+      </div>
+      <h3 class="fpack-title">Competitor Intel</h3>
+      <p class="fpack-desc">Monitor competitor sites, pricing, job postings, and GitHub. Weekly digest with diffs from last week. Know before your sales team does.</p>
+      <div class="fpack-agents">
+        <span class="bento-agent-pill">Web Monitor</span>
+        <span class="bento-agent-pill">Job Board Watcher</span>
+        <span class="bento-agent-pill">Intel Synthesizer</span>
+      </div>
+      <a href="/packs" class="fpack-cta fpack-cta--pro">See pricing →</a>
+    </div>
+  </div>
+  <div class="featured-packs-footer">
+    <a href="/packs">Browse all packs →</a>
   </div>
 </section>
 
