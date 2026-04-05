@@ -5,12 +5,25 @@ description: Pre-built agent bundles for common workflows. Install in one click,
 
 Packs are pre-configured collections of agents, pipelines, and triggers. Instead of building from scratch, install a pack and your agents are ready to work.
 
-## Featured packs
+## Pricing
+
+| Tier | Price | What's included |
+|------|-------|----------------|
+| **Free** | $0 | Community packs — install and use forever |
+| **Starter** | $29 | Single lightweight decision-making pack |
+| **Pro** | $49 | Lighter workflow packs for individuals and small teams |
+| **Pro+** | $99 | Heavy multi-agent packs with advanced orchestration |
+
+Buy links are available at [clawhqplatform.com/packs](https://clawhqplatform.com/packs).
+
+---
+
+## Free packs
 
 ### Data Analyst
 **Free**
 
-Turn any CSV, JSON, spreadsheet, or database query into charts, tables, and statistical summaries — no code required. Works on any data source your agents can access.
+Turn any CSV, JSON, spreadsheet, or database query into charts, tables, and statistical summaries — no code required.
 
 **What it does:**
 - Accepts raw data via file upload, paste, or tool output
@@ -28,12 +41,183 @@ docker compose restart paperclip
 
 ---
 
-### Executive Assistant
-**Pro**
+### Weekly Briefing
+**Free**
 
-A full AI chief of staff. Manages your calendar, triages your inbox, coordinates travel, preps you for every meeting, and handles routine correspondence.
+Every Friday morning, synthesize everything across Slack, GitHub, Linear, and email into a crisp executive summary.
 
 **What it does:**
+- Pulls activity from all connected channels
+- Identifies key decisions, blockers, and upcoming deadlines
+- Surfaces threads that went quiet and may need a nudge
+- Posts a structured digest to your chosen channel
+
+**Schedule:** Runs every Friday at 8am by default. Configurable via cron.
+
+**Included agents:** Digest Collector, Priority Ranker, Briefing Writer
+
+---
+
+### Content Engine
+**Free**
+
+Draft LinkedIn posts, tweets, newsletter sections, and blog outlines from your raw notes. Repurpose content across formats and maintain a consistent brand voice.
+
+**What it does:**
+- Drafts content from bullet points, voice notes, or rough text
+- Adapts tone per platform
+- Repurposes a single piece into 4–6 formats
+- Maintains a brand voice profile across all output
+
+**Included agents:** Content Drafter, Brand Voice Enforcer, Platform Adapter, Scheduler
+
+---
+
+### Innovation Scout
+**Free**
+
+Discover automation opportunities by merging your team's internal pain signals with external trends. Delivers a ranked opportunity report weekly.
+
+**Included agents:** Pain Signal Collector, Trend Researcher, Opportunity Ranker
+
+---
+
+### Workflow Docs
+**Free**
+
+Automatically generate Tango-style step-by-step workflow documentation as agents work. Every multi-step task becomes a numbered SOP saved to your docs folder — no manual writeup required.
+
+**What it does:**
+- Detects when a task took 3+ distinct steps and auto-generates a guide
+- Produces numbered steps with clear descriptions, expected outputs, and tips
+- Supports live-mode recording and SOP-from-description generation
+- Maintains a searchable index of all saved guides
+- Saves to `~/docs/workflows/<slug>.md` — git-friendly markdown
+
+**Activation phrases:** "document this", "write a guide", "create an SOP", "record what you're doing"
+
+**Included agents:** workflow-docs
+
+```bash
+cp packs/workflow-docs.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+---
+
+### LLM Wiki (Karpathy Knowledge)
+**Free**
+
+Build a persistent, compounding personal knowledge base as interlinked markdown wiki pages. Drop a URL, paste text, or share a file — the agent ingests it, writes structured pages, and maintains cross-references automatically.
+
+**What it does:**
+- Auto-initializes a wiki from the first source you give it — no setup required
+- Ingests URLs, files, and pasted text into a structured `~/wiki/<topic>/` directory
+- Creates entity, concept, and source pages with wikilinks and citations
+- Detects contradictions between sources and flags them inline
+- Runs lint passes to find orphan pages, missing links, and stale overviews
+- Answers questions from the compiled knowledge with cited responses
+
+**Activation phrases:** "start a wiki", "add this to the wiki", "ingest this", "what does my wiki say about X"
+
+**Inspired by:** [Andrej Karpathy's LLM wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+
+**Included agents:** llm-wiki
+
+```bash
+cp packs/llm-wiki.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+---
+
+## Starter packs ($29)
+
+### Decision Brief
+**$29**
+
+Transform scattered, unstructured notes into one execution-ready decision brief with clear next actions — in under 2 minutes. Accepts raw notes, transcripts, Slack threads, interview notes, or any mixed-format input.
+
+**What it does:**
+- Normalizes input from any source format (notes, transcripts, chat logs, docs)
+- Extracts signals: blockers, next actions, owners, and confidence scores
+- Identifies evidence gaps and contradictions before recommending
+- Applies weighted scoring: Urgency (40%), Impact (35%), Confidence (25%)
+- Outputs a human-readable brief and a machine-ready JSON payload
+
+**Output format:**
+```
+## Decision Brief — [topic]
+
+### Key Findings
+### Recommendation (with confidence %)
+### Next Actions (owner + due date)
+### Evidence Gaps
+### Risk Flags
+```
+
+**Included agents:** decision-brief
+
+```bash
+cp packs/decision-brief.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+---
+
+## Pro packs ($49)
+
+### Creator Suite
+**$49**
+
+Full content production system — script writing, video outlining, thumbnail copy, SEO optimization, and multi-platform repurposing for creators and media teams.
+
+**Included agents:** script-writer, video-outliner, thumbnail-copy, seo-optimizer, content-repurposer
+
+---
+
+### Reskilling Core
+**$49**
+
+Personalized learning paths, skills gap analysis, and professional development planning. Helps individuals and teams identify what to learn and how to prioritize it.
+
+**Included agents:** skills-assessor, learning-path-builder, progress-tracker, resource-curator
+
+---
+
+### Marketing Agency
+**$49**
+
+Campaign planning, copy generation, asset briefing, and performance analysis for marketing teams and agencies managing multiple clients or campaigns.
+
+**Included agents:** campaign-planner, copy-generator, brief-writer, performance-analyst
+
+---
+
+### Product Research
+**$49**
+
+Full user research lifecycle — interview scripts, surveys, usability tests, personas, JTBD analysis, and findings synthesis. For product teams making data-informed decisions.
+
+**Included agents:** research-planner, interview-scripter, survey-builder, findings-synthesizer, persona-builder, jtbd-analyst
+
+---
+
+## Pro+ packs ($99)
+
+### Finance Dashboards
+**$99**
+
+Automated financial reporting, variance analysis, cash flow modeling, and board-ready dashboard generation from your accounting data.
+
+**Included agents:** report-builder, variance-analyst, cashflow-modeler, dashboard-generator
+
+---
+
+### Executive Assistant
+**$99**
+
+A full AI chief of staff. Manages your calendar, triages your inbox, coordinates travel, preps you for every meeting, and handles routine correspondence.
 
 | Task | Detail |
 |------|--------|
@@ -49,33 +233,10 @@ A full AI chief of staff. Manages your calendar, triages your inbox, coordinates
 
 **Included agents:** Scheduler, Inbox Triage, Meeting Prep, Travel Coordinator, Briefing Writer
 
-```bash
-cp packs/executive-assistant.yaml ~/.clawhq/packs/
-docker compose restart paperclip
-```
-
----
-
-### Weekly Briefing
-**Free**
-
-Every Friday morning, synthesize everything across Slack, GitHub, Linear, and email into a crisp executive summary. Know what mattered, what is at risk, and what needs a decision — without reading 400 Slack messages.
-
-**What it does:**
-- Pulls activity from all connected channels
-- Identifies key decisions, blockers, and upcoming deadlines
-- Surfaces threads that went quiet and may need a nudge
-- Posts a structured digest to your chosen channel
-- Highlights anything that requires your attention this week
-
-**Schedule:** Runs every Friday at 8am by default. Configurable via cron.
-
-**Included agents:** Digest Collector, Priority Ranker, Briefing Writer
-
 ---
 
 ### Competitor Intel
-**Pro**
+**$99**
 
 Monitors competitor websites, pricing pages, job postings, GitHub activity, and social channels. Weekly digest lands in Slack with diffs from the prior week.
 
@@ -83,40 +244,16 @@ Monitors competitor websites, pricing pages, job postings, GitHub activity, and 
 - Watches for pricing, feature, and messaging changes
 - Monitors job postings to infer product direction
 - Tracks GitHub repos for new releases and capability shifts
-- Aggregates social activity and press mentions
 - Delivers a structured weekly intel report
-
-**Configuration:** Add competitor names and URLs to `competitor-intel.yaml`.
 
 **Included agents:** Web Monitor, Job Board Watcher, GitHub Tracker, Intel Synthesizer
 
 ---
 
-### Content Engine
-**Free**
-
-Draft LinkedIn posts, tweets, newsletter sections, and blog outlines from your raw notes. Repurpose content across formats and maintain a consistent brand voice.
-
-**What it does:**
-- Drafts content from bullet points, voice notes, or rough text
-- Adapts tone per platform
-- Repurposes a single piece into 4 to 6 formats
-- Maintains a brand voice profile across all output
-
-**Included agents:** Content Drafter, Brand Voice Enforcer, Platform Adapter, Scheduler
-
----
-
 ### Deal Room
-**Pro**
+**$99**
 
 Research prospects, draft personalized outreach sequences, prepare pre-call briefings, and log everything to your CRM — all triggered from a Slack message.
-
-**What it does:**
-- Researches prospect company: size, funding, recent news, key people
-- Drafts personalized cold email sequences
-- Generates pre-call briefings with talking points and likely objections
-- Logs notes and updates deal stages in your CRM after calls
 
 **Required MCPs:** LinkedIn (via Playwright), Salesforce or HubSpot, email
 
@@ -124,49 +261,106 @@ Research prospects, draft personalized outreach sequences, prepare pre-call brie
 
 ---
 
-### Innovation Scout
-**Free**
+### Augmented Engineering
+**$99**
 
-Discover automation opportunities by merging your team's internal pain signals with external trends. Delivers a ranked opportunity report weekly.
+PR reviews, automated release notes, issue triage, test coverage analysis, and code quality reporting for engineering teams on GitHub or GitLab.
 
-**Included agents:** Pain Signal Collector, Trend Researcher, Opportunity Ranker
-
----
-
-### Weekly Pack Research
-**Internal / Free**
-
-Every Monday morning, Hermes scans Hacker News, GitHub trending, and Reddit to identify high-signal AI automation use cases. It synthesizes findings into a structured pack recommendation — including agents, required tools, and a Free vs Pro tier decision — and posts the summary to your team channel.
-
-Recommendations are stored in `$HERMES_HOME/pack_recommendations/<YYYY-WW>.md` for review.
-
-**What it produces:**
-- Problem statement with signal sources (HN threads, GitHub stars, Reddit posts)
-- Proposed pack: name, tagline, agent roster, required MCPs
-- Tier decision (Free vs Pro) with reasoning
-- Target user profile
-- Confidence level (High / Medium / Low)
-
-**Included agents:** Pack Researcher (Hermes + `pack_researcher` skill)
-
-**Required env vars:** `RESEARCH_DISCORD_CHANNEL_ID` or `RESEARCH_SLACK_CHANNEL`
-
-```bash
-cp packs/pack-research-weekly.yaml ~/.clawhq/packs/
-docker compose restart paperclip
-```
+**Included agents:** pr-reviewer, release-notes-writer, issue-triager, coverage-analyst
 
 ---
 
-## Team use case packs
+### Augmented Finance
+**$99**
 
-| Pack | Agents | Best for |
-|------|--------|---------|
-| Engineering Team | PR Reviewer, Release Notes Writer, Bug Triage | Dev teams on GitHub |
-| Customer Support | Ticket Classifier, KB Search, Reply Drafter | Support teams |
-| Ops & Leadership | Daily Briefing, Meeting Summarizer, Status Reporter | Founders, COOs |
-| Finance & Compliance | Invoice Processor, Expense Auditor, Board Report Generator | Finance teams |
-| HR & Recruiting | Candidate Sourcer, Onboarding Orchestrator, Benefits Q&A | HR teams |
+Invoice processing, expense auditing, reconciliation, and board report generation for finance and accounting teams.
+
+**Included agents:** invoice-processor, expense-auditor, reconciler, board-report-generator
+
+---
+
+### Augmented Sales
+**$99**
+
+Lead qualification, outreach sequencing, objection handling prep, and CRM hygiene automation for sales teams.
+
+**Included agents:** lead-qualifier, sequence-builder, objection-prepper, crm-hygienist
+
+---
+
+### Augmented Support
+**$99**
+
+Ticket classification, knowledge base search, reply drafting, and escalation routing for customer support teams.
+
+**Included agents:** ticket-classifier, kb-search, reply-drafter, escalation-router
+
+---
+
+### Real Estate
+**$99**
+
+Property research, listing analysis, market comparables, and client report generation for real estate professionals.
+
+**Included agents:** property-researcher, comps-analyst, listing-writer, client-report-generator
+
+---
+
+### E-commerce
+**$99**
+
+Product description generation, inventory monitoring, review analysis, and promotional copy for e-commerce teams.
+
+**Included agents:** product-writer, inventory-monitor, review-analyst, promo-copy-generator
+
+---
+
+## Bundles
+
+Bundles combine related packs at a discount. A good starting point if you know your use case.
+
+### All Packs Bundle — $299
+Every paid pack in one purchase. Save $916 vs buying separately.
+
+[Get all packs →](https://buy.stripe.com/bJe28s2IP6ZheG94Vm2Fa0b)
+
+---
+
+### Sales Bundle — $149
+**Saves $98** · Augmented Sales + Augmented Support + Marketing Agency
+
+Everything a revenue team needs to prospect, close, and retain customers.
+
+[Get Sales Bundle →](https://buy.stripe.com/4gMcN6fvB2J17dH87y2Fa0p)
+
+---
+
+### Finance Bundle — $149
+**Saves $148** · Finance Dashboards + Augmented Finance + Executive Assistant
+
+Automate financial reporting, model complex scenarios, and streamline executive workflows.
+
+[Get Finance Bundle →](https://buy.stripe.com/aFa7sMerx0ATdC573u2Fa0q)
+
+---
+
+### Engineering Bundle — $149
+**Saves $98** · Augmented Engineering + Product Research + Competitor Intel
+
+From research to shipped product — deep research, competitive intelligence, and engineering acceleration.
+
+[Get Engineering Bundle →](https://buy.stripe.com/fZudRa5V1gzR41v4Vm2Fa0r)
+
+---
+
+### Starter Bundle — $79
+**Saves $48** · Creator Suite + Reskilling Core + Decision Brief
+
+The best starting point for individuals and small teams leveling up with AI.
+
+[Get Starter Bundle →](https://buy.stripe.com/dRm5kEerxdnFbtX1Ja2Fa0s)
+
+---
 
 ## Install a pack
 
@@ -178,7 +372,7 @@ cp packs/weekly-briefing.yaml ~/.clawhq/packs/
 docker compose restart paperclip
 ```
 
-Or from the dashboard: **Packs -> Install**.
+Or from the dashboard: **Packs → Install**.
 
 ## Build your own
 
