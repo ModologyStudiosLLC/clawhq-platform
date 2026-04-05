@@ -7,3 +7,4 @@ node_modules/
 
 # Packs live in private repo: github.com/ModologyStudiosLLC/clawhq-packs
 packs/
+.pyc
