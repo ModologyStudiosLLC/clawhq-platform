@@ -1,0 +1,161 @@
+---
+title: Coding Agent Suite
+description: A full autonomous coding pipeline — build, test, review, scan, and deploy, all without leaving ClawHQ.
+---
+
+ClawHQ ships with a complete coding agent suite powered by the claw-code engine. These agents can implement features, write tests, review PRs, scan for vulnerabilities, and manage deployments — working together as an autonomous pipeline or individually on demand.
+
+## How it works
+
+Each coding agent is a Paperclip YAML config that delegates work to claw-code via MCP. You talk to them through Discord, Slack, or Telegram. They handle the rest.
+
+```
+You → Discord → ClawHQ → code-builder → your repo
+                       → test-writer
+                       → code-reviewer (quality gate)
+                       → deploy-agent
+```
+
+## Agents
+
+### Core coding
+
+| Agent | What it does | Permission |
+|-------|-------------|------------|
+| **code-builder** | Implements features, fixes bugs, refactors | Full access |
+| **code-reviewer** | Reviews diffs and PRs, no file changes | Read-only |
+| **bug-hunter** | Investigates bugs, implements fixes, adds regression tests | Full access |
+
+### Code quality
+
+| Agent | What it does |
+|-------|-------------|
+| **test-writer** | Generates comprehensive test suites from source files |
+| **doc-writer** | Writes and updates documentation from code |
+| **refactor-agent** | Identifies code smells and rewrites problem areas |
+
+### CI/CD & DevOps
+
+| Agent | What it does |
+|-------|-------------|
+| **pipeline-builder** | Generates GitHub Actions / GitLab CI configs |
+| **deploy-agent** | Manages deployments and rollbacks |
+| **infra-as-code** | Generates Terraform, Pulumi, and CloudFormation |
+
+### Security
+
+| Agent | What it does |
+|-------|-------------|
+| **vuln-scanner** | Scans for CVEs, insecure patterns, and hardcoded secrets |
+| **license-checker** | Audits dependency licenses for compliance |
+
+### Intelligence
+
+| Agent | What it does |
+|-------|-------------|
+| **onboarding-agent** | Generates new-developer guides from a codebase |
+| **migration-planner** | Plans database and framework migrations |
+| **tech-debt-tracker** | Scores and tracks technical debt over time |
+
+### Orchestration
+
+| Agent | What it does |
+|-------|-------------|
+| **feature-pipeline** | Full autonomous feature delivery: build → test → review → docs → deploy |
+| **incident-responder** | Investigates, fixes, tests, and deploys hotfixes with an approval gate |
+
+## Usage
+
+### Trigger from Discord
+
+```
+@Mike implement rate limiting on /api/users in the backend repo
+```
+
+```
+@Mike review the diff on PR #47
+```
+
+```
+@Mike run the full feature pipeline for the new dashboard widget
+```
+
+### Trigger via CLI (Hermes)
+
+```bash
+hermes delegate code-builder "add pagination to GET /api/posts" --repo /path/to/repo
+hermes delegate test-writer --repo /path/to/repo --file src/auth.py
+hermes delegate vuln-scanner --repo /path/to/repo
+```
+
+### Full pipeline (unattended)
+
+```bash
+hermes delegate feature-pipeline \
+  "Add email notification preferences to user settings" \
+  --repo /path/to/repo \
+  --branch feat/email-prefs
+```
+
+The feature pipeline runs: code-builder → test-writer → code-reviewer → doc-writer → deploy-agent.
+If the review passes, it deploys. If not, it flags the issue and waits for you.
+
+## Configuration
+
+Agent configs live at `~/.hermes/agents/`. Each is a Paperclip YAML file.
+
+```yaml
+# ~/.hermes/agents/code-builder.yaml
+name: code-builder
+description: "Implements features and fixes bugs"
+model: mimo-v2-pro
+provider: custom
+tools:
+  - claw_code_prompt
+  - claw_code_analyze
+  - claw_code_health
+  - shell
+permissions:
+  coding: danger-full-access
+timeout: 600
+output_format: json
+```
+
+## Bidirectional MCP integration
+
+Coding agents can access ClawHQ capabilities from inside a claw-code session:
+
+```json
+// Add to <repo>/.claw/settings.json
+{
+  "mcpServers": {
+    "clawhq": {
+      "command": "python3",
+      "args": ["/Users/mflanigan/.hermes/servers/clawhq_mcp_server.py"]
+    }
+  }
+}
+```
+
+This gives claw-code access to `clawhq_web_search`, `clawhq_notify`, `clawhq_schedule`, and `clawhq_code_review` — so agents can research before implementing, and notify you when done.
+
+## Python client (for agent scripts)
+
+```python
+from claw_code_client import ClawCodeClient
+
+claw = ClawCodeClient(workdir="/path/to/repo")
+
+# One-shot task
+result = claw.prompt("Add input validation to auth.py")
+print(result.message)
+print(f"Cost: {result.estimated_cost}")
+
+# Git workflow (branch + implement + commit + push)
+result = claw.git_workflow("implement user notifications", "feat/notifications")
+
+# Read-only analysis
+analysis = claw.read_only("Explain the authentication flow")
+```
+
+The client is at `~/.hermes/scripts/claw_code_client.py`.
