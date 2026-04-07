@@ -57,6 +57,13 @@
             ]
           },
           {
+            "group": "Intelligence",
+            "pages": [
+              "guides/memory",
+              "guides/orchestration"
+            ]
+          },
+          {
             "group": "Security",
             "pages": [
               "guides/sentinel"

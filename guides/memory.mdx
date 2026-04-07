@@ -1,0 +1,129 @@
+---
+title: Persistent Memory
+description: Agents that remember — cross-session memory powered by Mem0 and local vector search.
+---
+
+ClawHQ includes a persistent memory layer backed by [Mem0](https://mem0.ai). Unlike session memory that resets when a conversation ends, persistent memory survives restarts and accumulates knowledge over time. Agents can recall past decisions, user preferences, project context, and task outcomes — automatically.
+
+## How it works
+
+The memory layer uses a hybrid storage architecture:
+
+- **Vector index** (Qdrant, local file-based) — semantic similarity search over stored facts
+- **LLM extraction** — your model automatically distills what's worth remembering from each interaction
+- **Active curation** — stale or conflicting memories are automatically updated, not just appended
+
+Every memory is scoped to a `user_id` (defaults to `clawhq` for shared team memory, or per-agent for isolated contexts).
+
+<Note>
+Memory uses your configured LLM for extraction and a local Ollama model (`nomic-embed-text`) for embeddings. No cloud embedding API required.
+</Note>
+
+## Setup
+
+### Requirements
+
+- **Ollama** running locally with `nomic-embed-text` pulled:
+  ```bash
+  ollama pull nomic-embed-text
+  ```
+- **miniforge / conda** Python environment (used by the memory MCP server)
+- mem0ai and qdrant-client installed automatically on first run
+
+Memory starts automatically with `docker compose up`. The Mem0 MCP server registers itself in Hermes on startup.
+
+### Environment variables
+
+```bash
+# Optional overrides — defaults work for most setups
+MEM0_LLM_MODEL=mimo-v2-pro          # Model for memory extraction
+MEM0_LLM_BASE_URL=https://...       # Your model provider base URL
+MEM0_LLM_API_KEY=your-key           # API key
+MEM0_EMBED_MODEL=nomic-embed-text   # Ollama embedding model
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+Storage path: `~/.clawhq/mem0/qdrant/` (local Qdrant collection, no external server needed).
+
+---
+
+## Using memory in agents
+
+### Via Hermes (natural language)
+
+Hermes has direct access to the `mem0_*` tools. Just ask:
+
+```
+Remember that the CAD platform uses CadQuery for geometry generation.
+What do you remember about our pricing decisions?
+Forget the old Redis config we tested last month.
+```
+
+### Via MCP tools
+
+Any agent with the `mem0` MCP server in its config can use:
+
+| Tool | What it does |
+|------|-------------|
+| `mem0_add` | Store a memory from agent output or user input |
+| `mem0_search` | Semantic search — find relevant past context |
+| `mem0_get_all` | List all memories for a user/agent |
+| `mem0_update` | Correct or update an existing memory |
+| `mem0_delete` | Remove a specific memory by ID |
+
+### Via the dashboard API
+
+```bash
+# Search memories
+GET /api/memory?q=pricing+decisions&limit=5
+
+# Add a memory
+POST /api/memory
+{ "action": "add", "content": "Team decided to go with $49/mo pricing for solo tier" }
+
+# List all
+GET /api/memory
+```
+
+---
+
+## Memory scoping
+
+Memories are scoped by `user_id`. This lets you maintain separate memory spaces:
+
+| Scope | user_id | Use case |
+|-------|---------|----------|
+| Shared team memory | `clawhq` (default) | Org-wide facts, decisions, context |
+| Per-agent memory | `agent-coder`, `agent-scout` | Agent-specific learning |
+| Per-user memory | `user-alice` | Individual user preferences |
+
+Pass `user_id` in any API call or MCP tool invocation to target a specific scope.
+
+---
+
+## Memory dashboard
+
+The memory API at `/api/memory` is available from the dashboard. You can search, inspect, and delete memories from the Settings panel.
+
+Semantic search: `GET /api/memory?q=your+query` returns ranked results with relevance scores.
+
+---
+
+## Architecture
+
+```
+Agent / Hermes
+    │
+    ├── mem0_add / mem0_search (MCP tools)
+    │
+    ▼
+mem0_mcp_server.py  (~/.hermes/servers/)
+    │
+    ├── LLM (MiMo / your model) — extracts + deduplicates facts
+    │
+    └── Qdrant (local) — vector index at ~/.clawhq/mem0/qdrant/
+            │
+            └── nomic-embed-text (Ollama) — 768-dim embeddings
+```
+
+The MCP server is a stdio process registered in `~/.hermes/config.yaml`. Hermes spawns it automatically when the `mem0` tool is invoked for the first time.

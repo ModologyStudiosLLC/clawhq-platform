@@ -1,0 +1,196 @@
+---
+title: Orchestration
+description: Task coordination layer — queue, route, track, and cost-analyze work across all ClawHQ agents.
+---
+
+The ClawHQ orchestration server is a lightweight task coordination layer that runs alongside your agents. It provides a central task queue, real-time health monitoring across all services, and per-task cost tracking — without requiring a full workflow engine.
+
+Think of it as the control plane for agent work: tasks come in, get routed to the right agent in the right service, and their outcomes (including token spend) are recorded.
+
+## What it does
+
+| Capability | Detail |
+|-----------|--------|
+| **Task queue** | Create, assign, and track tasks across Hermes, OpenFang, and Paperclip |
+| **State machine** | `queued → assigned → running → completed / failed` |
+| **Health aggregation** | Real-time health check across all 5 services, with latency |
+| **Cost tracking** | Auto-calculates USD cost from token count × model rate |
+| **Agent routing** | Route by agent name, service, or profile |
+| **REST API** | Full CRUD at `:4400` — consumable by any service or automation |
+
+## Setup
+
+The orchestration server starts automatically as a system service (`com.clawhq.orchestration`). It runs on port `4400` and stores task state in `~/.clawhq/tasks.json`.
+
+No additional config is required. It auto-detects the other services from environment variables.
+
+### Environment variables
+
+```bash
+ORCHESTRATION_PORT=4400          # Default port
+OPENFANG_URL=http://localhost:4200
+HERMES_URL=http://localhost:4300
+PAPERCLIP_URL=http://localhost:3100
+OPENCLAW_URL=http://localhost:18789
+DASHBOARD_URL=http://localhost:3500
+```
+
+---
+
+## Dashboard
+
+Navigate to **Orchestration** in the sidebar to see:
+
+- **Service health bar** — live status of all 5 services with response time
+- **Stats row** — total tasks, completed, total cost, tokens used
+- **Task queue** — filterable by status (All / Queued / Running / Done / Failed)
+- **Task detail** — click any task to see result, error, tokens, model, and timestamps
+- **New task** — create tasks directly from the dashboard
+
+---
+
+## API reference
+
+Base URL: `http://localhost:4400` (or proxied via the dashboard at `/api/orchestration`)
+
+### Create a task
+
+```bash
+POST /tasks
+{
+  "title": "Research competitor pricing for Q3 report",
+  "agent": "scout",          # Optional — route to specific agent
+  "service": "openfang",     # openfang | hermes | paperclip
+  "priority": 5,             # 1 (highest) to 10 (lowest)
+  "payload": { "url": "https://..." }
+}
+```
+
+Response includes the task ID and initial `queued` status.
+
+### List tasks
+
+```bash
+GET /tasks                       # All active tasks
+GET /tasks?status=running        # Filter by status
+GET /tasks?agent=scout           # Filter by agent
+GET /tasks?limit=20              # Limit results
+```
+
+### Update task state
+
+```bash
+PATCH /tasks/:id
+{
+  "status": "completed",
+  "result": "Found 3 competitors at $29-$99/mo",
+  "tokens_used": 4200,
+  "model": "mimo-v2-pro"         # Cost auto-calculated if omitted
+}
+```
+
+### Health check
+
+```bash
+GET /health/full
+# Returns: { ok, services: [{name, ok, status, latency_ms}], checked_at }
+```
+
+### Stats
+
+```bash
+GET /stats
+# Returns: { total_tasks, by_status, total_cost_usd, total_tokens, avg_cost_per_task_usd }
+```
+
+---
+
+## Integrating with agents
+
+### From Paperclip workflows
+
+Use the bridge endpoint to dispatch work and track it through the orchestration queue:
+
+```yaml
+steps:
+  - name: research
+    type: http
+    config:
+      url: http://dashboard:3500/api/bridge/agent-task
+      method: POST
+      body:
+        task: "Research pricing for {company}"
+        agentProfile: "research"
+```
+
+The bridge automatically creates an orchestration task, routes to an available agent, and returns the result.
+
+### From Hermes
+
+Hermes can create and monitor orchestration tasks via the dashboard API:
+
+```
+Create a task to have Scout research our top 5 competitors and track it.
+Check the status of all running tasks.
+What did last week's tasks cost?
+```
+
+### Programmatically
+
+```typescript
+// Create a task
+const task = await fetch("http://localhost:3500/api/orchestration", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    title: "Generate weekly digest",
+    agent: "scribe",
+    service: "openfang",
+  }),
+}).then(r => r.json());
+
+// Poll for completion
+const result = await fetch(`http://localhost:3500/api/orchestration/${task.id}`)
+  .then(r => r.json());
+```
+
+---
+
+## Cost tracking
+
+The orchestration server automatically calculates task cost when you report `tokens_used` in a PATCH update. Rates are per model:
+
+| Model | Rate |
+|-------|------|
+| `mimo-v2-pro` | $0.30 / 1M tokens |
+| default | $0.50 / 1M tokens |
+
+Override rates via environment variable:
+```bash
+# Coming soon: ORCHESTRATION_COST_RATES='{"my-model": 0.15}'
+```
+
+Stats are available at `/stats` and visible in the dashboard Orchestration page.
+
+---
+
+## Architecture
+
+```
+Dashboard (:3500)
+    │
+    └── /api/orchestration  →  Orchestration Server (:4400)
+                                    │
+                                    ├── GET  /tasks       — task queue (tasks.json)
+                                    ├── POST /tasks       — create task
+                                    ├── PATCH /tasks/:id  — update state + cost
+                                    └── GET  /health/full — aggregate health
+                                              │
+                                    ┌─────────┼─────────┐
+                                    ▼         ▼         ▼
+                                OpenClaw  OpenFang  Paperclip
+                                 :18789    :4200     :3100
+                                              │
+                                           Hermes
+                                           :4300
+```

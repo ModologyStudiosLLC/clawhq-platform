@@ -1539,8 +1539,8 @@
 <div id="stack">
   <section class="stack-intro">
     <p class="section-eyebrow reveal">The Stack</p>
-    <h2 class="section-h2 reveal reveal-delay-1">Four services.<br>Pre-wired. Just run it.</h2>
-    <p class="section-body reveal reveal-delay-2">We bundled, configured, and connected OpenClaw, OpenFang, Paperclip, and Hermes. The complex part is already done.</p>
+    <h2 class="section-h2 reveal reveal-delay-1">Six services.<br>Pre-wired. Just run it.</h2>
+    <p class="section-body reveal reveal-delay-2">We bundled, configured, and connected OpenClaw, OpenFang, Paperclip, Hermes, Mem0, and the Orchestration layer. The complex part is already done.</p>
   </section>
 
   <div class="stack-item reveal">
@@ -1669,6 +1669,78 @@
       </div>
     </div>
   </div>
+
+  <div class="stack-item reveal">
+    <div class="stack-item-inner">
+      <div>
+        <p class="stack-item-num">05 — Memory Layer</p>
+        <h3 class="stack-item-name">Mem0</h3>
+        <p class="stack-item-desc">Persistent cross-session memory backed by local vector search. Agents remember decisions, preferences, and context — automatically, without any prompt engineering.</p>
+        <span class="stack-badge">vector-memory · semantic-search · local</span>
+      </div>
+      <div class="stack-card-visual">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 30%, rgba(105,246,184,0.10) 0%, transparent 60%);pointer-events:none;"></div>
+        <div class="stack-visual-content">
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">Semantic Search</span>
+            <span class="stack-visual-badge">768-dim</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">Auto-curate</span>
+            <span class="stack-visual-badge">deduplicates</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">Local Qdrant</span>
+            <span class="stack-visual-badge">no cloud</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">Per-agent scope</span>
+            <span class="stack-visual-badge">isolated</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack-item reveal">
+    <div class="stack-item-inner">
+      <div>
+        <p class="stack-item-num">06 — Task Coordination</p>
+        <h3 class="stack-item-name">Orchestration</h3>
+        <p class="stack-item-desc">Lightweight task queue across all agents. Track every job from queued to completed, see what it cost, and monitor service health — in one dashboard.</p>
+        <span class="stack-badge">task-queue · cost-tracking · health</span>
+      </div>
+      <div class="stack-card-visual">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 60% 50%, rgba(105,218,255,0.08) 0%, transparent 60%);pointer-events:none;"></div>
+        <div class="stack-visual-content">
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--accent);animation:pulse 2s infinite;"></div>
+            <span class="stack-visual-label">research-task-4a2f</span>
+            <span class="stack-visual-badge">running</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">digest-task-9c1b</span>
+            <span class="stack-visual-badge">$0.0012</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--green);"></div>
+            <span class="stack-visual-label">review-task-3d8e</span>
+            <span class="stack-visual-badge">$0.0004</span>
+          </div>
+          <div class="stack-visual-row">
+            <div class="stack-visual-dot" style="background:var(--text-4);"></div>
+            <span class="stack-visual-label">outreach-task-7f0a</span>
+            <span class="stack-visual-badge">queued</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── WHY CLAWHQ (COMPARE) ──────────────────────────────── -->
@@ -1676,7 +1748,7 @@
   <div class="compare-header">
     <p class="section-eyebrow reveal">Why ClawHQ</p>
     <h2 class="section-h2 reveal reveal-delay-1">ClawHQ vs. building it yourself.</h2>
-    <p class="section-body reveal reveal-delay-2">The four projects exist. Wiring them together — that's the hard part. We did it.</p>
+    <p class="section-body reveal reveal-delay-2">The projects exist. Wiring them together — that's the hard part. We did it.</p>
   </div>
   <div class="compare-table reveal">
     <div class="compare-head">
