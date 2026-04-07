@@ -1,184 +1,59 @@
 ---
 title: Agent Packs
-description: Pre-built agent bundles for common workflows. Install in one click, customize with YAML.
+description: Pre-built agent bundles for common team use cases.
 ---
 
-Packs are pre-configured collections of agents, pipelines, and triggers. Instead of building from scratch, install a pack and your agents are ready to work.
+Packs are pre-configured collections of agents, pipelines, and triggers. Instead of building from scratch, install a pack and your agents are ready to go.
 
-## Featured packs
+## Available packs
 
-### Data Analyst
-**Free**
-
-Turn any CSV, JSON, spreadsheet, or database query into charts, tables, and statistical summaries — no code required. Works on any data source your agents can access.
-
-**What it does:**
-- Accepts raw data via file upload, paste, or tool output
-- Generates bar, line, scatter, histogram, and pie charts
-- Produces formatted tables with sorting and filtering
-- Computes statistical summaries (mean, median, std dev, outliers, correlation)
-- Outputs shareable reports to Slack, Discord, or Notion
-
-**Included agents:** Data Reader, Chart Generator, Stats Analyst, Report Writer
-
-```bash
-cp packs/data-analyst.yaml ~/.clawhq/packs/
-docker compose restart paperclip
-```
-
----
-
-### Executive Assistant
-**Pro**
-
-A full AI chief of staff. Manages your calendar, triages your inbox, coordinates travel, preps you for every meeting, and handles routine correspondence.
-
-**What it does:**
-
-| Task | Detail |
-|------|--------|
-| Calendar management | Schedule meetings, resolve conflicts, block focus time |
-| Email triage | Categorize by urgency, draft replies, flag action items |
-| Meeting prep | Pull briefings, past notes, and open action items before every call |
-| Travel coordination | Book flights, hotels, ground transport — full itinerary in Slack |
-| Stakeholder briefings | Research contacts before meetings: role, history, key interests |
-| Task prioritization | Morning briefing ranked by impact |
-| Expense tracking | Log from receipts, categorize, generate monthly report |
-
-**Required MCPs:** Google Calendar or Outlook, Gmail or Outlook Mail, Notion (optional)
-
-**Included agents:** Scheduler, Inbox Triage, Meeting Prep, Travel Coordinator, Briefing Writer
-
-```bash
-cp packs/executive-assistant.yaml ~/.clawhq/packs/
-docker compose restart paperclip
-```
-
----
-
-### Weekly Briefing
-**Free**
-
-Every Friday morning, synthesize everything across Slack, GitHub, Linear, and email into a crisp executive summary. Know what mattered, what is at risk, and what needs a decision — without reading 400 Slack messages.
-
-**What it does:**
-- Pulls activity from all connected channels
-- Identifies key decisions, blockers, and upcoming deadlines
-- Surfaces threads that went quiet and may need a nudge
-- Posts a structured digest to your chosen channel
-- Highlights anything that requires your attention this week
-
-**Schedule:** Runs every Friday at 8am by default. Configurable via cron.
-
-**Included agents:** Digest Collector, Priority Ranker, Briefing Writer
-
----
-
-### Competitor Intel
-**Pro**
-
-Monitors competitor websites, pricing pages, job postings, GitHub activity, and social channels. Weekly digest lands in Slack with diffs from the prior week.
-
-**What it does:**
-- Watches for pricing, feature, and messaging changes
-- Monitors job postings to infer product direction
-- Tracks GitHub repos for new releases and capability shifts
-- Aggregates social activity and press mentions
-- Delivers a structured weekly intel report
-
-**Configuration:** Add competitor names and URLs to `competitor-intel.yaml`.
-
-**Included agents:** Web Monitor, Job Board Watcher, GitHub Tracker, Intel Synthesizer
-
----
-
-### Content Engine
-**Free**
-
-Draft LinkedIn posts, tweets, newsletter sections, and blog outlines from your raw notes. Repurpose content across formats and maintain a consistent brand voice.
-
-**What it does:**
-- Drafts content from bullet points, voice notes, or rough text
-- Adapts tone per platform
-- Repurposes a single piece into 4 to 6 formats
-- Maintains a brand voice profile across all output
-
-**Included agents:** Content Drafter, Brand Voice Enforcer, Platform Adapter, Scheduler
-
----
-
-### Deal Room
-**Pro**
-
-Research prospects, draft personalized outreach sequences, prepare pre-call briefings, and log everything to your CRM — all triggered from a Slack message.
-
-**What it does:**
-- Researches prospect company: size, funding, recent news, key people
-- Drafts personalized cold email sequences
-- Generates pre-call briefings with talking points and likely objections
-- Logs notes and updates deal stages in your CRM after calls
-
-**Required MCPs:** LinkedIn (via Playwright), Salesforce or HubSpot, email
-
-**Included agents:** Prospect Researcher, Outreach Drafter, Call Prep, CRM Logger
-
----
-
-### Innovation Scout
-**Free**
-
-Discover automation opportunities by merging your team's internal pain signals with external trends. Delivers a ranked opportunity report weekly.
-
-**Included agents:** Pain Signal Collector, Trend Researcher, Opportunity Ranker
-
----
-
-### Weekly Pack Research
-**Internal / Free**
-
-Every Monday morning, Hermes scans Hacker News, GitHub trending, and Reddit to identify high-signal AI automation use cases. It synthesizes findings into a structured pack recommendation — including agents, required tools, and a Free vs Pro tier decision — and posts the summary to your team channel.
-
-Recommendations are stored in `$HERMES_HOME/pack_recommendations/<YYYY-WW>.md` for review.
-
-**What it produces:**
-- Problem statement with signal sources (HN threads, GitHub stars, Reddit posts)
-- Proposed pack: name, tagline, agent roster, required MCPs
-- Tier decision (Free vs Pro) with reasoning
-- Target user profile
-- Confidence level (High / Medium / Low)
-
-**Included agents:** Pack Researcher (Hermes + `pack_researcher` skill)
-
-**Required env vars:** `RESEARCH_DISCORD_CHANNEL_ID` or `RESEARCH_SLACK_CHANNEL`
-
-```bash
-cp packs/pack-research-weekly.yaml ~/.clawhq/packs/
-docker compose restart paperclip
-```
-
----
-
-## Team use case packs
+### Team use case packs
 
 | Pack | Agents | Best for |
 |------|--------|---------|
-| Engineering Team | PR Reviewer, Release Notes Writer, Bug Triage | Dev teams on GitHub |
+| [Engineering Team](/templates/code-review) | PR Reviewer, Release Notes Writer, Bug Triage | Dev teams on GitHub |
+| Sales Team | Lead Researcher, Outreach Drafter, CRM Note Taker | Sales and RevOps |
 | Customer Support | Ticket Classifier, KB Search, Reply Drafter | Support teams |
 | Ops & Leadership | Daily Briefing, Meeting Summarizer, Status Reporter | Founders, COOs |
 | Finance & Compliance | Invoice Processor, Expense Auditor, Board Report Generator | Finance teams |
 | HR & Recruiting | Candidate Sourcer, Onboarding Orchestrator, Benefits Q&A | HR teams |
 
+### Workforce augmentation packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| Reskilling Core | Skill Gap Analyst, Learning Path Designer, Augmentation Coach | Companies upskilling their teams |
+| Augmented Support | Ticket Triage, Response Drafter, Tutor | Support teams adopting AI |
+| Augmented Engineering | PR Reviewer, Coder, Architect, Tutor | Engineering with AI copilots |
+
+### Marketing packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| Full-Stack Marketer | page-cro, cold-email, email-sequence, copywriting, pricing-strategy, launch-strategy, paid-ads, ab-test-setup, revops, + 5 more | Marketing teams and growth leads who need every marketing lever in one pack |
+| Marketing Agency | Content Strategist, Copywriter, SEO Analyst, Social Scheduler, Client Reporter | Agencies managing client content workflows |
+
+### Creator packs
+
+| Pack | Agents | Best for |
+|------|--------|---------|
+| Creator Suite | Content Generator, Brand Voice, Trend Scout, SEO Optimizer, + 8 more | Newsletters, YouTube, media |
+
+### Trades library
+
+AI-powered skill building for real-world trades — welding, electrical, HVAC, plumbing, CNC, carpentry.
+
 ## Install a pack
 
 ```bash
 # Copy the pack YAML to your ClawHQ workspace
-cp packs/weekly-briefing.yaml ~/.clawhq/packs/
+cp packs/engineering-team.yaml ~/.clawhq/packs/
 
 # Restart Paperclip to load the new pack
 docker compose restart paperclip
 ```
 
-Or from the dashboard: **Packs -> Install**.
+Or from the dashboard: **Capabilities → Install Pack → Browse**.
 
 ## Build your own
 
