@@ -2,19 +2,12 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
+import { checkTrialKey, recordKeyUse } from "../trial-keys/route";
 
 const REGISTRY_URL = process.env.PACK_REGISTRY_URL ?? "https://packs.clawhqplatform.com";
 const PACKS_DIR = process.env.CLAWHQ_PACKS_DIR ?? path.join(os.homedir(), ".clawhq", "packs");
-// Local pack source for dev/trial installs (the clawhq-packs repo checkout)
-const LOCAL_PACKS_SRC = process.env.CLAWHQ_LOCAL_PACKS_SRC ?? path.join(os.homedir(), ".openclaw", "workspace", "clawhq-packs");
-
-// CLAWHQ_TRIAL_KEYS — comma-separated list of keys that bypass the registry
-// and install directly from the local pack source. Set in .env.local.
-// e.g. CLAWHQ_TRIAL_KEYS=TRIAL-ALPHA-2026,TRIAL-BETA-2026
-function getTrialKeys(): Set<string> {
-  const raw = process.env.CLAWHQ_TRIAL_KEYS ?? "";
-  return new Set(raw.split(",").map(k => k.trim().toUpperCase()).filter(Boolean));
-}
+const LOCAL_PACKS_SRC = process.env.CLAWHQ_LOCAL_PACKS_SRC
+  ?? path.join(os.homedir(), ".openclaw", "workspace", "clawhq-packs");
 
 export async function POST(request: Request) {
   const { key, packId } = await request.json() as { key?: string; packId?: string };
@@ -22,20 +15,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "key and packId required" }, { status: 400 });
   }
 
-  // Sanitize packId — alphanumeric + hyphens only
   if (!/^[a-z0-9-]+$/.test(packId)) {
     return NextResponse.json({ error: "invalid packId" }, { status: 400 });
   }
 
   const normalizedKey = key.trim().toUpperCase();
 
-  // Trial key path — serve directly from local pack source, no registry call
-  if (getTrialKeys().has(normalizedKey)) {
+  // Trial key path — check key store + env var
+  const trial = await checkTrialKey(normalizedKey);
+  if (trial.valid) {
+    const packAllowed = trial.packs.includes("*") || trial.packs.includes(packId);
+    if (!packAllowed) {
+      return NextResponse.json({ error: `Pack '${packId}' not included in this trial key` }, { status: 403 });
+    }
+
     const localPath = path.join(LOCAL_PACKS_SRC, `${packId}.yaml`);
     try {
       const yaml = await fs.readFile(localPath, "utf8");
       await fs.mkdir(PACKS_DIR, { recursive: true });
       await fs.writeFile(path.join(PACKS_DIR, `${packId}.yaml`), yaml, "utf8");
+      await recordKeyUse(normalizedKey);
       return NextResponse.json({ ok: true, filename: `${packId}.yaml`, trial: true });
     } catch {
       return NextResponse.json({ error: `Pack '${packId}' not found in trial catalog` }, { status: 404 });
