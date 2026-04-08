@@ -40,6 +40,7 @@ export type ResponseUsageMode = "on" | "off" | "tokens" | "full";
 export type SessionInfo = {
   thinkingLevel?: string;
   fastMode?: boolean;
+  explorationMode?: boolean;
   verboseLevel?: string;
   reasoningLevel?: string;
   model?: string;

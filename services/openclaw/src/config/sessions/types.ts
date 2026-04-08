@@ -118,6 +118,8 @@ export type SessionEntry = {
   chatType?: SessionChatType;
   thinkingLevel?: string;
   fastMode?: boolean;
+  /** When true, write and exec tools are filtered out. Read-only session. */
+  explorationMode?: boolean;
   verboseLevel?: string;
   reasoningLevel?: string;
   elevatedLevel?: string;

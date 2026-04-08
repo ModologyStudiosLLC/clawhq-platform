@@ -50,6 +50,7 @@ import {
   applyToolPolicyPipeline,
   buildDefaultToolPolicyPipelineSteps,
 } from "./tool-policy-pipeline.js";
+import { isLikelyMutatingToolName } from "./tool-mutation.js";
 import {
   applyOwnerOnlyToolPolicy,
   collectExplicitAllowlist,
@@ -265,6 +266,8 @@ export function createOpenClawCodingTools(options?: {
   requireExplicitMessageTarget?: boolean;
   /** If true, omit the message tool from the tool list. */
   disableMessageTool?: boolean;
+  /** If true, filter out all write and exec tools. Exploration (read-only) mode. */
+  explorationMode?: boolean;
   /** Whether the sender is an owner (required for owner-only tools). */
   senderIsOwner?: boolean;
   /** Callback invoked when sessions_yield tool is called. */
@@ -598,10 +601,14 @@ export function createOpenClawCodingTools(options?: {
       { policy: subagentPolicy, label: "subagent tools.allow" },
     ],
   });
+  // Exploration mode: strip all write/exec tools so the agent is read-only.
+  const explorationFiltered = options?.explorationMode
+    ? subagentFiltered.filter((tool) => !isLikelyMutatingToolName(tool.name))
+    : subagentFiltered;
   // Always normalize tool JSON Schemas before handing them to pi-agent/pi-ai.
   // Without this, some providers (notably OpenAI) will reject root-level union schemas.
   // Provider-specific cleaning: Gemini needs constraint keywords stripped, but Anthropic expects them.
-  const normalized = subagentFiltered.map((tool) =>
+  const normalized = explorationFiltered.map((tool) =>
     normalizeToolParameters(tool, {
       modelProvider: options?.modelProvider,
       modelId: options?.modelId,

@@ -84,6 +84,14 @@ export function getSlashCommands(options: SlashCommandOptions = {}): SlashComman
       getArgumentCompletions: fastCompletions,
     },
     {
+      name: "explore",
+      description: "Toggle exploration mode (read-only: write/exec tools removed)",
+      getArgumentCompletions: (prefix) =>
+        ["on", "off", "status"]
+          .filter((v) => v.startsWith(prefix.toLowerCase()))
+          .map((value) => ({ value, label: value })),
+    },
+    {
       name: "verbose",
       description: "Set verbose on/off",
       getArgumentCompletions: verboseCompletions,

@@ -566,6 +566,7 @@ export async function runPreparedReply(
         agentId,
         sessionEntry,
       }).enabled,
+      explorationMode: sessionEntry?.explorationMode === true,
       verboseLevel: resolvedVerboseLevel,
       reasoningLevel: resolvedReasoningLevel,
       elevatedLevel: resolvedElevatedLevel,

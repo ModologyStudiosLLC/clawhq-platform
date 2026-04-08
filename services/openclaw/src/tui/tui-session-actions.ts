@@ -296,11 +296,13 @@ export function createSessionActions(context: SessionActionContext) {
         sessionId?: string;
         thinkingLevel?: string;
         fastMode?: boolean;
+        explorationMode?: boolean;
         verboseLevel?: string;
       };
       state.currentSessionId = typeof record.sessionId === "string" ? record.sessionId : null;
       state.sessionInfo.thinkingLevel = record.thinkingLevel ?? state.sessionInfo.thinkingLevel;
       state.sessionInfo.fastMode = record.fastMode ?? state.sessionInfo.fastMode;
+      state.sessionInfo.explorationMode = record.explorationMode ?? state.sessionInfo.explorationMode;
       state.sessionInfo.verboseLevel = record.verboseLevel ?? state.sessionInfo.verboseLevel;
       const showTools = (state.sessionInfo.verboseLevel ?? "off") !== "off";
       chatLog.clearAll();

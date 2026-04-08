@@ -374,6 +374,33 @@ export function createCommandHandlers(context: CommandHandlerContext) {
           chatLog.addSystem(`fast failed: ${String(err)}`);
         }
         break;
+      case "explore":
+        if (!args || args === "status") {
+          chatLog.addSystem(
+            `exploration mode: ${state.sessionInfo.explorationMode ? "on (read-only)" : "off (execution)"}`,
+          );
+          break;
+        }
+        if (args !== "on" && args !== "off") {
+          chatLog.addSystem("usage: /explore <status|on|off>");
+          break;
+        }
+        try {
+          const result = await client.patchSession({
+            key: state.currentSessionKey,
+            explorationMode: args === "on",
+          });
+          chatLog.addSystem(
+            args === "on"
+              ? "exploration mode on — write/exec tools removed"
+              : "execution mode on — all tools restored",
+          );
+          applySessionInfoFromPatch(result);
+          await refreshSessionInfo();
+        } catch (err) {
+          chatLog.addSystem(`explore failed: ${String(err)}`);
+        }
+        break;
       case "reasoning":
         if (!args) {
           chatLog.addSystem("usage: /reasoning <on|off>");

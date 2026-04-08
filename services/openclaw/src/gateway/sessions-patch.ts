@@ -259,6 +259,17 @@ export async function applySessionsPatchToStore(params: {
     }
   }
 
+  if ("explorationMode" in patch) {
+    const raw = patch.explorationMode;
+    if (raw === null) {
+      delete next.explorationMode;
+    } else if (typeof raw === "boolean") {
+      next.explorationMode = raw;
+    } else if (raw !== undefined) {
+      return invalid("invalid explorationMode (use true or false)");
+    }
+  }
+
   if ("verboseLevel" in patch) {
     const raw = patch.verboseLevel;
     const parsed = parseVerboseOverride(raw);

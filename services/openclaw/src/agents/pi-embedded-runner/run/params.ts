@@ -84,6 +84,8 @@ export type RunEmbeddedPiAgentParams = {
   authProfileIdSource?: "auto" | "user";
   thinkLevel?: ThinkLevel;
   fastMode?: boolean;
+  /** If true, write/exec tools are removed for this run. */
+  explorationMode?: boolean;
   verboseLevel?: VerboseLevel;
   reasoningLevel?: ReasoningLevel;
   toolResultFormat?: ToolResultFormat;
