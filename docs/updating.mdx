@@ -1,0 +1,69 @@
+---
+title: Updating ClawHQ
+description: How to pull the latest changes and redeploy.
+---
+
+ClawHQ checks for updates automatically — the bell icon in the dashboard header shows a badge when your running instance is behind the `main` branch.
+
+## Checking your version
+
+Click the **bell icon** in the top-right corner of the dashboard to see:
+
+- Your current deployed commit SHA
+- The latest commit on `main`
+- How many commits behind you are
+- A list of recent changes
+
+The version check calls the GitHub API and caches the result for 5 minutes, so it adds no meaningful latency to your dashboard.
+
+## How to update
+
+### Railway / Render / DigitalOcean
+
+If you deployed via the one-click buttons on the [Deploy](/deploy/railway) page, redeploy from your hosting provider's dashboard to pull the latest image.
+
+For Railway:
+1. Open your Railway project
+2. Select the **dashboard** service
+3. Click **Redeploy**
+
+### Docker Compose (self-hosted)
+
+```bash
+# Pull latest and rebuild
+git pull origin main
+docker compose build --build-arg CLAWHQ_GIT_SHA=$(git rev-parse HEAD) dashboard
+docker compose up -d dashboard
+```
+
+The `CLAWHQ_GIT_SHA` build argument is what the update checker uses to compare against `main`. Always pass it at build time so the dashboard shows your exact version.
+
+### Dev
+
+```bash
+git pull origin main
+npm install
+npm run dev
+```
+
+In dev mode the SHA is reported as `dev` — the update checker will show the latest commit on main but won't compute "commits behind" accurately.
+
+## Pinning to a specific version
+
+To pin to a specific commit instead of always tracking `main`:
+
+```bash
+git checkout <sha>
+docker compose build --build-arg CLAWHQ_GIT_SHA=<sha> dashboard
+docker compose up -d dashboard
+```
+
+## Data migrations
+
+ClawHQ persists state in JSON files under `/data/`. These files are forward-compatible — updates do not require manual migration unless noted in the commit message.
+
+Always back up your data volumes before a major update:
+
+```bash
+docker cp clawhq-dashboard-1:/data ./data-backup-$(date +%Y%m%d)
+```

@@ -1,0 +1,42 @@
+---
+title: Alerts & Notifications
+description: Get notified when agents go offline or spending thresholds are hit.
+---
+
+ClawHQ can send alerts to Slack when your agents go offline or when AI spending approaches your budget limit.
+
+## Setting up Slack notifications
+
+1. Create an [Incoming Webhook](https://api.slack.com/messaging/webhooks) in your Slack workspace
+2. Go to **Settings → Notifications** in the dashboard
+3. Paste the webhook URL and click **Test** to verify delivery
+4. Enable the alert types you want
+
+## Budget alerts
+
+When enabled, ClawHQ checks your current spending against the threshold set in **Settings → Budget**. If spending reaches or exceeds that percentage of your monthly budget, a Slack message is sent:
+
+> *ClawHQ Budget Alert* — spending has reached 85% of monthly budget ($17.00 / $20.00, threshold: 80%).
+
+Budget alerts are checked whenever settings are saved. For continuous monitoring, configure your deployment to poll `/api/settings` on a schedule, or trigger checks from a cron job.
+
+## Health alerts
+
+When enabled, ClawHQ sends a Slack alert when a required service (OpenClaw, Paperclip, OpenFang) has consecutive health check failures.
+
+**Failure threshold** — default is 3 consecutive failures. Set this to 1 for immediate alerts, or higher (5–10) to reduce noise for flaky connections.
+
+**Cooldown** — after alerting, ClawHQ waits 30 minutes before alerting again for the same service. This prevents alert floods during extended outages.
+
+## Configuration
+
+| Setting | Description |
+|---------|-------------|
+| Slack webhook URL | Incoming webhook from your Slack app |
+| Budget alert | Notify when spend hits threshold % |
+| Health alert | Notify when a required service goes offline |
+| Failure threshold | Consecutive failures before alerting (1–10) |
+
+## Notification payload
+
+Alerts are sent as plain Slack messages. No attachments or Block Kit — just a text string that works in any Slack channel configuration.

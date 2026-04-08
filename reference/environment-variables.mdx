@@ -41,7 +41,31 @@ Copy `.env.example` to `.env` and fill in the required values. The `install.sh` 
 | Variable | Description |
 |----------|-------------|
 | `BRAVE_SEARCH_API_KEY` | Brave Search API key for web search MCP |
-| `GITHUB_TOKEN` | GitHub personal access token for GitHub MCP |
+| `GITHUB_TOKEN` | GitHub personal access token for GitHub MCP and the update checker |
+
+## Dashboard build args
+
+These are Docker build arguments, not runtime env vars. Pass with `--build-arg`.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAWHQ_GIT_SHA` | `dev` | Git commit SHA baked in at build time — used by the update checker to show how many commits behind main you are |
+
+Example:
+```bash
+docker compose build \
+  --build-arg CLAWHQ_GIT_SHA=$(git rev-parse HEAD) \
+  dashboard
+```
+
+## Dashboard data file overrides
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CLAWHQ_SETTINGS_FILE` | `/data/settings.json` | Settings persistence path |
+| `CLAWHQ_AUDIT_FILE` | `/data/audit-log.json` | Audit log path |
+| `CLAWHQ_KEYS_FILE` | `/data/api-keys.json` | API key storage path |
+| `CLAWHQ_ANALYTICS_FILE` | `/data/analytics.json` | Usage analytics snapshot path |
 
 ## Model Router
 
