@@ -1,0 +1,46 @@
+---
+title: API Key Management
+description: Generate and revoke API keys for embedding ClawHQ in your applications.
+---
+
+API keys let external services authenticate with your ClawHQ instance — useful for embedding agent functionality into your own products or automating workflows from CI/CD pipelines.
+
+## Generating a key
+
+1. Go to **Settings → API Keys**
+2. Enter a descriptive name (e.g. "Production App", "GitHub Actions")
+3. Click **Create**
+4. Copy the key — it is shown **only once** and cannot be retrieved again
+
+Keys have the format `chq_` followed by a random hex string. Only the first 12 characters (the prefix) are stored and displayed after creation.
+
+## Using a key
+
+Include the key in the `Authorization` header of your requests:
+
+```bash
+curl -H "Authorization: Bearer chq_your_key_here" \
+  https://your-clawhq-domain/api/agents
+```
+
+## Revoking a key
+
+From **Settings → API Keys**, click **Revoke** next to any active key. Revoked keys cannot be un-revoked — generate a new key if access needs to be restored.
+
+Revoked keys remain visible in a collapsed list for audit purposes.
+
+## Security notes
+
+- Keys are stored as SHA-256 hashes — the plaintext is never persisted
+- Treat keys like passwords: don't commit them to source control
+- Use one key per integration so individual keys can be revoked without affecting others
+- Keys are stored at `/data/api-keys.json` (Docker) — back this up with your other data volumes
+
+## Storage location
+
+| Environment | Path |
+|-------------|------|
+| Docker (production) | `/data/api-keys.json` |
+| Dev | `.api-keys.dev.json` in project root |
+
+Override with the `CLAWHQ_KEYS_FILE` environment variable.

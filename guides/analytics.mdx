@@ -1,0 +1,44 @@
+---
+title: Usage Analytics
+description: Track token spend and AI costs per agent over time.
+---
+
+The Analytics dashboard gives you a historical view of token consumption and estimated cost across all your agents — so you can see trends, identify top spenders, and plan capacity.
+
+## Accessing analytics
+
+Go to **Dashboard → Analytics** in the sidebar.
+
+## Taking a snapshot
+
+Token data is accumulated in snapshots. On the Analytics page, click **Snapshot now** to record the current token state from OpenFang metrics.
+
+For automatic tracking over time, snapshots should be triggered periodically. You can call the snapshot endpoint from a cron job or CI pipeline:
+
+```bash
+curl -X POST https://your-clawhq-domain/api/analytics
+```
+
+Each snapshot is stored in `/data/analytics.json` (Docker) or `.analytics.dev.json` (dev). Up to 720 snapshots are retained (30 days at hourly cadence).
+
+## Time ranges
+
+Use the **24h / 7d / 30d** selector to filter the time window. All KPIs and charts update to reflect only the selected range.
+
+## What's shown
+
+| Metric | Description |
+|--------|-------------|
+| Tokens used | Total tokens consumed across all agents in the window |
+| Estimated cost | Blended cost estimate at $0.30/1M tokens |
+| Daily average | Average daily token consumption |
+
+The per-agent breakdown shows each agent's contribution as a bar chart and sortable table with tokens and estimated cost.
+
+## Customizing cost rates
+
+The default blended rate ($0.30/1M tokens) is a conservative estimate. Actual cost depends on your model mix — see [Budget & Cost Controls](/guides/budget) for provider-level cap configuration.
+
+## Data storage
+
+Analytics snapshots are stored as JSON, not in a database. For long-term retention beyond 30 days, back up `/data/analytics.json` to external storage (S3, R2, etc.).

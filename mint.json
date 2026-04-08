@@ -72,13 +72,11 @@
         "guides/packs",
         "guides/model-router",
         "guides/integrations",
-        "guides/budget"
-      ]
-    },
-    {
-      "group": "Security",
-      "pages": [
-        "guides/sentinel"
+        "guides/budget",
+        "guides/analytics",
+        "guides/notifications",
+        "guides/api-keys",
+        "guides/audit-log"
       ]
     },
     {
@@ -115,6 +113,7 @@
       "group": "Help",
       "pages": [
         "troubleshooting",
+        "docs/updating",
         "faq"
       ]
     }

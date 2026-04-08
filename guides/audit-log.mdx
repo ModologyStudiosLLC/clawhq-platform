@@ -1,0 +1,52 @@
+---
+title: Audit Log
+description: Immutable log of configuration changes for compliance and debugging.
+---
+
+ClawHQ maintains an append-only audit log of configuration changes. Every time settings are updated, the change is recorded with a timestamp, the keys that changed, and the actor.
+
+## Accessing the audit log
+
+The audit log is available via the API:
+
+```bash
+# Last 200 entries (default)
+GET /api/audit
+
+# Up to 500 entries
+GET /api/audit?limit=500
+```
+
+Each entry has this shape:
+
+```json
+{
+  "id": "1714000000000-abc123",
+  "ts": 1714000000000,
+  "actor": "system",
+  "action": "settings.updated",
+  "detail": "Updated: monthlyBudgetCents, budgetAlertPercent",
+  "diff": {}
+}
+```
+
+## Actions logged
+
+| Action | Triggered by |
+|--------|-------------|
+| `settings.updated` | Any PATCH to `/api/settings` |
+| `key.created` | Generating a new API key |
+| `key.revoked` | Revoking an API key |
+
+Additional actions can be logged server-side by calling `logAudit()` from any API route:
+
+```ts
+import { logAudit } from "@/app/api/audit/route.js";
+await logAudit("custom.action", "detail string", { optionalDiff: true });
+```
+
+## Storage
+
+The audit log is stored at `/data/audit-log.json` (Docker) or `.audit-log.dev.json` (dev). The log is capped at 1,000 entries — oldest entries are dropped when the limit is reached.
+
+For compliance use cases requiring longer retention, export the log periodically and archive it externally.

@@ -21,6 +21,8 @@ import {
   Shield,
   KeyRound,
   Package,
+  Zap,
+  BarChart2,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -44,7 +46,9 @@ const nav = [
   { href: "/orchestration", label: "Orchestration", icon: GitMerge },
   { href: "/health", label: "Health", icon: HeartPulse },
   { href: "/tunnels", label: "Tunnels", icon: Network },
+  { href: "/routing", label: "Routing", icon: Zap },
   { href: "/budget", label: "Budget", icon: Wallet },
+  { href: "/analytics", label: "Analytics", icon: BarChart2 },
 ];
 
 const bottom = [

@@ -1707,6 +1707,310 @@ function PacksTab() {
   );
 }
 
+// ── Tab: Notifications ─────────────────────────────────────────────────────────
+
+interface NotificationSettings {
+  slackWebhookUrl: string;
+  emailTo: string;
+  budgetAlertEnabled: boolean;
+  healthAlertEnabled: boolean;
+  healthFailureThreshold: number;
+}
+
+function NotificationsTab({
+  settings,
+  onChange,
+}: {
+  settings: Settings;
+  onChange: (patch: Partial<Settings>) => void;
+}) {
+  const notif: NotificationSettings = {
+    slackWebhookUrl: "",
+    emailTo: "",
+    budgetAlertEnabled: true,
+    healthAlertEnabled: true,
+    healthFailureThreshold: 3,
+    ...((settings as unknown as Record<string, unknown>).notifications as Partial<NotificationSettings> ?? {}),
+  };
+
+  function patchNotif(p: Partial<NotificationSettings>) {
+    onChange({ notifications: { ...notif, ...p } } as Partial<Settings>);
+  }
+
+  const [testStatus, setTestStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
+
+  async function sendTest() {
+    if (!notif.slackWebhookUrl) return;
+    setTestStatus("sending");
+    try {
+      const res = await fetch(notif.slackWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "*ClawHQ* — test notification. Alerts are working." }),
+      });
+      setTestStatus(res.ok ? "ok" : "error");
+    } catch {
+      setTestStatus("error");
+    }
+    setTimeout(() => setTestStatus("idle"), 3000);
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Slack */}
+      <div className="card p-4 space-y-4">
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Slack webhook</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+            Incoming webhook URL from your Slack app configuration.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            placeholder="https://hooks.slack.com/services/..."
+            value={notif.slackWebhookUrl}
+            onChange={e => patchNotif({ slackWebhookUrl: e.target.value })}
+            className="flex-1 px-3 py-2 rounded-lg text-xs border"
+            style={{ background: "var(--color-surface-2)", borderColor: "var(--color-border)", color: "var(--color-text)" }}
+          />
+          <button
+            onClick={sendTest}
+            disabled={!notif.slackWebhookUrl || testStatus === "sending"}
+            className="px-3 py-2 rounded-lg text-xs font-medium transition-all"
+            style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)" }}
+          >
+            {testStatus === "sending" ? "Sending…" : testStatus === "ok" ? "Sent!" : testStatus === "error" ? "Failed" : "Test"}
+          </button>
+        </div>
+      </div>
+
+      {/* Alert toggles */}
+      <div className="card p-4 space-y-4">
+        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>Alert rules</p>
+
+        {[
+          {
+            key: "budgetAlertEnabled" as const,
+            label: "Budget threshold alert",
+            desc: `Notify when spend reaches the % threshold set in the Budget tab (currently ${(settings as unknown as { budgetAlertPercent?: number }).budgetAlertPercent ?? 80}%).`,
+          },
+          {
+            key: "healthAlertEnabled" as const,
+            label: "Agent health alert",
+            desc: "Notify when a required service has consecutive failures.",
+          },
+        ].map(({ key, label, desc }) => (
+          <div key={key} className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{label}</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{desc}</p>
+            </div>
+            <button
+              onClick={() => patchNotif({ [key]: !notif[key] })}
+              className="w-10 h-5 rounded-full flex-shrink-0 transition-colors relative mt-0.5"
+              style={{ background: notif[key] ? "var(--color-primary)" : "var(--color-surface-2)" }}
+            >
+              <span
+                className="absolute top-0.5 w-4 h-4 rounded-full transition-transform"
+                style={{ background: "#fff", transform: notif[key] ? "translateX(22px)" : "translateX(2px)" }}
+              />
+            </button>
+          </div>
+        ))}
+
+        {notif.healthAlertEnabled && (
+          <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "var(--color-border)" }}>
+            <div>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>Failure threshold</p>
+              <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Number of consecutive failures before alerting</p>
+            </div>
+            <select
+              value={notif.healthFailureThreshold}
+              onChange={e => patchNotif({ healthFailureThreshold: parseInt(e.target.value) })}
+              className="px-2 py-1 rounded-lg text-xs border"
+              style={{ background: "var(--color-surface-2)", borderColor: "var(--color-border)", color: "var(--color-text)" }}
+            >
+              {[1, 2, 3, 5, 10].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Tab: API Keys ───────────────────────────────────────────────────────────────
+
+interface ApiKeyRecord {
+  id: string;
+  name: string;
+  prefix: string;
+  createdAt: number;
+  lastUsedAt?: number;
+  revokedAt?: number;
+}
+
+function ApiKeysTab() {
+  const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [revealedKey, setRevealedKey] = useState<{ id: string; key: string } | null>(null);
+  const [revoking, setRevoking] = useState<string | null>(null);
+
+  function load() {
+    fetch("/api/keys")
+      .then(r => r.json())
+      .then(d => { setKeys(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function createKey() {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      const res = await fetch("/api/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName.trim() }),
+      });
+      const data = await res.json();
+      setRevealedKey({ id: data.id, key: data.key });
+      setNewName("");
+      load();
+    } catch { /* graceful */ }
+    finally { setCreating(false); }
+  }
+
+  async function revokeKey(id: string) {
+    setRevoking(id);
+    await fetch(`/api/keys/${id}`, { method: "DELETE" }).catch(() => null);
+    setRevoking(null);
+    load();
+  }
+
+  const activeKeys = keys.filter(k => !k.revokedAt);
+  const revokedKeys = keys.filter(k => k.revokedAt);
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>API Keys</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+          Use these keys to authenticate external services that call ClawHQ APIs.
+        </p>
+      </div>
+
+      {/* Create new key */}
+      <div className="card p-4 space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>
+          New key
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Key name (e.g. Production App)"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") createKey(); }}
+            className="flex-1 px-3 py-2 rounded-lg text-xs border"
+            style={{ background: "var(--color-surface-2)", borderColor: "var(--color-border)", color: "var(--color-text)" }}
+          />
+          <button
+            onClick={createKey}
+            disabled={!newName.trim() || creating}
+            className="px-4 py-2 rounded-lg text-xs font-medium transition-all"
+            style={{ background: "var(--color-primary)", color: "#fff", opacity: !newName.trim() || creating ? 0.5 : 1 }}
+          >
+            {creating ? "Creating…" : "Create"}
+          </button>
+        </div>
+
+        {/* Reveal banner */}
+        {revealedKey && (
+          <div className="p-3 rounded-lg border" style={{ background: "color-mix(in srgb, var(--color-secondary) 8%, transparent)", borderColor: "var(--color-secondary)" }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: "var(--color-secondary)" }}>
+              Copy this key — it will not be shown again
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs font-mono break-all" style={{ color: "var(--color-text)" }}>{revealedKey.key}</code>
+              <button
+                onClick={() => { navigator.clipboard.writeText(revealedKey.key); }}
+                className="text-xs px-2 py-1 rounded flex-shrink-0"
+                style={{ background: "var(--color-surface-2)", color: "var(--color-text-muted)" }}
+              >
+                Copy
+              </button>
+              <button
+                onClick={() => setRevealedKey(null)}
+                className="text-xs px-2 py-1 rounded flex-shrink-0"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Active keys */}
+      {loading ? (
+        <div className="space-y-2">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="h-12 rounded-xl animate-pulse" style={{ background: "var(--color-surface)" }} />
+          ))}
+        </div>
+      ) : activeKeys.length === 0 ? (
+        <div className="card p-6 text-center">
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No active API keys</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {activeKeys.map(k => (
+            <div key={k.id} className="card p-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{k.name}</p>
+                <p className="text-xs font-mono mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                  {k.prefix}••••••••
+                  <span className="ml-2 font-sans">Created {new Date(k.createdAt).toLocaleDateString()}</span>
+                  {k.lastUsedAt && <span className="ml-2">· Last used {new Date(k.lastUsedAt).toLocaleDateString()}</span>}
+                </p>
+              </div>
+              <button
+                onClick={() => revokeKey(k.id)}
+                disabled={revoking === k.id}
+                className="text-xs px-3 py-1.5 rounded-lg flex-shrink-0 transition-all"
+                style={{ background: "color-mix(in srgb, var(--color-error) 10%, transparent)", color: "var(--color-error)" }}
+              >
+                {revoking === k.id ? "Revoking…" : "Revoke"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Revoked keys */}
+      {revokedKeys.length > 0 && (
+        <details className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+          <summary className="cursor-pointer hover:underline">{revokedKeys.length} revoked key{revokedKeys.length > 1 ? "s" : ""}</summary>
+          <div className="mt-2 space-y-1">
+            {revokedKeys.map(k => (
+              <div key={k.id} className="flex items-center gap-2 px-3 py-2 rounded-lg opacity-50" style={{ background: "var(--color-surface)" }}>
+                <span className="font-medium">{k.name}</span>
+                <span className="font-mono">{k.prefix}••••••••</span>
+                <span className="ml-auto">Revoked {new Date(k.revokedAt!).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
 // ── Main panel ─────────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -1717,6 +2021,8 @@ const TABS = [
   { id: "integrations", label: "Integrations", icon: Plug },
   { id: "router", label: "Model Router", icon: Sparkles },
   { id: "packs", label: "Packs", icon: Package },
+  { id: "notifications", label: "Notifications", icon: AlertTriangle },
+  { id: "keys", label: "API Keys", icon: KeyRound },
 ];
 
 export function SettingsPanel() {
@@ -1820,9 +2126,11 @@ export function SettingsPanel() {
         {activeTab === "integrations" && <IntegrationsTab />}
         {activeTab === "router" && <ModelRouterTab settings={settings} onChange={patch} />}
         {activeTab === "packs" && <PacksTab />}
+        {activeTab === "notifications" && <NotificationsTab settings={settings} onChange={patch} />}
+        {activeTab === "keys" && <ApiKeysTab />}
 
-        {/* NL input (not shown on channels/integrations/router/packs tabs since they don't affect general settings) */}
-        {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && (
+        {/* NL input (not shown on channels/integrations/router/packs/notifications/keys tabs) */}
+        {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && activeTab !== "keys" && (
           <div className="mt-6">
             <NaturalLanguageInput currentSettings={settings} onPropose={setProposal} />
           </div>
