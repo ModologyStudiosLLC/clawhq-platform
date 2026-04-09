@@ -754,6 +754,7 @@ pub async fn run_agent_loop(
                     // Timeout-wrapped execution
                     let timeout = tool_timeout_for(&tool_call.name);
                     let timeout_secs = timeout.as_secs();
+                    let tool_start = std::time::Instant::now();
                     let result = match tokio::time::timeout(
                         timeout,
                         tool_runner::execute_tool(
@@ -809,6 +810,16 @@ pub async fn run_agent_loop(
                             }),
                         };
                         let _ = hook_reg.fire(&ctx);
+                    }
+
+                    // Record per-tool execution stats
+                    if let Some(kh) = kernel.as_ref() {
+                        kh.record_tool_execution(
+                            &caller_id_str,
+                            &tool_call.name,
+                            !result.is_error,
+                            tool_start.elapsed().as_millis() as u64,
+                        );
                     }
 
                     // Dynamic truncation based on context budget (replaces flat MAX_TOOL_RESULT_CHARS)
@@ -1907,6 +1918,7 @@ pub async fn run_agent_loop_streaming(
                     // Timeout-wrapped execution
                     let timeout = tool_timeout_for(&tool_call.name);
                     let timeout_secs = timeout.as_secs();
+                    let tool_start = std::time::Instant::now();
                     let result = match tokio::time::timeout(
                         timeout,
                         tool_runner::execute_tool(
@@ -1962,6 +1974,16 @@ pub async fn run_agent_loop_streaming(
                             }),
                         };
                         let _ = hook_reg.fire(&ctx);
+                    }
+
+                    // Record per-tool execution stats
+                    if let Some(kh) = kernel.as_ref() {
+                        kh.record_tool_execution(
+                            &caller_id_str,
+                            &tool_call.name,
+                            !result.is_error,
+                            tool_start.elapsed().as_millis() as u64,
+                        );
                     }
 
                     // Dynamic truncation based on context budget (replaces flat MAX_TOOL_RESULT_CHARS)

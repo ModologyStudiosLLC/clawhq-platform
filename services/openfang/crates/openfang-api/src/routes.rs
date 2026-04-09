@@ -419,17 +419,52 @@ pub async fn send_message(
             )
         }
         Err(e) => {
-            tracing::warn!("send_message failed for agent {id}: {e}");
-            let status = if format!("{e}").contains("Agent not found") {
+            let err_str = format!("{e}");
+            tracing::warn!("send_message failed for agent {id}: {err_str}");
+
+            // Escalation: notify via Slack/Discord webhook on terminal failures.
+            // Terminal = all fallbacks exhausted (LlmDriver error) or max iterations exceeded.
+            let is_terminal = err_str.contains("max_iterations")
+                || err_str.contains("MaxIterations")
+                || err_str.contains("LlmDriver")
+                || err_str.contains("fallback");
+            if is_terminal {
+                let agent_name = state
+                    .kernel
+                    .registry
+                    .get(agent_id)
+                    .map(|e| e.name.clone())
+                    .unwrap_or_else(|| id.clone());
+                // Fire-and-forget webhook — don't block the HTTP response
+                let slack_url = std::env::var("CLAWHQ_SLACK_WEBHOOK").ok();
+                let discord_url = std::env::var("CLAWHQ_DISCORD_WEBHOOK").ok();
+                let payload_slack = serde_json::json!({
+                    "text": format!(":red_circle: *Agent failure* — `{agent_name}` (`{id}`)\n```{err_str}```")
+                });
+                let payload_discord = serde_json::json!({
+                    "content": format!("**Agent failure** — `{agent_name}` (`{id}`)\n```{err_str}```")
+                });
+                tokio::spawn(async move {
+                    let client = reqwest::Client::new();
+                    if let Some(url) = slack_url {
+                        let _ = client.post(&url).json(&payload_slack).send().await;
+                    }
+                    if let Some(url) = discord_url {
+                        let _ = client.post(&url).json(&payload_discord).send().await;
+                    }
+                });
+            }
+
+            let status = if err_str.contains("Agent not found") {
                 StatusCode::NOT_FOUND
-            } else if format!("{e}").contains("quota") || format!("{e}").contains("Quota") {
+            } else if err_str.contains("quota") || err_str.contains("Quota") {
                 StatusCode::TOO_MANY_REQUESTS
             } else {
                 StatusCode::INTERNAL_SERVER_ERROR
             };
             (
                 status,
-                Json(serde_json::json!({"error": format!("Message delivery failed: {e}")})),
+                Json(serde_json::json!({"error": format!("Message delivery failed: {err_str}")})),
             )
         }
     }
@@ -3395,6 +3430,20 @@ pub async fn health_detail(State(state): State<Arc<AppState>>) -> impl IntoRespo
 /// Returns counters and gauges for monitoring OpenFang in production:
 /// - `openfang_agents_active` — number of active agents
 /// - `openfang_uptime_seconds` — seconds since daemon started
+/// GET /api/tool-stats — Per-tool success/error rates for the last 24 hours.
+///
+/// Returns an array sorted by error_count desc (worst tools first).
+pub async fn tool_stats(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let store = openfang_memory::usage::UsageStore::new(state.kernel.memory.usage_conn());
+    match store.query_tool_stats(24) {
+        Ok(stats) => (StatusCode::OK, Json(serde_json::json!(stats))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": format!("Failed to query tool stats: {e}")})),
+        ),
+    }
+}
+
 /// - `openfang_tokens_total` — total tokens consumed (per agent)
 /// - `openfang_tool_calls_total` — total tool calls (per agent)
 /// - `openfang_panics_total` — supervisor panic count

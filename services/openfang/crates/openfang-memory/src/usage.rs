@@ -7,6 +7,27 @@ use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 
+/// A single tool execution event for per-tool success/error tracking.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolExecutionRecord {
+    pub agent_id: AgentId,
+    pub tool_name: String,
+    pub success: bool,
+    pub duration_ms: u64,
+}
+
+/// Aggregated stats for a single tool over a time window.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolStats {
+    pub tool_name: String,
+    pub total_calls: u64,
+    pub success_count: u64,
+    pub error_count: u64,
+    pub success_rate: f64,
+    pub avg_duration_ms: f64,
+    pub last_seen: String,
+}
+
 /// A single usage event recording an LLM call.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsageRecord {
@@ -331,6 +352,83 @@ impl UsageStore {
             )
             .map_err(|e| OpenFangError::Memory(e.to_string()))?;
         Ok(cost)
+    }
+
+    /// Record a single tool execution event.
+    pub fn record_tool_execution(&self, record: &ToolExecutionRecord) -> OpenFangResult<()> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| OpenFangError::Internal(e.to_string()))?;
+        let id = uuid::Uuid::new_v4().to_string();
+        let now = Utc::now().to_rfc3339();
+        conn.execute(
+            "INSERT INTO tool_executions (id, agent_id, tool_name, success, duration_ms, timestamp)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            rusqlite::params![
+                id,
+                record.agent_id.0.to_string(),
+                record.tool_name,
+                record.success as i64,
+                record.duration_ms as i64,
+                now,
+            ],
+        )
+        .map_err(|e| OpenFangError::Memory(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Query aggregated per-tool stats over the last `since_hours` hours.
+    /// Returns stats sorted by error_count descending (worst tools first).
+    pub fn query_tool_stats(&self, since_hours: u32) -> OpenFangResult<Vec<ToolStats>> {
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| OpenFangError::Internal(e.to_string()))?;
+        let mut stmt = conn
+            .prepare(&format!(
+                "SELECT
+                    tool_name,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as successes,
+                    SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as errors,
+                    AVG(duration_ms) as avg_dur,
+                    MAX(timestamp) as last_seen
+                 FROM tool_executions
+                 WHERE timestamp > datetime('now', '-{since_hours} hours')
+                 GROUP BY tool_name
+                 ORDER BY errors DESC, total DESC"
+            ))
+            .map_err(|e| OpenFangError::Memory(e.to_string()))?;
+
+        let rows = stmt
+            .query_map([], |row| {
+                let total: i64 = row.get(1)?;
+                let successes: i64 = row.get(2)?;
+                let errors: i64 = row.get(3)?;
+                let avg_dur: f64 = row.get(4).unwrap_or(0.0);
+                let success_rate = if total > 0 {
+                    successes as f64 / total as f64
+                } else {
+                    1.0
+                };
+                Ok(ToolStats {
+                    tool_name: row.get(0)?,
+                    total_calls: total as u64,
+                    success_count: successes as u64,
+                    error_count: errors as u64,
+                    success_rate,
+                    avg_duration_ms: avg_dur,
+                    last_seen: row.get(5).unwrap_or_default(),
+                })
+            })
+            .map_err(|e| OpenFangError::Memory(e.to_string()))?;
+
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row.map_err(|e| OpenFangError::Memory(e.to_string()))?);
+        }
+        Ok(results)
     }
 
     /// Delete usage events older than the given number of days.

@@ -52,6 +52,10 @@ pub trait KernelHandle: Send + Sync {
     /// Find agents by query (matches on name substring, tag, or tool name; case-insensitive).
     fn find_agents(&self, query: &str) -> Vec<AgentInfo>;
 
+    /// Record a tool execution event for per-tool success/error analytics.
+    /// Fire-and-forget — implementations should not block the caller.
+    fn record_tool_execution(&self, agent_id: &str, tool_name: &str, success: bool, duration_ms: u64);
+
     /// Post a task to the shared task queue. Returns the task ID.
     async fn task_post(
         &self,

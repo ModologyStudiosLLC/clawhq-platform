@@ -5961,6 +5961,25 @@ impl KernelHandle for OpenFangKernel {
             .collect()
     }
 
+    fn record_tool_execution(
+        &self,
+        agent_id: &str,
+        tool_name: &str,
+        success: bool,
+        duration_ms: u64,
+    ) {
+        let Ok(aid) = agent_id.parse::<openfang_types::agent::AgentId>() else {
+            return;
+        };
+        let store = openfang_memory::usage::UsageStore::new(self.memory.usage_conn());
+        let _ = store.record_tool_execution(&openfang_memory::usage::ToolExecutionRecord {
+            agent_id: aid,
+            tool_name: tool_name.to_string(),
+            success,
+            duration_ms,
+        });
+    }
+
     async fn task_post(
         &self,
         title: &str,

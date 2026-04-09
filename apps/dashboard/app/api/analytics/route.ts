@@ -11,10 +11,21 @@ const ANALYTICS_FILE =
 const OPENFANG = process.env.OPENFANG_INTERNAL_URL || process.env.NEXT_PUBLIC_OPENFANG_URL || "http://localhost:4200";
 const MAX_SNAPSHOTS = 720; // 30 days at hourly snapshots
 
+export interface ToolStat {
+  tool_name: string;
+  total_calls: number;
+  success_count: number;
+  error_count: number;
+  success_rate: number;
+  avg_duration_ms: number;
+  last_seen: string;
+}
+
 export interface AnalyticsSnapshot {
   ts: number;
   tokensByAgent: Record<string, number>;
   totalTokens: number;
+  toolStats?: ToolStat[];
 }
 
 async function readSnapshots(): Promise<AnalyticsSnapshot[]> {
@@ -48,6 +59,16 @@ function parseTokenMetrics(text: string): Record<string, number> {
   return result;
 }
 
+async function fetchToolStats(): Promise<ToolStat[]> {
+  try {
+    const res = await fetch(`${OPENFANG}/api/tool-stats`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return [];
+    return (await res.json()) as ToolStat[];
+  } catch {
+    return [];
+  }
+}
+
 // GET — return stored snapshots (optionally limited by ?days=N)
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -60,13 +81,21 @@ export async function GET(req: Request) {
 // POST — take a new snapshot (called by client polling or cron)
 export async function POST() {
   try {
-    const res = await fetch(`${OPENFANG}/api/metrics`, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) throw new Error(`openfang ${res.status}`);
-    const text = await res.text();
+    const [metricsRes, toolStats] = await Promise.all([
+      fetch(`${OPENFANG}/api/metrics`, { signal: AbortSignal.timeout(5000) }),
+      fetchToolStats(),
+    ]);
+    if (!metricsRes.ok) throw new Error(`openfang metrics ${metricsRes.status}`);
+    const text = await metricsRes.text();
     const tokensByAgent = parseTokenMetrics(text);
     const totalTokens = Object.values(tokensByAgent).reduce((s, v) => s + v, 0);
 
-    const snap: AnalyticsSnapshot = { ts: Date.now(), tokensByAgent, totalTokens };
+    const snap: AnalyticsSnapshot = {
+      ts: Date.now(),
+      tokensByAgent,
+      totalTokens,
+      toolStats: toolStats.length > 0 ? toolStats : undefined,
+    };
     const snaps = await readSnapshots();
     snaps.push(snap);
     await writeSnapshots(snaps.slice(-MAX_SNAPSHOTS));

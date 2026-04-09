@@ -61,6 +61,10 @@ services:
       # can call channel_send(channel="discord") without conflicting with
       # OpenClaw's Gateway WebSocket session.
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      # Agent failure escalation webhooks — notified when all LLM fallbacks
+      # are exhausted or an agent hits the max iterations limit.
+      CLAWHQ_SLACK_WEBHOOK: ${CLAWHQ_SLACK_WEBHOOK:-}
+      CLAWHQ_DISCORD_WEBHOOK: ${CLAWHQ_DISCORD_WEBHOOK:-}
     volumes:
       - openfang-data:/data
       # Mount Docker-specific config so OpenFang binds to 0.0.0.0 (required

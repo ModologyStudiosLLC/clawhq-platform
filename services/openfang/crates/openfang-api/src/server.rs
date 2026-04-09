@@ -129,6 +129,10 @@ pub async fn build_router(
             "/api/metrics",
             axum::routing::get(routes::prometheus_metrics),
         )
+        .route(
+            "/api/tool-stats",
+            axum::routing::get(routes::tool_stats),
+        )
         .route("/api/health", axum::routing::get(routes::health))
         .route(
             "/api/health/detail",

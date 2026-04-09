@@ -5,7 +5,7 @@
 use rusqlite::Connection;
 
 /// Current schema version.
-const SCHEMA_VERSION: u32 = 8;
+const SCHEMA_VERSION: u32 = 9;
 
 /// Run all migrations to bring the database up to date.
 pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
@@ -41,6 +41,10 @@ pub fn run_migrations(conn: &Connection) -> Result<(), rusqlite::Error> {
 
     if current_version < 8 {
         migrate_v8(conn)?;
+    }
+
+    if current_version < 9 {
+        migrate_v9(conn)?;
     }
 
     set_schema_version(conn, SCHEMA_VERSION)?;
@@ -323,6 +327,28 @@ fn migrate_v8(conn: &Connection) -> Result<(), rusqlite::Error> {
 
         INSERT OR IGNORE INTO migrations (version, applied_at, description)
         VALUES (8, datetime('now'), 'Add audit_entries table for persistent Merkle audit trail');
+        ",
+    )?;
+    Ok(())
+}
+
+fn migrate_v9(conn: &Connection) -> Result<(), rusqlite::Error> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS tool_executions (
+            id TEXT PRIMARY KEY,
+            agent_id TEXT NOT NULL,
+            tool_name TEXT NOT NULL,
+            success INTEGER NOT NULL,
+            duration_ms INTEGER NOT NULL,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_tool_exec_agent ON tool_executions(agent_id);
+        CREATE INDEX IF NOT EXISTS idx_tool_exec_tool ON tool_executions(tool_name);
+        CREATE INDEX IF NOT EXISTS idx_tool_exec_ts ON tool_executions(timestamp);
+
+        INSERT OR IGNORE INTO migrations (version, applied_at, description)
+        VALUES (9, datetime('now'), 'Add tool_executions table for per-tool success/error tracking');
         ",
     )?;
     Ok(())
