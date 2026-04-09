@@ -1,0 +1,35 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: support-builder
+  displayName: "Support Builder"
+  description: "Converts rough notes, support tickets, and internal docs into polished FAQ pages and help articles. Identifies content gaps and builds help center roadmaps."
+  channel: slack,discord
+  tags: [support, documentation, faq, help-center, knowledge-base, content]
+  version: "1.0.0"
+
+agents:
+
+  - id: support-builder
+    name: "Support Builder"
+    description: "Transforms rough notes and tickets into polished FAQ pages and help articles. Runs gap analysis and produces content roadmaps."
+    trigger:
+      - type: channel
+        keywords: ["write faq", "help article", "support docs", "knowledge base", "content gap", "help center", "faq page", "support builder"]
+    task: |
+      Transform the provided input into polished support content.
+      Ask for: raw input, audience, and a voice sample if not in memory.
+      Confirm scope before writing. Flag anything unclear as [NEEDS CONFIRMATION].
+    delivery:
+      mode: reply
+
+settings:
+  hitl:
+    enabled: true
+    approval_required:
+      - "publish-article"
+    auto_execute:
+      - "draft-faq"
+      - "draft-article"
+      - "gap-analysis"
+      - "roadmap"
