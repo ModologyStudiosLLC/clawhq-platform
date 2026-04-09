@@ -1,0 +1,46 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: reddit-intel
+  displayName: "Reddit Intelligence"
+  description: "Weekly Reddit monitoring for brand mentions, competitor activity, sentiment trends, and market signals. Posts structured reports to Discord automatically."
+  channel: discord
+  tags: [intelligence, reddit, monitoring, sentiment, competitive-intel]
+  version: "1.0.0"
+
+agents:
+
+  - id: reddit-intel
+    name: "Reddit Intel"
+    description: "Scans target subreddits and keywords weekly. Analyzes sentiment, surfaces competitor mentions and pain points, posts report to Discord."
+    trigger:
+      - type: cron
+        expr: "0 8 * * 1"   # Every Monday at 8am
+        tz: "America/New_York"
+        message: "Run a full Reddit intelligence scan. Follow your scan process: run the scanner script, analyze the results, save the report to /data/reddit-intel/latest.json, and post the summary to Discord."
+      - type: channel
+        keywords: ["reddit scan", "reddit report", "reddit intel", "run reddit"]
+    task: |
+      Run the full Reddit intelligence scan process:
+      1. Execute: shell_exec("python3 /opt/openfang/agents/reddit-intel/reddit_scan.py")
+      2. Analyze the JSON output for sentiment, trends, competitor mentions, and opportunities
+      3. Save structured report to /data/reddit-intel/latest.json
+      4. Post formatted summary to Discord
+    delivery:
+      mode: announce
+      channel: discord
+
+pipelines:
+
+  - name: weekly-reddit-intel
+    trigger: cron "0 8 * * 1"
+    steps:
+      - agent: reddit-intel
+        action: "Run weekly Reddit intelligence scan and post report to Discord"
+
+settings:
+  hitl:
+    enabled: false
+    auto_execute:
+      - "reddit-scan"
+      - "reddit-report"
