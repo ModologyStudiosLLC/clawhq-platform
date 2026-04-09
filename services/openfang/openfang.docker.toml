@@ -58,3 +58,6 @@ default_channel_id = "1485040875838111866"
 #   planner        — Task planning and automation
 #
 # Full agent library (30+ total) lives at /opt/openfang/agents/ in the image.
+#
+# Optional packs (install via Settings → Packs or ~/.clawhq/packs/):
+#   reddit-intel   — Weekly Reddit monitoring, sentiment analysis, Discord reports
