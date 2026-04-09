@@ -42,6 +42,9 @@ pub struct DiscordAdapter {
     allowed_users: Vec<String>,
     ignore_bots: bool,
     intents: u64,
+    /// When true, skip the Gateway WebSocket and only use REST for sending.
+    /// Allows sharing a bot token with another service that owns the Gateway.
+    send_only: bool,
     shutdown_tx: Arc<watch::Sender<bool>>,
     shutdown_rx: watch::Receiver<bool>,
     /// Bot's own user ID (populated after READY event).
@@ -59,6 +62,7 @@ impl DiscordAdapter {
         allowed_users: Vec<String>,
         ignore_bots: bool,
         intents: u64,
+        send_only: bool,
     ) -> Self {
         let (shutdown_tx, shutdown_rx) = watch::channel(false);
         Self {
@@ -68,6 +72,7 @@ impl DiscordAdapter {
             allowed_users,
             ignore_bots,
             intents,
+            send_only,
             shutdown_tx: Arc::new(shutdown_tx),
             shutdown_rx,
             bot_user_id: Arc::new(RwLock::new(None)),
@@ -149,6 +154,11 @@ impl ChannelAdapter for DiscordAdapter {
         &self,
     ) -> Result<Pin<Box<dyn Stream<Item = ChannelMessage> + Send>>, Box<dyn std::error::Error>>
     {
+        if self.send_only {
+            info!("Discord adapter running in send-only mode — Gateway WebSocket skipped");
+            return Ok(Box::pin(futures::stream::pending()));
+        }
+
         let gateway_url = self.get_gateway_url().await?;
         info!("Discord gateway URL obtained");
 

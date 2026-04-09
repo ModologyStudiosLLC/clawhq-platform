@@ -1769,6 +1769,12 @@ pub struct DiscordConfig {
     /// Default channel ID for outgoing messages when no recipient is specified.
     #[serde(default)]
     pub default_channel_id: Option<String>,
+    /// Send-only mode: use the bot token for REST API sends but do NOT open a
+    /// Gateway WebSocket. This allows sharing a bot token with another service
+    /// (e.g. OpenClaw) that already owns the Gateway connection without kicking
+    /// it off. Agents can still use `channel_send(channel="discord", ...)`.
+    #[serde(default)]
+    pub send_only: bool,
     /// Per-channel behavior overrides.
     #[serde(default)]
     pub overrides: ChannelOverrides,
@@ -1784,6 +1790,7 @@ impl Default for DiscordConfig {
             intents: 37376,
             ignore_bots: true,
             default_channel_id: None,
+            send_only: false,
             overrides: ChannelOverrides::default(),
         }
     }

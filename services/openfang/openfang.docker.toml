@@ -34,6 +34,14 @@ max_summary_tokens = 1024
 # Usage tracking in agent responses
 # usage_footer = "Full"
 
+# ── Discord notifications (send-only — bot token shared with OpenClaw) ───────
+# send_only = true means OpenFang uses the Discord REST API for outbound sends
+# but does NOT open a Gateway WebSocket, so OpenClaw keeps its Gateway session.
+# Agents can call: channel_send(channel="discord", message="Task done!")
+[channels.discord]
+send_only = true
+default_channel_id = "1485040875838111866"
+
 # ── ClawHQ default agent roster ──────────────────────────────────────────────
 # These agents ship pre-installed in the OpenFang Docker image at
 # /opt/openfang/agents/. They are loaded automatically on first boot.
