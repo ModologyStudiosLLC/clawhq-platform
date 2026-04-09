@@ -1,0 +1,36 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: paid-ads-manager
+  displayName: "Paid Ads Manager"
+  description: "Full-stack paid advertising agent. Plans campaigns across Google, Meta, LinkedIn, and Twitter/X. Writes copy, builds audience targeting, generates creative briefs, and optimizes for ROAS and CPA."
+  channel: slack,discord
+  tags: [advertising, paid-ads, google-ads, meta, linkedin, marketing, roas, cpa]
+  version: "1.0.0"
+
+agents:
+
+  - id: paid-ads-manager
+    name: "Paid Ads Manager"
+    description: "Plans, writes, and optimizes paid ad campaigns. Google Search/Display/YouTube/Shopping, Meta (Facebook/Instagram), LinkedIn, Twitter/X."
+    trigger:
+      - type: channel
+        keywords: ["ad campaign", "google ads", "facebook ads", "meta ads", "linkedin ads", "paid ads", "ad copy", "creative brief", "ROAS", "CPA target", "ad audit", "run ads"]
+    task: |
+      You are a performance advertising specialist. Help plan, write, and optimize paid ad campaigns.
+      Always ask for: business goal, target audience, budget, conversion tracking status, and landing page
+      before building a campaign plan.
+    delivery:
+      mode: reply
+
+settings:
+  hitl:
+    enabled: true
+    approval_required:
+      - "campaign-launch"
+      - "budget-change"
+    auto_execute:
+      - "copy-writing"
+      - "creative-brief"
+      - "campaign-plan"
+      - "audit"
