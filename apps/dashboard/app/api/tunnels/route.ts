@@ -49,8 +49,5 @@ export async function GET() {
   return NextResponse.json({
     tailscale,
     cloudflared,
-    // Env hints — tells the UI whether tokens are configured
-    tailscaleConfigured: !!process.env.TAILSCALE_AUTHKEY,
-    cloudflaredConfigured: !!process.env.CLOUDFLARE_TUNNEL_TOKEN,
   });
 }

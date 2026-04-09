@@ -85,6 +85,14 @@ The dashboard shows a badge in the top-right corner when your running instance i
 - Seccomp sandboxing — blocks dangerous syscalls at the OS level
 - Audit logging — immutable append-only log of all configuration changes
 
+**Platform Security** — defence-in-depth across the full stack:
+- Authentication middleware — all API routes require a valid WorkOS session; returns 401 JSON (no browser redirect)
+- Credentials encrypted at rest — integration tokens stored with AES-256-GCM, keyed from `BETTER_AUTH_SECRET`
+- Rate limiting — 200 req/min standard, 20 req/min on sensitive routes (keys, bridge, packs)
+- Bridge HMAC — Paperclip → dashboard bridge verified with SHA-256 HMAC (`CLAWHQ_BRIDGE_SECRET`)
+- Body size cap — 1 MB enforced at both Caddy and middleware layers
+- CORS lockdown — `Access-Control-Allow-Origin` locked to `CLAWHQ_DOMAIN`
+
 **MCP Integrations** — connect agents to external tools in one click:
 - Tier 1: Filesystem, Memory, PostgreSQL, Brave Search
 - Tier 2: GitHub, Slack, Notion, Linear, Google Drive
@@ -150,6 +158,7 @@ clawhq-platform/
 | Shipped | MCP Tier 1 + Tier 2 integrations (Filesystem, Postgres, GitHub, Slack, Notion, Linear, Drive) |
 | Shipped | Model router with task-type detection, budget fallback, and self-learning |
 | Shipped | Agent health notifications, Tailscale + Cloudflare Tunnel profiles |
+| Shipped | Auth middleware, AES-256-GCM credential encryption, rate limiting, HMAC bridge, CORS |
 | Planned | Team management / RBAC — admin/member/viewer roles, invite by email |
 | Planned | PWA — installable dashboard on iOS/Android, responsive sidebar, offline fallback |
 
