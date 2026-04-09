@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import os from "os";
+import { encrypt, decrypt } from "../../../lib/encrypt.js";
 
 const INTEGRATIONS_FILE =
   process.env.CLAWHQ_INTEGRATIONS_FILE ??
@@ -13,14 +14,12 @@ const OPENCLAW_CONFIG_FILE =
 
 interface IntegrationEntry {
   enabled: boolean;
-  credential: string;
+  credential: string; // stored encrypted; plaintext in memory only
 }
 
 type IntegrationsData = Record<string, IntegrationEntry>;
 
 // ── MCP server config builder ─────────────────────────────────────────────────
-// Maps each integration ID to the MCP server config that OpenClaw's agent runner
-// reads from config.mcp.servers. Matches the transport shapes in mcp-transport.ts.
 
 function buildMcpServerConfig(
   id: string,
@@ -119,8 +118,6 @@ function buildMcpServerConfig(
 }
 
 // ── OpenClaw config sync ──────────────────────────────────────────────────────
-// Reads ~/.openclaw/openclaw.json, sets or removes entries under mcp.servers,
-// then writes it back. Matches the logic in openclaw/src/config/mcp-config.ts.
 
 async function syncMcpServers(integrations: IntegrationsData): Promise<void> {
   let config: Record<string, unknown> = {};
@@ -136,6 +133,7 @@ async function syncMcpServers(integrations: IntegrationsData): Promise<void> {
 
   for (const [id, entry] of Object.entries(integrations)) {
     const serverName = `clawhq-${id}`;
+    // entry.credential is already decrypted plaintext here (from readIntegrations).
     if (entry.enabled && entry.credential?.trim()) {
       const serverConfig = buildMcpServerConfig(id, entry.credential);
       if (serverConfig) {
@@ -162,12 +160,22 @@ async function syncMcpServers(integrations: IntegrationsData): Promise<void> {
   await fs.writeFile(OPENCLAW_CONFIG_FILE, JSON.stringify(config, null, 2), "utf8");
 }
 
-// ── Integrations file helpers ────────────────────────────────────────────────
+// ── Integrations file helpers ─────────────────────────────────────────────────
+// Credentials are stored encrypted. On read, they are decrypted for internal
+// use (MCP sync, test handlers). The GET handler masks them before sending
+// to the browser — the plaintext is never sent over the wire after initial save.
 
 async function readIntegrations(): Promise<IntegrationsData> {
   try {
     const raw = await fs.readFile(INTEGRATIONS_FILE, "utf8");
-    return JSON.parse(raw) as IntegrationsData;
+    const stored = JSON.parse(raw) as IntegrationsData;
+    // Decrypt all credentials — handles plaintext migration transparently.
+    return Object.fromEntries(
+      Object.entries(stored).map(([id, entry]) => [
+        id,
+        { ...entry, credential: decrypt(entry.credential) },
+      ]),
+    );
   } catch {
     return {};
   }
@@ -176,35 +184,70 @@ async function readIntegrations(): Promise<IntegrationsData> {
 async function writeIntegrations(data: IntegrationsData): Promise<void> {
   const dir = path.dirname(INTEGRATIONS_FILE);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(INTEGRATIONS_FILE, JSON.stringify(data, null, 2), "utf8");
+  // Encrypt all credentials before persisting.
+  const toStore: IntegrationsData = Object.fromEntries(
+    Object.entries(data).map(([id, entry]) => [
+      id,
+      { ...entry, credential: encrypt(entry.credential) },
+    ]),
+  );
+  await fs.writeFile(INTEGRATIONS_FILE, JSON.stringify(toStore, null, 2), "utf8");
+}
+
+/** Mask a credential for the GET response — never send plaintext to the browser. */
+function maskCredential(credential: string): string {
+  if (!credential) return "";
+  // Show just enough to confirm something is set.
+  return credential.length > 8
+    ? credential.slice(0, 4) + "••••••••"
+    : "••••••••";
 }
 
 // ── Route handlers ────────────────────────────────────────────────────────────
 
 export async function GET() {
   const integrations = await readIntegrations();
-  return NextResponse.json({ integrations });
+  // Return masked credentials — the UI only needs to know "set / not set".
+  const masked = Object.fromEntries(
+    Object.entries(integrations).map(([id, entry]) => [
+      id,
+      { ...entry, credential: maskCredential(entry.credential) },
+    ]),
+  );
+  return NextResponse.json({ integrations: masked });
 }
 
 export async function PATCH(req: Request) {
   const body = (await req.json()) as Partial<IntegrationsData>;
   const current = await readIntegrations();
   const merged: IntegrationsData = { ...current };
+
   for (const [id, entry] of Object.entries(body)) {
-    merged[id] = { ...current[id], ...entry } as IntegrationEntry;
+    if (!entry) continue;
+    // If the incoming credential is a masked value (••••), keep the existing one.
+    const incomingCredential = entry.credential ?? "";
+    const isMasked = incomingCredential.includes("•");
+    merged[id] = {
+      ...current[id],
+      ...entry,
+      credential: isMasked ? (current[id]?.credential ?? "") : incomingCredential,
+    } as IntegrationEntry;
   }
 
   await writeIntegrations(merged);
 
-  // Sync MCP server registrations into ~/.openclaw/openclaw.json so the
-  // OpenClaw agent runner picks them up automatically on next session.
   try {
     await syncMcpServers(merged);
   } catch (err) {
-    // Non-fatal: credentials are saved, MCP sync failed (e.g. OpenClaw not installed).
-    // Log but don't fail the request.
     console.warn("[integrations] MCP sync failed:", err instanceof Error ? err.message : err);
   }
 
-  return NextResponse.json({ integrations: merged });
+  // Return masked — same as GET.
+  const masked = Object.fromEntries(
+    Object.entries(merged).map(([id, entry]) => [
+      id,
+      { ...entry, credential: maskCredential(entry.credential) },
+    ]),
+  );
+  return NextResponse.json({ integrations: masked });
 }
