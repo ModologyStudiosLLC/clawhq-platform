@@ -1,0 +1,111 @@
+---
+title: Reddit Intel Pack
+description: Weekly Reddit monitoring — sentiment analysis, competitor mentions, and market signals posted to Discord automatically.
+---
+
+Reddit Intel is a free ClawHQ pack that scans Reddit weekly for brand mentions, competitor activity, and market signals. Every Monday morning it posts a structured report to your Discord channel.
+
+## What it does
+
+- Searches configured keywords across Reddit globally
+- Monitors hot posts in target subreddits
+- Tracks competitor keyword mentions separately
+- Analyzes sentiment (positive / neutral / negative) using LLM reasoning — not keyword lists
+- Surfaces trending topics, user pain points, and opportunities
+- Posts a formatted Discord summary and saves a full JSON report
+- Fires an alert if negative sentiment exceeds 30% or post volume spikes 2x vs baseline
+
+## Install
+
+From the dashboard: **Settings → Packs → Reddit Intel → Install**
+
+Or drop the pack file manually:
+
+```bash
+cp packs/reddit-intel.yaml ~/.clawhq/packs/
+# Restart Paperclip to load
+docker compose restart paperclip
+```
+
+## Configuration
+
+Edit `/data/reddit-intel/config.toml` inside the OpenFang container (or mount your own at that path):
+
+```toml
+# Subreddits to monitor
+subreddits = [
+  "selfhosted",
+  "LocalLLaMA",
+  "MachineLearning",
+  "homelab",
+]
+
+# Keywords tracked globally across Reddit
+keywords = [
+  "AI agent platform",
+  "self-hosted AI",
+  "YourBrandName",
+]
+
+# Competitor keywords — tracked and reported separately
+competitor_keywords = [
+  "CompetitorA",
+  "CompetitorB",
+]
+
+# Time window: "hour", "day", "week", "month"
+time_filter = "week"
+
+# Alert thresholds
+alert_negative_threshold = 30    # % negative sentiment
+alert_volume_multiplier = 2.0    # spike vs weekly baseline
+```
+
+The scanner uses Reddit's public JSON API — no Reddit app credentials required for public subreddits.
+
+## Schedule
+
+Runs automatically every **Monday at 8am ET** via Paperclip cron. To trigger a scan on demand:
+
+- Say `"reddit scan"` or `"reddit report"` in any connected channel
+- Or call the dashboard API directly:
+
+```bash
+curl -X POST https://your-clawhq-domain/api/reddit-intel
+```
+
+## Report format
+
+The agent saves a full JSON report to `/data/reddit-intel/latest.json` and posts a Discord summary:
+
+```
+Reddit Intel Report — 2026-04-08
+📊 87 posts analyzed across 7 subreddits
+Sentiment: 42% positive · 38% neutral · 20% negative
+
+Top Signal: Self-hosted AI agent demand growing in r/homelab — 3 threads this week asking for OpenClaw alternatives
+
+Trending: multi-agent systems, local LLM performance, Docker compose stacks
+
+Pain Points: "too complex to configure" (8 mentions)
+
+Opportunity: Users in r/sysadmin asking for an agent that monitors their infra and pages them — no good self-hosted option exists
+```
+
+Read the latest report from the dashboard API:
+
+```bash
+curl https://your-clawhq-domain/api/reddit-intel
+```
+
+## Discord setup
+
+Reddit Intel uses the same Discord bot token as OpenClaw in send-only mode. Make sure `DISCORD_BOT_TOKEN` is set in your `.env` and the default channel is configured in `openfang.docker.toml`:
+
+```toml
+[channels.discord]
+send_only = true
+default_channel_id = "your-channel-id"
+```
+
+See [Discord setup](/channels/discord) for how to get your channel ID.
