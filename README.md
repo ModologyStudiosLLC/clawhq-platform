@@ -4,7 +4,7 @@ The unified AI agent control plane. OpenClaw + OpenFang + Paperclip + Hermes, un
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/discord/clawhq?label=Discord&logo=discord)](https://discord.gg/clawhq)
-[![Docs](https://img.shields.io/badge/docs-clawhq.com-69daff)](https://docs.clawhq.com)
+[![Docs](https://img.shields.io/badge/docs-clawhqplatform.com-69daff)](https://clawhqplatform.com/docs/introduction)
 
 ## What's inside
 
@@ -30,7 +30,7 @@ Opens at `http://localhost:3500`.
 
 > First build compiles OpenFang from Rust source — takes 5–10 minutes once, then cached.
 
-Full setup guide: [docs.clawhq.com/quickstart](https://docs.clawhq.com/quickstart)
+Full setup guide: [clawhqplatform.com/docs/quickstart](https://clawhqplatform.com/docs/quickstart)
 
 ## Manual setup
 
@@ -48,7 +48,7 @@ docker compose build --build-arg CLAWHQ_GIT_SHA=$(git rev-parse HEAD) dashboard
 docker compose up -d
 ```
 
-The dashboard shows a badge in the top-right corner when your running instance is behind `main`. See [Updating ClawHQ](https://docs.clawhq.com/docs/updating) for the full runbook.
+The dashboard shows a badge in the top-right corner when your running instance is behind `main`. See [Updating ClawHQ](https://clawhqplatform.com/docs/updating) for the full runbook.
 
 ## Dashboard
 
@@ -177,7 +177,7 @@ clawhq-platform/
 
 ## Community
 
-- [Docs](https://docs.clawhq.com) — guides, reference, agent templates
+- [Docs](https://clawhqplatform.com/docs/introduction) — guides, reference, agent templates
 - [Discord](https://discord.gg/clawhq) — get help, share agents, chat with the team
 - [Discussions](https://github.com/ModologyStudiosLLC/clawhq-platform/discussions) — ideas, Q&A, show and tell
 - [Contributing](CONTRIBUTING.md) — submit templates, report bugs, open PRs
