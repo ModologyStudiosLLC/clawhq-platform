@@ -142,6 +142,17 @@ clawhq-platform/
 └── .env.example
 ```
 
+## Roadmap
+
+| Status | Item |
+|--------|------|
+| Shipped | Usage/cost analytics, audit log, budget alerts, API key management, update checker |
+| Shipped | MCP Tier 1 + Tier 2 integrations (Filesystem, Postgres, GitHub, Slack, Notion, Linear, Drive) |
+| Shipped | Model router with task-type detection, budget fallback, and self-learning |
+| Shipped | Agent health notifications, Tailscale + Cloudflare Tunnel profiles |
+| Planned | Team management / RBAC — admin/member/viewer roles, invite by email |
+| Planned | PWA — installable dashboard on iOS/Android, responsive sidebar, offline fallback |
+
 ## Community
 
 - [Docs](https://docs.clawhq.com) — guides, reference, agent templates
