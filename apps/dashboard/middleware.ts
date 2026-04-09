@@ -65,6 +65,19 @@ function getIp(request: NextRequest): string {
   );
 }
 
+// ── Body size guard ───────────────────────────────────────────────────────────
+// Reject requests with a Content-Length over 1 MB before they reach route
+// handlers. Caddy enforces the same limit upstream; this is a defence-in-depth
+// check for direct internal traffic (e.g. Paperclip → bridge endpoint).
+
+const MAX_BODY_BYTES = 1_048_576; // 1 MB
+
+function bodyTooLarge(request: NextRequest): boolean {
+  const cl = request.headers.get("content-length");
+  if (!cl) return false; // no header — can't tell, let the handler deal with it
+  return parseInt(cl, 10) > MAX_BODY_BYTES;
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 // Routes that are always public — no session required.
@@ -92,6 +105,11 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
 
   pruneRateBuckets();
+
+  // Reject oversized bodies before any processing.
+  if (bodyTooLarge(request)) {
+    return NextResponse.json({ error: "Payload Too Large" }, { status: 413 });
+  }
 
   // Auth callback routes must always be reachable.
   if (pathname.startsWith("/auth/")) return NextResponse.next();

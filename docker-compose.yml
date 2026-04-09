@@ -102,6 +102,8 @@ services:
       #   http://dashboard:3500/api/bridge/agent-task
       #   body: { "task": "...", "agentProfile": "research" }
       CLAWHQ_BRIDGE_URL: http://dashboard:3500
+      # Shared HMAC secret — Paperclip signs bridge requests, dashboard verifies.
+      CLAWHQ_BRIDGE_SECRET: ${CLAWHQ_BRIDGE_SECRET:-}
     volumes:
       - paperclip-data:/paperclip
     # Not exposed publicly — internal only
@@ -179,6 +181,7 @@ services:
       CLAWHIP_INTERNAL_URL: http://clawhip:25294
       DOCKER_PROXY_URL: http://docker-proxy:2375
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-}
+      CLAWHQ_BRIDGE_SECRET: ${CLAWHQ_BRIDGE_SECRET:-}
       NEXTAUTH_URL: ${CLAWHQ_PUBLIC_URL:-http://localhost:3500}
     # Not exposed publicly — Caddy proxies it
     expose:

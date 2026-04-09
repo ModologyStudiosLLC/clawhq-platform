@@ -8,14 +8,36 @@
  * Paperclip HTTP adapter config:
  *   url: http://dashboard:3500/api/bridge/agent-task
  *   method: POST
+ *   headers:
+ *     X-Bridge-Signature: sha256=<hmac-sha256 of body using CLAWHQ_BRIDGE_SECRET>
  *   payloadTemplate:
  *     task: "Your task description here"
  *     agentProfile: "research"   # or agentName: "Scout"
  */
 
+import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const OPENFANG = process.env.OPENFANG_INTERNAL_URL || "http://localhost:4200";
+const BRIDGE_SECRET = process.env.CLAWHQ_BRIDGE_SECRET ?? "";
+
+// ── HMAC verification ─────────────────────────────────────────────────────────
+// Paperclip signs the raw request body with CLAWHQ_BRIDGE_SECRET.
+// If the secret is not set the check is skipped (open/dev mode).
+
+function verifySignature(body: string, header: string | null): boolean {
+  if (!BRIDGE_SECRET) return true; // secret not configured — open mode
+  if (!header) return false;
+
+  const expected = `sha256=${createHmac("sha256", BRIDGE_SECRET).update(body).digest("hex")}`;
+  try {
+    return timingSafeEqual(Buffer.from(header), Buffer.from(expected));
+  } catch {
+    return false; // length mismatch — definitely wrong
+  }
+}
+
+// ── Agent resolution ──────────────────────────────────────────────────────────
 
 interface Agent {
   id: string;
@@ -37,7 +59,6 @@ async function findAgent(agentName?: string, agentProfile?: string): Promise<Age
       a => a.name.toLowerCase() === lower || a.id === agentName
     );
     if (byName) return byName;
-    // Fuzzy name match
     const fuzzy = agents.find(a => a.name.toLowerCase().includes(lower));
     if (fuzzy) return fuzzy;
   }
@@ -51,12 +72,10 @@ async function findAgent(agentName?: string, agentProfile?: string): Promise<Age
     if (running) return running;
   }
 
-  // Fall back to any running agent
   return agents.find(a => a.state === "Running") ?? null;
 }
 
 async function runTask(agentId: string, task: string): Promise<string> {
-  // Create session
   const sessionRes = await fetch(`${OPENFANG}/api/agents/${agentId}/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -66,7 +85,6 @@ async function runTask(agentId: string, task: string): Promise<string> {
   const { session_id, id: sessionId } = await sessionRes.json();
   const sid = session_id ?? sessionId;
 
-  // Send message (non-streaming)
   const msgRes = await fetch(`${OPENFANG}/api/agents/${agentId}/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -77,10 +95,18 @@ async function runTask(agentId: string, task: string): Promise<string> {
   return data.content ?? data.message ?? data.response ?? JSON.stringify(data);
 }
 
+// ── Route handler ─────────────────────────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
+  const rawBody = await req.text();
+
+  if (!verifySignature(rawBody, req.headers.get("x-bridge-signature"))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   let body: Record<string, unknown>;
   try {
-    body = await req.json();
+    body = JSON.parse(rawBody) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }

@@ -10,15 +10,28 @@
     # Gzip compression
     encode gzip
 
+    # Reject request bodies over 1 MB before they reach the dashboard.
+    request_body {
+        max_size 1MB
+    }
+
     # Security headers
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
         Referrer-Policy "strict-origin-when-cross-origin"
+        # Restrict cross-origin API access to the same origin only.
+        Access-Control-Allow-Origin "https://{$CLAWHQ_DOMAIN}"
+        Access-Control-Allow-Methods "GET, POST, PATCH, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
         # Remove server fingerprint
         -Server
     }
+
+    # Handle CORS preflight requests.
+    @options method OPTIONS
+    respond @options 204
 
     # Proxy everything to the dashboard
     reverse_proxy dashboard:3500 {
