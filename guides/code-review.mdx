@@ -1,0 +1,93 @@
+---
+title: Code Review Pack
+description: Automated code review in Discord and Slack — severity-rated feedback on bugs, security issues, and style.
+---
+
+Code Review is a free ClawHQ pack that reviews code snippets or files directly from your chat channels. Paste code or name a file and get structured, severity-rated feedback in seconds.
+
+## What it does
+
+- Reviews pasted code snippets or reads files by path
+- Rates findings by severity: Critical, Warning, or Suggestion
+- Flags security vulnerabilities (SQL injection, XSS, hardcoded secrets, insecure deserialization, etc.)
+- Catches logic errors, missing error handling, race conditions, and off-by-one bugs
+- Notes style and readability issues without noise
+- Works on any language — the model infers context from syntax and patterns
+
+## Install
+
+From the dashboard: **Settings → Packs → Code Review → Install**
+
+Or manually:
+
+```bash
+cp packs/code-review.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+## Usage
+
+### Paste code inline
+
+```
+review this:
+
+def login(user, pw):
+    query = f"SELECT * FROM users WHERE username='{user}'"
+    db.execute(query)
+    ...
+```
+
+### Reference a file
+
+```
+/review services/auth/middleware.py
+```
+
+Any of these trigger phrases will activate the agent:
+
+- `review this`
+- `code review`
+- `review my code`
+- `check this code`
+- `/review <filename>`
+
+## Output format
+
+Each finding follows this format:
+
+```
+🔴 Critical — SQL Injection (line 3)
+String interpolation in a SQL query. Use parameterized queries instead.
+
+🟡 Warning — Missing error handling (line 8)
+No try/catch around the database call. Will raise an unhandled exception on connection failure.
+
+🔵 Suggestion — Naming (line 1)
+`user` is ambiguous — `username` or `email` would be clearer given the context.
+```
+
+| Icon | Severity |
+|------|----------|
+| 🔴 | **Critical** — security issue or data loss risk |
+| 🟡 | **Warning** — logic error or reliability concern |
+| 🔵 | **Suggestion** — style, performance, or readability |
+
+If no issues are found, the agent says so explicitly.
+
+## Configuration
+
+No configuration required. The agent uses your default model (set in **Settings → AI**).
+
+For lower latency on large snippets, route it to a faster model in **Settings → Routing**:
+
+```toml
+[routing.overrides]
+code-reviewer = "groq/llama-3.3-70b-versatile"
+```
+
+## Notes
+
+- No env vars required — works out of the box
+- For large files, paste the relevant function rather than the full file; context limits apply
+- The agent does not execute code — review only
