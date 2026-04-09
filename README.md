@@ -119,14 +119,13 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Reddit Intel** | Weekly Reddit monitoring — sentiment analysis, competitor mentions, Discord reports |
 | **Paid Ads Manager** | Google, Meta, LinkedIn, Twitter/X campaigns — copy, targeting, creative briefs, ROAS/CPA |
 | **Support Builder** | Rough notes and tickets → polished FAQ pages and help articles, gap analysis |
-| **Proposal Generator** | Client proposals and SOWs with scope, pricing tables, T&Cs, kill fee, change orders |
-| **Competitor Intel** | Helmer's 7 Powers teardowns — vulnerability map, attack brief, quarterly re-audit diffs |
-
-**Pro packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
+**Pro packs ($9/mo)** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
 
 | Pack | What it does |
 |---|---|
 | **Creator Suite** | 12-agent content system — scripting, scheduling, repurposing, analytics |
+| **Proposal Generator** | Client proposals and SOWs with scope, pricing tables, T&Cs, kill fee, change orders |
+| **Competitor Intel** | Helmer's 7 Powers teardowns — vulnerability map, attack brief, quarterly re-audit diffs |
 | **Reskilling** | Workforce augmentation and AI reskilling programs — 6 agents, 5 packs, 4 workflows |
 | **Trades Library** | Field service and skilled trades — estimates, scheduling, job completion |
 | **Landing Foundry** | 9-agent landing page pipeline — copy, design brief, A/B variants, SEO |

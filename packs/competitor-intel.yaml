@@ -7,6 +7,10 @@ metadata:
   channel: slack,discord
   tags: [competitive-intel, strategy, research, positioning, market-analysis]
   version: "1.0.0"
+  pricing:
+    tier: paid
+    monthly: "https://buy.stripe.com/5kQ6oI97dgzRdC5cnO2Fa0y"
+    one_time: "https://buy.stripe.com/bJecN6bfl1EXapTfA02Fa0z"
 
 agents:
 

@@ -7,6 +7,10 @@ metadata:
   channel: slack,discord
   tags: [proposals, sow, sales, contracts, pricing, freelance, agency]
   version: "1.0.0"
+  pricing:
+    tier: paid
+    monthly: "https://buy.stripe.com/8x24gA5V1dnFgOhbjK2Fa0w"
+    one_time: "https://buy.stripe.com/8x214oabhfvNbtX5Zq2Fa0x"
 
 agents:
 
