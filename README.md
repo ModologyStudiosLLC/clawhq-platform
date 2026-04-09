@@ -79,7 +79,7 @@ The dashboard shows a badge in the top-right corner when your running instance i
 
 **Sentinel** — 6-layer built-in security:
 - Prompt injection detection — blocks jailbreak attempts before they reach agents
-- PII filtering — strips emails, phone numbers, SSNs, and card numbers
+- PII filtering — strips emails, phone numbers, SSNs, API keys, and card numbers from inbound messages, tool outputs, and outbound channel posts. Modes: redact (default), block, log_only. High-risk types (SSN, CC, API keys) always force-block.
 - Toxicity guardrails — configurable content policy enforcement
 - Rate limiting — per-agent request and token limits
 - Seccomp sandboxing — blocks dangerous syscalls at the OS level
@@ -100,6 +100,10 @@ The dashboard shows a badge in the top-right corner when your running instance i
 **Exploration Mode** — per-session read-only mode for OpenClaw agents. `/explore on` filters all mutating tools (write, exec, bash, message, etc.) from the agent's available tool list without changing any config.
 
 **Cost Controls** — per-agent token budgets, monthly spending caps, provider-level caps, budget threshold alerts via Slack webhook.
+
+**Per-tool analytics** — every tool call is timed and recorded (success/failure, duration). `GET /api/tool-stats` returns the last 24h of per-tool success rates sorted by error count. Surfaced in the analytics dashboard alongside token spend.
+
+**Escalation on failure** — when all LLM fallbacks are exhausted or an agent hits the max iterations limit, OpenFang fires a Slack and/or Discord webhook immediately. Set `CLAWHQ_SLACK_WEBHOOK` / `CLAWHQ_DISCORD_WEBHOOK` in your `.env` to enable.
 
 **API Keys** — generate scoped `chq_*` API keys for embedding ClawHQ agents in your own products. Keys are stored as SHA-256 hashes; plaintext shown only once on creation.
 
@@ -163,6 +167,9 @@ clawhq-platform/
 | Shipped | Model router with task-type detection, budget fallback, and self-learning |
 | Shipped | Agent health notifications, Tailscale + Cloudflare Tunnel profiles |
 | Shipped | Auth middleware, AES-256-GCM credential encryption, rate limiting, HMAC bridge, CORS |
+| Shipped | PII filter — redacts/blocks PII across inbound messages, tool outputs, and channel posts |
+| Shipped | Per-tool error tracking — success rate, avg duration, error count per tool via /api/tool-stats |
+| Shipped | Escalation-on-failure — Slack/Discord webhook when all LLM fallbacks exhausted |
 | Planned | Team management / RBAC — admin/member/viewer roles, invite by email |
 | Planned | PWA — installable dashboard on iOS/Android, responsive sidebar, offline fallback |
 
