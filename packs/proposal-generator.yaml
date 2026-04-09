@@ -1,0 +1,33 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: proposal-generator
+  displayName: "Proposal Generator"
+  description: "Generates client proposals and Statements of Work from a brief description. Covers scope, deliverables, timelines, pricing tables, and standard T&Cs including IP, kill fee, revisions, and change orders."
+  channel: slack,discord
+  tags: [proposals, sow, sales, contracts, pricing, freelance, agency]
+  version: "1.0.0"
+
+agents:
+
+  - id: proposal-generator
+    name: "Proposal Generator"
+    description: "Produces professional proposals and SOWs from a project brief. Remembers your rates and standard terms across sessions."
+    trigger:
+      - type: channel
+        keywords: ["write a proposal", "draft proposal", "client proposal", "statement of work", "SOW", "project quote", "pricing proposal"]
+    task: |
+      Generate a professional client proposal or SOW from the provided brief.
+      Ask for: project description, client name, budget range, timeline, rates, and jurisdiction.
+      Save the final version to a file and store rates in memory for reuse.
+    delivery:
+      mode: reply
+
+settings:
+  hitl:
+    enabled: true
+    approval_required:
+      - "send-proposal"
+    auto_execute:
+      - "draft-proposal"
+      - "draft-sow"

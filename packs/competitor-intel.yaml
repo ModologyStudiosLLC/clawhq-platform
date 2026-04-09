@@ -1,0 +1,36 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: competitor-intel
+  displayName: "Competitor Intel"
+  description: "Structured competitive teardowns using Helmer's 7 Powers framework. Positioning, pricing, moat assessment, vulnerability map, attack vectors, and quarterly re-audit diffs."
+  channel: slack,discord
+  tags: [competitive-intel, strategy, research, positioning, market-analysis]
+  version: "1.0.0"
+
+agents:
+
+  - id: competitor-intel
+    name: "Competitor Intel"
+    description: "Produces evidence-based competitor teardowns. 7 Powers moat scoring, vulnerability map with exploit angles, attack brief, and re-audit diffs vs stored baseline."
+    trigger:
+      - type: channel
+        keywords: ["competitor analysis", "competitive intel", "teardown", "analyze competitor", "competitor brief", "how does X compare"]
+      - type: cron
+        expr: "0 9 1 */3 *"   # First of every quarter at 9am
+        tz: "America/New_York"
+        message: "Run quarterly re-audit on all stored competitors. Compare to baseline, output diffs, flag any strategy shifts."
+    task: |
+      Produce a structured competitive teardown using Helmer's 7 Powers framework.
+      Research the competitor thoroughly before writing. Every claim needs evidence.
+      Save the report and store baseline in memory for quarterly re-audit diffs.
+    delivery:
+      mode: reply
+
+settings:
+  hitl:
+    enabled: false
+    auto_execute:
+      - "teardown"
+      - "re-audit"
+      - "vulnerability-map"

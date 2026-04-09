@@ -119,6 +119,8 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Reddit Intel** | Weekly Reddit monitoring — sentiment analysis, competitor mentions, Discord reports |
 | **Paid Ads Manager** | Google, Meta, LinkedIn, Twitter/X campaigns — copy, targeting, creative briefs, ROAS/CPA |
 | **Support Builder** | Rough notes and tickets → polished FAQ pages and help articles, gap analysis |
+| **Proposal Generator** | Client proposals and SOWs with scope, pricing tables, T&Cs, kill fee, change orders |
+| **Competitor Intel** | Helmer's 7 Powers teardowns — vulnerability map, attack brief, quarterly re-audit diffs |
 
 **Pro packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
 
