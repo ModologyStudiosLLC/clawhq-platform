@@ -96,7 +96,7 @@
     "@types/node": "^24.10.1",
     "google-artifactregistry-auth": "^3.5.0",
     "typescript": "^5.8.3",
-    "wireit": "^0.15.0-pre.2"
+    "wireit": "^0.14.4"
   },
   "dependencies": {
     "@lit-labs/signals": "^0.1.3",
