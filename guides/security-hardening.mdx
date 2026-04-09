@@ -1,0 +1,86 @@
+---
+title: Security Hardening
+description: Platform-level security controls built into ClawHQ — auth middleware, credential encryption, rate limiting, and more.
+---
+
+ClawHQ ships with defence-in-depth security across the full stack. This page covers the controls that are active by default and the optional ones you can enable.
+
+## Authentication middleware
+
+All dashboard API routes require a valid WorkOS session. Unauthenticated requests receive `401 { "error": "Unauthorized" }` — no browser redirect that could be spoofed.
+
+Two routes are always public:
+- `/api/health` — Docker healthcheck
+- `/api/version` — update checker (polled by the bell icon before login)
+
+If `WORKOS_API_KEY` is not set, the middleware runs in **open mode** — no auth enforced. This is intentional for single-user local deployments. Set `WORKOS_API_KEY` to enable full auth.
+
+## Credential encryption
+
+Integration credentials (GitHub tokens, Slack tokens, Notion keys, etc.) are encrypted at rest with **AES-256-GCM** before being written to `integrations.json`. The key is derived from `BETTER_AUTH_SECRET` via SHA-256.
+
+- Existing plaintext credentials are automatically re-encrypted on the next save — no manual migration needed.
+- The GET response returns masked values (`ghp_••••••••`) — plaintext is never sent to the browser after the initial save.
+- If `BETTER_AUTH_SECRET` is not set, credentials are stored unencrypted (dev mode only).
+
+## Rate limiting
+
+All API routes are rate limited per IP using an in-memory sliding window:
+
+| Tier | Routes | Limit |
+|------|--------|-------|
+| Sensitive | `/api/keys`, `/api/packs/install`, `/api/bridge`, `/api/audit` | 20 req/min |
+| Standard | All other `/api/*` routes | 200 req/min |
+
+Exceeded requests receive `429 { "error": "Too Many Requests" }` with a `Retry-After: 60` header.
+
+## Bridge HMAC
+
+The Paperclip → dashboard bridge endpoint (`/api/bridge/agent-task`) verifies requests using an HMAC-SHA-256 signature. Paperclip signs the raw request body with `CLAWHQ_BRIDGE_SECRET` and sends it in the `X-Bridge-Signature: sha256=<hex>` header. The dashboard verifies using `timingSafeEqual`.
+
+To enable:
+
+```bash
+# Generate in .env
+CLAWHQ_BRIDGE_SECRET=$(openssl rand -base64 32)
+```
+
+If `CLAWHQ_BRIDGE_SECRET` is not set, the signature check is skipped (open/dev mode).
+
+## Body size limits
+
+Requests over **1 MB** are rejected before reaching route handlers — enforced at two layers:
+
+1. **Caddy** — `request_body { max_size 1MB }` drops oversized requests at the proxy
+2. **Middleware** — checks `Content-Length` header and returns `413 Payload Too Large`
+
+## CORS
+
+`Access-Control-Allow-Origin` is locked to `https://{CLAWHQ_DOMAIN}` at the Caddy layer. Cross-origin requests from other origins are blocked even if the user is authenticated.
+
+## Seccomp sandboxing (OpenFang)
+
+The OpenFang agent container runs under a restrictive seccomp profile that blocks dangerous syscalls agents should never need:
+
+- `ptrace`, `mount`, namespace syscalls (clone, unshare, setns) — blocked
+- `clone3` — returns `ENOSYS` so glibc falls back to the older `clone` syscall (standard container pattern)
+- All other syscalls not in the allowlist — return `EPERM`
+
+The profile is at `services/openfang/security/seccomp-agent.json`. `no-new-privileges: true` is also enforced.
+
+## Secrets checklist
+
+Before going to production:
+
+```bash
+# Generate all required secrets
+POSTGRES_PASSWORD=$(openssl rand -base64 32)
+BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+OPENCLAW_GATEWAY_TOKEN=$(openssl rand -base64 32)
+CLAWHQ_BRIDGE_SECRET=$(openssl rand -base64 32)
+```
+
+- Never commit `.env` to version control
+- Use separate bot tokens for Hermes, OpenClaw, and Clawhip
+- Rotate `BETTER_AUTH_SECRET` rotates the credential encryption key — you'll need to re-enter all integration credentials after rotation

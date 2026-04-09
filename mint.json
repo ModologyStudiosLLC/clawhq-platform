@@ -83,7 +83,8 @@
     {
       "group": "Security",
       "pages": [
-        "guides/sentinel"
+        "guides/sentinel",
+        "guides/security-hardening"
       ]
     },
     {
