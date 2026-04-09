@@ -3,7 +3,6 @@
 The unified AI agent control plane. OpenClaw + OpenFang + Paperclip + Hermes, under one roof.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Discord](https://img.shields.io/discord/clawhq?label=Discord&logo=discord)](https://discord.gg/clawhq)
 [![Docs](https://img.shields.io/badge/docs-clawhqplatform.com-69daff)](https://clawhqplatform.com/docs/introduction)
 
 ## What's inside
@@ -178,7 +177,6 @@ clawhq-platform/
 ## Community
 
 - [Docs](https://clawhqplatform.com/docs/introduction) — guides, reference, agent templates
-- [Discord](https://discord.gg/clawhq) — get help, share agents, chat with the team
 - [Discussions](https://github.com/ModologyStudiosLLC/clawhq-platform/discussions) — ideas, Q&A, show and tell
 - [Contributing](CONTRIBUTING.md) — submit templates, report bugs, open PRs
 
