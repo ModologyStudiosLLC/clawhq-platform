@@ -56,26 +56,6 @@ Yes. Via Paperclip orchestration, agents can delegate tasks to other agents. See
 **Do agents remember past conversations?**
 Each agent has persistent memory (stored in SQLite). Memory search is on by default — agents automatically retrieve relevant past context before responding. You can configure memory settings per-agent.
 
-## Enterprise
-
-**We already have an Anthropic, OpenAI, or Azure contract. Does that work?**
-Yes — ClawHQ uses your credentials, not ours. Paste your own API key in Settings → Model Router and all inference goes directly from your server to your provider. Modology is never in the loop.
-
-**Does ClawHQ work with AWS Bedrock?**
-Yes. Set `MODEL_ROUTER_PRIMARY=bedrock/anthropic.claude-sonnet-4-6-v1` and configure your AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`) as environment variables. Claude on Bedrock is fully supported. See [Model Router → Enterprise Cloud Providers](/guides/model-router#enterprise-cloud-providers).
-
-**Does ClawHQ work with Azure OpenAI?**
-Yes. Select Azure OpenAI in the onboarding provider picker or in Settings → Model Router. You'll need your Azure endpoint URL and API key — both are available in the Azure AI Foundry portal.
-
-**Does ClawHQ work with Google Vertex AI?**
-Yes. Configure a service account with Vertex AI permissions and set the project + region. Gemini and Claude (via Vertex) are both supported.
-
-**Does the Anthropic API access situation affect enterprise customers?**
-No. Enterprise customers use their own API keys or cloud contracts (Bedrock, Azure, Vertex). ClawHQ is self-hosted — it connects directly to whichever provider you configure. There is no shared Modology API subscription that could be revoked.
-
-**Can IT admins set the model provider org-wide?**
-Yes — set provider and key via environment variables in your `docker-compose.yml` or `.env` file. This takes precedence over per-user dashboard settings, giving admins central control over which model and provider the whole deployment uses.
-
 ## Security
 
 **Is my data sent to Anthropic?**

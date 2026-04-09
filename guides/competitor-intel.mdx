@@ -1,0 +1,112 @@
+---
+title: "Competitor Intel"
+description: "Structured competitive teardowns using Helmer's 7 Powers framework, with quarterly re-audit diffs."
+---
+
+## Overview
+
+Competitor Intel produces evidence-based competitive teardowns — every finding tied to a specific, observable signal. It uses Helmer's 7 Powers framework to score moats, map vulnerabilities, and generate actionable attack briefs. It also runs quarterly re-audits and diffs against your stored baseline.
+
+## Teardown structure
+
+A full analysis produces 7 sections:
+
+### 1. Positioning Snapshot
+- ICP (ideal customer profile)
+- Headline positioning and core value claim
+- Tone and persona
+- Pricing tier (budget / mid-market / enterprise / usage-based)
+- Primary channel (PLG / sales-led / community / content)
+
+### 2. Offer & Pricing Analysis
+- What they actually sell (not just website copy)
+- Pricing structure and public tiers
+- Conspicuous gaps in the offer
+- Free tier / trial strategy
+
+### 3. Content & Channel Fingerprint
+- Primary acquisition channels (SEO, paid, community, partnerships)
+- Content themes and cadence
+- Social presence and tone
+- Where customers talk about them (Reddit, G2, Twitter, Slack groups)
+
+### 4. Moat Assessment (7 Powers)
+
+Each power scored **Strong / Weak / None** with evidence:
+
+| Power | Question |
+|-------|----------|
+| Scale Economies | Does cost per unit fall as volume grows? |
+| Network Effects | Does the product get more valuable as more users join? |
+| Counter-Positioning | Do they do something incumbents can't copy without cannibalization? |
+| Switching Costs | How painful is it for customers to leave? |
+| Branding | Do they command a premium from perceived quality or identity? |
+| Cornered Resource | Do they have exclusive access to a key asset (IP, talent, data, geography)? |
+| Process Power | Do they have a proprietary process hard to replicate? |
+
+### 5. Vulnerability Map
+Three specific competitive gaps with supporting evidence, framed as exploits:
+
+> "They can't do X because Y, which means Z is an opening."
+
+### 6. Attack Brief
+- Immediate tactical moves (executable in <30 days)
+- Medium-term positioning shifts (30–90 days)
+- One counter-positioning angle that would be painful for them to copy
+
+### 7. Re-Audit Protocol
+- 3 signals to watch that indicate a strategy shift
+- Recommended re-audit cadence (monthly / quarterly)
+
+## Evidence standards
+
+All claims are labeled:
+- **HIGH** — direct evidence (website copy, pricing page, job posting, tweet)
+- **MEDIUM** — strong inference
+- **LOW** — speculation (quarantined in a separate section, never presented as conclusions)
+
+No teardown is produced without actually reading the competitor's website.
+
+## Quarterly re-audit
+
+The agent runs automatically on the **first of every quarter at 9am ET**. It compares the new teardown to the stored baseline and outputs a DIFF section:
+
+- Positioning or pricing changes
+- Powers gained or lost
+- Vulnerability map shifts
+- Strategy signals that fired
+
+## Installation
+
+```bash
+clawhq pack install competitor-intel
+```
+
+Or install via the dashboard under **ClawMart → Free Packs**.
+
+## Trigger keywords
+
+- "competitor analysis"
+- "competitive intel"
+- "teardown"
+- "analyze competitor"
+- "competitor brief"
+- "how does X compare"
+
+## Example usage
+
+```
+Run a competitor teardown on Linear.app
+```
+
+```
+Re-audit Notion and compare to baseline
+```
+
+## Memory
+
+Baselines stored under `competitor-intel.<name>`. Used for quarterly re-audit diffs.
+
+## Output
+
+Saved to: `<competitor>-intel-<date>.md`

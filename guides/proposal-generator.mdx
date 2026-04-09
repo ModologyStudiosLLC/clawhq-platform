@@ -1,0 +1,89 @@
+---
+title: "Proposal Generator"
+description: "Generate client proposals and Statements of Work from a brief description."
+---
+
+## Overview
+
+Proposal Generator turns a short project brief into a professional client proposal or Statement of Work — complete with scope, deliverables, phased pricing, and standard legal terms. It stores your rates in memory so you never re-enter them.
+
+## What it produces
+
+### Client Proposals
+
+- Executive summary (2–3 sentences)
+- Problem restatement (shows you listened)
+- Proposed solution with methodology
+- Numbered deliverables (specific, not vague)
+- Phased timeline with durations or dates
+- Pricing table with line items by workstream
+- Good / Better / Best tier options when scope supports it
+- Standard T&Cs (see below)
+- Next steps on signature
+
+### Statements of Work
+
+- Project overview and scope of work
+- Out-of-scope section — prevents "while we're at it" requests
+- Deliverables with acceptance criteria
+- Client responsibilities and dependencies
+- Milestone-based payment schedule
+- Change request process
+
+## Standard T&C clauses
+
+Included by default, adjustable on request:
+
+| Clause | Default |
+|--------|---------|
+| IP ownership | Client owns all deliverables on final payment; agency retains portfolio rights |
+| Revisions | X rounds included; additional billed at hourly rate |
+| Kill fee | X% of remaining contract value if client cancels after work begins |
+| Warranty | X days of bug fixes post-launch at no charge |
+| Liability cap | Total contract value |
+| Payment terms | Net 15/30; late payments accrue X% per month |
+| Governing law | Ask user for jurisdiction |
+| Change orders | Written change order required before any scope changes begin |
+
+## Installation
+
+```bash
+clawhq pack install proposal-generator
+```
+
+Or install via the dashboard under **ClawMart → Free Packs**.
+
+## Trigger keywords
+
+The agent activates on:
+- "write a proposal"
+- "draft proposal"
+- "client proposal"
+- "statement of work"
+- "SOW"
+- "project quote"
+- "pricing proposal"
+
+## Example usage
+
+```
+Write a proposal for a 3-month e-commerce redesign for Acme Corp.
+Budget range: $25K–$40K. Timeline: April–June. Jurisdiction: California.
+```
+
+The agent will ask for your hourly rate (or use stored rates), then produce the full document.
+
+## Memory
+
+Rates and standard terms are stored under `proposal.rates` and reused across sessions — no re-entry needed for repeat clients.
+
+## Output
+
+Saved to: `<client-name>-proposal-<date>.md`
+
+## Notes
+
+- Always flag: "Have your attorney review before sending for contracts over $X."
+- Never presents a single pricing option — always offers tiers when the scope allows
+- Never omits the out-of-scope section or kill fee clause
+- Requires Human-in-the-Loop approval before sending (HITL enabled by default)
