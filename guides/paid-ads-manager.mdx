@@ -1,0 +1,98 @@
+---
+title: Paid Ads Manager Pack
+description: Plan and run paid campaigns across Google, Meta, LinkedIn, and Twitter/X. Ad copy, audience targeting, creative briefs, ROAS and CPA optimization.
+---
+
+Paid Ads Manager is a free ClawHQ pack that plans, writes, and optimizes paid advertising campaigns. Trigger it in any connected channel and it acts as a performance advertising specialist — no agency required.
+
+## What it covers
+
+| Platform | Capabilities |
+|----------|-------------|
+| **Google Ads** | Search (keywords, match types, extensions, negatives), Display, YouTube, Shopping, Performance Max |
+| **Meta** | Facebook + Instagram, all objectives, Custom + Lookalike audiences, Advantage+ vs manual placements |
+| **LinkedIn** | B2B targeting (title, seniority, company size, industry), Sponsored Content, Lead Gen Forms, Message Ads |
+| **Twitter/X** | Keyword + interest targeting, Promoted Tweets, follower lookalikes |
+
+## Install
+
+From the dashboard: **Settings → Packs → Paid Ads Manager → Install**
+
+Or manually:
+
+```bash
+cp packs/paid-ads-manager.yaml ~/.clawhq/packs/
+docker compose restart paperclip
+```
+
+## Triggering it
+
+Say any of these in a connected Discord or Slack channel:
+
+- `"plan a google ads campaign for [product]"`
+- `"write meta ad copy for [offer]"`
+- `"creative brief for linkedin campaign"`
+- `"what ROAS do I need to break even?"`
+- `"audit my ad campaigns"`
+
+## What to provide
+
+For best results, give it:
+
+1. **Business goal** — leads, sales, app installs, awareness
+2. **Target audience** — demographics, job titles, interests, pain points
+3. **Budget** — monthly or daily
+4. **Conversion tracking status** — Google Tag, Meta Pixel/CAPI, LinkedIn Insight Tag
+5. **Landing page URL**
+
+## Ad copy output
+
+The agent always writes **3 headline variants** and **2 body copy variants** per ad using these frameworks:
+
+- **AIDA** — Attention → Interest → Desire → Action
+- **PAS** — Problem → Agitate → Solution
+- **BAB** — Before → After → Bridge
+
+## Creative brief format
+
+When asked for a creative brief, the agent outputs:
+
+- Campaign goal and primary KPI
+- Target audience persona (demographics, psychographics, pain points)
+- Key message and value proposition
+- 3 headline options
+- 2 body copy variants
+- 3 CTA options
+- Visual direction (imagery, style, color guidance)
+- Format and dimension specs per platform
+- A/B test structure
+
+## ROAS & CPA targets
+
+```
+Break-even ROAS = 1 / Gross Margin
+Example: 40% margin → need 2.5x ROAS minimum
+
+CPA target = Average Order Value × Gross Margin
+Example: $200 AOV × 40% margin → max $80 CPA
+```
+
+The agent calculates these for your numbers and flags when campaigns are underperforming.
+
+## Campaign structure
+
+The agent always recommends a proper three-level structure:
+
+```
+Campaign       → objective, budget, bidding strategy
+└── Ad Set     → audience, placement, schedule (2-3 per campaign minimum)
+    └── Ad     → creative + copy (3 variants for A/B testing)
+```
+
+## Anti-patterns it flags
+
+- Running broad match keywords without a negative keyword list
+- Launching without verified conversion tracking
+- Using identical creative across all placements
+- Boosting posts instead of using Ads Manager
+- Setting campaigns live without a weekly review schedule
