@@ -2,6 +2,8 @@
 
 The unified AI agent control plane. OpenClaw + OpenFang + Paperclip + Hermes, under one roof.
 
+![ClawHQ Demo](assets/clawhq-preview.gif)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docs](https://img.shields.io/badge/docs-clawhqplatform.com-69daff)](https://clawhqplatform.com/docs/introduction)
 
