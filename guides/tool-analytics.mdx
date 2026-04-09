@@ -1,0 +1,59 @@
+---
+title: "Tool Analytics"
+description: "Per-tool success rates, error counts, and average duration — surfaced in the analytics dashboard."
+---
+
+## Overview
+
+Every tool call OpenFang executes is timed and recorded. The data feeds a `tool_executions` SQLite table and is queryable via `/api/tool-stats`.
+
+This tells you which tools are failing most often, how slow they are, and when they last ran — so you can catch misconfigured agents before users do.
+
+## What's tracked
+
+| Field | Description |
+|---|---|
+| `tool_name` | Name of the tool (e.g. `web_fetch`, `file_write`) |
+| `total_calls` | Total executions in the window |
+| `success_count` | Successful executions |
+| `error_count` | Failed executions (timeout counts as error) |
+| `success_rate` | `success_count / total_calls` (0.0–1.0) |
+| `avg_duration_ms` | Average wall-clock time per call |
+| `last_seen` | Timestamp of most recent execution |
+
+## API
+
+```bash
+GET /api/tool-stats
+```
+
+Returns an array sorted by `error_count` descending — worst tools first. Default window: last 24 hours.
+
+```json
+[
+  {
+    "tool_name": "web_fetch",
+    "total_calls": 42,
+    "success_count": 38,
+    "error_count": 4,
+    "success_rate": 0.905,
+    "avg_duration_ms": 1243.7,
+    "last_seen": "2026-04-09T10:22:00Z"
+  }
+]
+```
+
+## Dashboard
+
+Tool stats are included in every analytics snapshot taken by the dashboard (`POST /api/analytics`). They appear alongside token spend in the analytics page.
+
+## Storage
+
+Data is stored in OpenFang's SQLite database (`~/.openfang/data.db`) in the `tool_executions` table, created by schema migration v9. Events older than 30 days are pruned by the standard cleanup job.
+
+## Interpreting the data
+
+- **High error rate on `web_fetch`** — likely a network restriction or a domain that's been blocked by the tool guard sandbox
+- **High error rate on `file_write`** — sandbox path restrictions, or the agent is trying to write outside its workspace
+- **Very high `avg_duration_ms`** — tool hitting its timeout; consider raising the timeout in `agent_loop.rs` for that specific tool name
+- **`success_rate` = 0** — the tool is configured but completely non-functional; check agent capabilities and sandbox `allow_paths`

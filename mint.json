@@ -80,6 +80,9 @@
         "guides/integrations",
         "guides/budget",
         "guides/analytics",
+        "guides/tool-analytics",
+        "guides/escalation",
+        "guides/pii-filter",
         "guides/notifications",
         "guides/api-keys",
         "guides/audit-log"

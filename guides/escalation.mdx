@@ -1,0 +1,76 @@
+---
+title: "Escalation on Failure"
+description: "Get notified via Slack or Discord when an agent hits a terminal failure — all LLM fallbacks exhausted or max iterations exceeded."
+---
+
+## Overview
+
+When an agent fails terminally — meaning every configured LLM fallback has been tried and failed, or the agent has hit the 50-iteration hard stop — OpenFang fires a webhook notification immediately.
+
+This gives you an ops-grade signal without requiring log monitoring or polling.
+
+## What triggers escalation
+
+| Condition | Description |
+|---|---|
+| All fallbacks exhausted | Primary model failed + every `[[fallback_models]]` entry also failed |
+| Max iterations exceeded | Agent loop hit the 50-iteration hard stop |
+
+Normal transient errors (rate limit, temporary overload) that eventually succeed do **not** trigger escalation.
+
+## Setup
+
+Add your webhook URLs to `.env`:
+
+```bash
+# Agent failure escalation
+CLAWHQ_SLACK_WEBHOOK=https://hooks.slack.com/services/...
+CLAWHQ_DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
+```
+
+Either or both can be set — you don't need both.
+
+In `docker-compose.yml` these are already wired to the `openfang` service:
+
+```yaml
+CLAWHQ_SLACK_WEBHOOK: ${CLAWHQ_SLACK_WEBHOOK:-}
+CLAWHQ_DISCORD_WEBHOOK: ${CLAWHQ_DISCORD_WEBHOOK:-}
+```
+
+## Notification format
+
+**Slack:**
+```
+🔴 Agent failure — `competitor-intel` (`a1b2c3d4-...`)
+All fallback models failed: Provider 'groq' is in cooldown...
+```
+
+**Discord:**
+```
+**Agent failure** — `competitor-intel` (`a1b2c3d4-...`)
+All fallback models failed: Provider 'groq' is in cooldown...
+```
+
+## Behaviour
+
+- Fire-and-forget — the HTTP response to the caller is not delayed
+- Both webhooks fire in parallel if both are configured
+- No retry on webhook failure — if the webhook is down, the event is lost (check your webhook endpoint health separately)
+
+## Adding more fallbacks to reduce escalation frequency
+
+The best way to reduce escalation is to configure more fallback models in your `agent.toml`:
+
+```toml
+[[fallback_models]]
+provider = "groq"
+model = "llama-3.1-70b-versatile"
+api_key_env = "GROQ_API_KEY"
+
+[[fallback_models]]
+provider = "openai"
+model = "gpt-4o-mini"
+api_key_env = "OPENAI_API_KEY"
+```
+
+OpenFang tries each in order before escalating.

@@ -1,0 +1,76 @@
+---
+title: "PII Filter"
+description: "Automatically redact or block personally identifiable information before it crosses the ClawHQ boundary."
+---
+
+## Overview
+
+The PII filter is a layer inside Sentinel that scans and sanitizes text at three points in the request lifecycle:
+
+1. **Inbound** — user messages before reaching the agent
+2. **Tool output** — results from `web_fetch`, `file_read`, etc. before the agent sees them
+3. **Outbound** — Slack and Discord posts before delivery
+
+## Covered types
+
+| Type | Examples | Default action |
+|---|---|---|
+| `EMAIL` | user@example.com | Redact |
+| `PHONE` | (555) 123-4567, +1-555-123-4567 | Redact |
+| `SSN` | 123-45-6789 | **Block** |
+| `CREDIT_CARD` | 4111 1111 1111 1111 | **Block** |
+| `BANK_ROUTING` | 021000021 (ABA 9-digit) | **Block** |
+| `API_KEY` | sk-..., ghp_..., xoxb-..., rk_live_... | **Block** |
+| `PASSPORT` | A12345678 | Redact |
+| `IP_ADDRESS` | 192.168.1.1 | Redact |
+| `ZIP_CODE` | 10001 | Skip (too noisy) |
+
+High-risk types (SSN, CREDIT_CARD, BANK_ROUTING, API_KEY) force-block regardless of the configured mode.
+
+## Configuration
+
+All settings live in `services/hermes/sentinel/sentinel.yaml` under `pii_filter:`. No code changes needed.
+
+```yaml
+pii_filter:
+  enabled: true
+
+  # redact  — replace with [TYPE] token (default, recommended)
+  # block   — reject the payload with a 403 error
+  # log_only — pass through, only log what was found
+  mode: redact
+
+  # Force block for high-risk types even when mode is redact
+  block_on_high_risk: true
+
+  # Apply stricter rules to outbound channel posts
+  outbound_strict: true
+
+  # Types to never act on
+  skip_types:
+    - ZIP_CODE
+```
+
+## Audit logging
+
+Every redaction and block event feeds into the Sentinel correlation engine. Log lines include the type label and source only — **actual PII values never appear in logs**.
+
+```
+pii_filter: redacted from user — 2×EMAIL, 1×PHONE
+pii_filter: BLOCKED payload from tool:web_fetch — contains API_KEY
+```
+
+## Per-agent override
+
+Pass a different `pii_filter` config block when initializing `SentinelMiddleware` for a specific agent. For example, a CRM agent that legitimately handles emails could run `log_only` while everything else stays on `redact`.
+
+## What gets replaced
+
+Matched values are replaced in-place with `[TYPE]` tokens:
+
+```
+Contact me at [EMAIL] or [PHONE].
+API access requires [API_KEY].
+```
+
+The agent receives the redacted version and never sees the original values.
