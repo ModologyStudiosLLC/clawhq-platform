@@ -70,12 +70,17 @@
       -webkit-backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--border);
     }
+    @media (prefers-color-scheme: light) {
+      nav { background: rgba(250,250,248,0.88); }
+    }
     .nav-inner {
       max-width: var(--max-w); margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between;
       padding: 16px 32px;
     }
-    .nav-brand { display: flex; align-items: center; gap: 9px; }
+    .nav-brand { display: flex; align-items: center; gap: 9px; color: var(--text); }
+    .logo-accent { fill: var(--accent); }
+    .logo-mark   { fill: var(--accent); }
     .nav-wordmark { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
     .nav-links { display: flex; gap: 28px; }
     .nav-links a { font-size: 14px; color: var(--text-3); transition: color 0.15s; }
@@ -366,11 +371,11 @@
   <div class="nav-inner">
     <a href="/" class="nav-brand">
       <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;width:auto;">
-        <polygon points="6,30 10,30 19,6 15,6" fill="#69daff" opacity="0.45"/>
-        <polygon points="13,30 17,30 26,6 22,6" fill="#69daff" opacity="0.72"/>
-        <polygon points="20,30 24,30 33,6 29,6" fill="#69daff"/>
-        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="#ffffff">Claw</text>
-        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" fill="#69daff">HQ</text>
+        <polygon points="6,30 10,30 19,6 15,6" class="logo-mark" opacity="0.45"/>
+        <polygon points="13,30 17,30 26,6 22,6" class="logo-mark" opacity="0.72"/>
+        <polygon points="20,30 24,30 33,6 29,6" class="logo-mark"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
       </svg>
     </a>
     <div class="nav-links">
@@ -1104,11 +1109,11 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:20px;width:auto;opacity:0.7;">
-        <polygon points="6,30 10,30 19,6 15,6" fill="#69daff" opacity="0.45"/>
-        <polygon points="13,30 17,30 26,6 22,6" fill="#69daff" opacity="0.72"/>
-        <polygon points="20,30 24,30 33,6 29,6" fill="#69daff"/>
-        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="#ffffff">Claw</text>
-        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" fill="#69daff">HQ</text>
+        <polygon points="6,30 10,30 19,6 15,6" class="logo-mark" opacity="0.45"/>
+        <polygon points="13,30 17,30 26,6 22,6" class="logo-mark" opacity="0.72"/>
+        <polygon points="20,30 24,30 33,6 29,6" class="logo-mark"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
       </svg>
       <span class="footer-copy">© 2026 Modology Studios LLC</span>
     </div>

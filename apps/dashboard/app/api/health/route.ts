@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { notifyHealthAlert } from "../../../lib/notify.js";
+import { notifyHealthAlert } from "../../../lib/notify";
 
 const OPENCLAW = process.env.OPENCLAW_INTERNAL_URL || process.env.NEXT_PUBLIC_OPENCLAW_URL || "http://localhost:18789";
 const PAPERCLIP = process.env.PAPERCLIP_INTERNAL_URL || process.env.NEXT_PUBLIC_PAPERCLIP_URL || "http://localhost:3100";
@@ -50,7 +50,7 @@ async function getNotificationSettings() {
 export async function GET() {
   const [openclaw, paperclip, openfang, hermes, orchestration] = await Promise.all([
     check("OpenClaw",      OPENCLAW,      "/healthz"),
-    check("Paperclip",     PAPERCLIP,     "/api/companies"),
+    check("Paperclip",     PAPERCLIP,     "/api/health"),
     check("OpenFang",      OPENFANG,      "/api/health"),
     check("Hermes",        HERMES,        "/health",  true),
     check("Orchestration", ORCHESTRATION, "/healthz", true),

@@ -20,7 +20,8 @@ export function GeneralChat() {
   useEffect(() => {
     fetch("/api/agents")
       .then(r => r.json())
-      .then((list: Agent[]) => {
+      .then((data: unknown) => {
+        const list = Array.isArray(data) ? (data as Agent[]) : [];
         setAgents(list);
         if (list.length > 0) setSelectedId(list[0].id);
       })
