@@ -23,6 +23,7 @@ import {
   Package,
   Zap,
   BarChart2,
+  MessageSquare,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -35,6 +36,7 @@ export interface SidebarUser {
 
 const nav = [
   { href: "/home", label: "Home", icon: LayoutDashboard },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/team", label: "Team", icon: Users },
   { href: "/capabilities", label: "Capabilities", icon: Sparkles },
   { href: "/hermes", label: "Hermes", icon: Brain, accent: true },

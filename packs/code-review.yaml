@@ -1,0 +1,38 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: code-review
+  displayName: "Code Review"
+  description: "Automated code review for bugs, security issues, and style. Paste a snippet or name a file. Severity-rated output: Critical, Warning, Suggestion. Works in Discord and Slack."
+  channel: slack,discord
+  tags: [code-review, security, bugs, engineering, developer]
+  version: "1.0.0"
+  pricing:
+    tier: free
+
+agents:
+
+  - id: code-reviewer
+    name: "Code Reviewer"
+    description: "Reviews code for bugs, security vulnerabilities, and style issues. Severity-rated output. Works on snippets or file paths."
+    trigger:
+      - type: channel
+        keywords: ["review this", "code review", "review my code", "check this code", "look at this", "/review"]
+    task: |
+      Review the provided code for bugs, security vulnerabilities, and style issues.
+      Rate each issue by severity:
+        🔴 Critical — security issue or data loss risk
+        🟡 Warning — logic error or reliability concern
+        🔵 Suggestion — style, performance, or readability
+
+      If given a file path, read the file first. Be specific: cite line numbers when possible.
+      If no issues are found, say so clearly.
+    delivery:
+      mode: reply
+
+settings:
+  hitl:
+    enabled: false
+    auto_execute:
+      - "review"
+      - "scan"

@@ -57,6 +57,7 @@ The dashboard shows a badge in the top-right corner when your running instance i
 | Page | What it does |
 |---|---|
 | **Home** | Live agent status, metrics digest, recommendations |
+| **Chat** | General chat shell — pick any agent from a dropdown and message it directly |
 | **Team** | Per-agent chat, settings, and tool configuration |
 | **Capabilities** | What your agents can do |
 | **Channels** | Discord, Slack, Telegram, WhatsApp setup |
@@ -121,6 +122,7 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Weekly Briefing** | Friday morning digest of Slack, GitHub, Linear, and email |
 | **Content Engine** | Draft LinkedIn, Twitter, newsletters, and blog outlines from raw notes |
 | **Reddit Intel** | Weekly Reddit monitoring — sentiment analysis, competitor mentions, Discord reports |
+| **Code Review** | Paste code or name a file — severity-rated review (Critical/Warning/Suggestion) in any channel |
 | **Paid Ads Manager** | Google, Meta, LinkedIn, Twitter/X campaigns — copy, targeting, creative briefs, ROAS/CPA |
 | **Support Builder** | Rough notes and tickets → polished FAQ pages and help articles, gap analysis |
 **Pro packs ($9/mo)** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
