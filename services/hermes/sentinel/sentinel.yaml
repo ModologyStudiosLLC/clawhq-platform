@@ -117,3 +117,27 @@ sentinel:
 
   # Disabled tools globally
   disabled_tools: []
+
+pii_filter:
+  # Master switch — set to false to disable entirely (not recommended for prod)
+  enabled: true
+
+  # mode: what to do when PII is detected
+  #   redact   — replace matched PII with [TYPE] tokens (default, recommended)
+  #   block    — reject the payload with a 403 error
+  #   log_only — pass through unchanged, only log what was found
+  mode: redact
+
+  # block_on_high_risk: force block mode for SSN, credit cards, bank routing
+  # numbers, and API keys even when mode is set to redact
+  block_on_high_risk: true
+
+  # outbound_strict: apply stricter rules to Slack/Discord outbound posts
+  # (blocks high-risk types rather than redacting them outbound)
+  outbound_strict: true
+
+  # skip_types: PII types to never act on (too noisy or low-value)
+  # Full list: EMAIL, PHONE, SSN, CREDIT_CARD, BANK_ROUTING, API_KEY,
+  #            PASSPORT, IP_ADDRESS, ZIP_CODE
+  skip_types:
+    - ZIP_CODE

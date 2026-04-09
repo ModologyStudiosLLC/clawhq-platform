@@ -12,6 +12,7 @@ from typing import Callable, Optional
 
 from sentinel.gate import GateLayer
 from sentinel.prompt_guard import PromptGuard
+from sentinel.pii_filter import PIIFilter
 from sentinel.tool_guard import ToolGuard, ToolCall
 from sentinel.canary_engine import CanaryEngine
 from sentinel.decoy_swarm import DecoySwarm
@@ -43,6 +44,7 @@ class SentinelMiddleware:
         # Initialize all layers
         self.gate = GateLayer(config.get("gate", {}))
         self.prompt_guard = PromptGuard(config.get("sentinel", {}))
+        self.pii_filter = PIIFilter(config.get("pii_filter", {}))
         self.tool_guard = ToolGuard(config.get("sentinel", {}))
         self.canary = CanaryEngine(config.get("canary", {}), self._on_alert)
         self.decoy = DecoySwarm(
@@ -103,6 +105,28 @@ class SentinelMiddleware:
             await self._send_json(send, {"response": response})
             return
         
+        # Layer 2b: PII filter — redact or block before processing
+        pii_result = self.pii_filter.process_inbound(message, source="user")
+        if pii_result.blocked:
+            self._ingest_event(SecurityEvent(
+                event_type="pii_blocked",
+                severity="critical",
+                source_ip=client_ip,
+                details={"types": [m.type for m in pii_result.matches]},
+            ))
+            await self._send_blocked(send, "Payload blocked: high-risk PII detected")
+            return
+        if pii_result.redacted:
+            # Swap message for the redacted version so downstream never sees raw PII
+            message = pii_result.text
+            request_data["message"] = message
+            self._ingest_event(SecurityEvent(
+                event_type="pii_redacted",
+                severity="warning",
+                source_ip=client_ip,
+                details={"summary": pii_result.summary()},
+            ))
+
         # Layer 2a: Prompt guard — scan input
         scan_result = self.prompt_guard.scan_input(message, source="user")
         if scan_result.blocked:
@@ -114,7 +138,7 @@ class SentinelMiddleware:
             ))
             await self._send_blocked(send, "Input blocked by Sentinel")
             return
-        
+
         # Pass to ClawHQ app (with wrapped send for output scanning)
         # For now, pass through directly — full integration needs
         # response body interception
@@ -156,22 +180,68 @@ class SentinelMiddleware:
     
     def scan_tool_output(self, tool_name: str, output: str) -> dict:
         """
-        Scan tool output for indirect injection.
+        Scan and PII-filter tool output before passing to the agent.
         Call this after tool execution.
+        Returns cleaned text and block status.
         """
-        result = self.prompt_guard.scan_tool_output(tool_name, output)
-        
-        if result.blocked:
+        # Injection check first
+        inj_result = self.prompt_guard.scan_tool_output(tool_name, output)
+        if inj_result.blocked:
             self._ingest_event(SecurityEvent(
                 event_type="indirect_injection_detected",
-                severity=result.severity,
-                details={"tool": tool_name, "rules": [r["rule"] for r in result.matched_rules]},
+                severity=inj_result.severity,
+                details={"tool": tool_name, "rules": [r["rule"] for r in inj_result.matched_rules]},
             ))
-        
+            return {"blocked": True, "text": output, "severity": inj_result.severity, "action": inj_result.action}
+
+        # PII filter on tool output
+        pii_result = self.pii_filter.process_tool_output(tool_name, output)
+        if pii_result.blocked:
+            self._ingest_event(SecurityEvent(
+                event_type="pii_blocked_tool_output",
+                severity="critical",
+                details={"tool": tool_name, "types": [m.type for m in pii_result.matches]},
+            ))
+            return {"blocked": True, "text": output, "severity": "critical", "action": "block"}
+
+        if pii_result.redacted:
+            self._ingest_event(SecurityEvent(
+                event_type="pii_redacted_tool_output",
+                severity="warning",
+                details={"tool": tool_name, "summary": pii_result.summary()},
+            ))
+
         return {
-            "blocked": result.blocked,
-            "severity": result.severity,
-            "action": result.action,
+            "blocked": False,
+            "text": pii_result.text,
+            "severity": inj_result.severity,
+            "action": inj_result.action,
+            "pii_redacted": pii_result.redacted,
+        }
+
+    def filter_outbound(self, channel: str, text: str) -> dict:
+        """
+        PII-filter content before posting to Slack, Discord, or any channel.
+        Call this before every outbound message delivery.
+        Returns cleaned text and block status.
+        """
+        pii_result = self.pii_filter.process_outbound(channel, text)
+        if pii_result.blocked:
+            self._ingest_event(SecurityEvent(
+                event_type="pii_blocked_outbound",
+                severity="critical",
+                details={"channel": channel, "types": [m.type for m in pii_result.matches]},
+            ))
+        elif pii_result.redacted:
+            self._ingest_event(SecurityEvent(
+                event_type="pii_redacted_outbound",
+                severity="warning",
+                details={"channel": channel, "summary": pii_result.summary()},
+            ))
+        return {
+            "blocked": pii_result.blocked,
+            "text": pii_result.text,
+            "pii_redacted": pii_result.redacted,
         }
     
     def watermark_prompt(self, prompt: str, session_id: str) -> str:
