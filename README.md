@@ -116,6 +116,7 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Data Analyst** | CSV, JSON, and database → charts, tables, and statistical summaries |
 | **Weekly Briefing** | Friday morning digest of Slack, GitHub, Linear, and email |
 | **Content Engine** | Draft LinkedIn, Twitter, newsletters, and blog outlines from raw notes |
+| **Reddit Intel** | Weekly Reddit monitoring — sentiment analysis, competitor mentions, Discord reports |
 
 **Pro packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
 
