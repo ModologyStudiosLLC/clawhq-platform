@@ -117,6 +117,7 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Weekly Briefing** | Friday morning digest of Slack, GitHub, Linear, and email |
 | **Content Engine** | Draft LinkedIn, Twitter, newsletters, and blog outlines from raw notes |
 | **Reddit Intel** | Weekly Reddit monitoring — sentiment analysis, competitor mentions, Discord reports |
+| **Paid Ads Manager** | Google, Meta, LinkedIn, Twitter/X campaigns — copy, targeting, creative briefs, ROAS/CPA |
 
 **Pro packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
 
