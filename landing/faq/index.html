@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — ClawHQ Self-Hosted AI Team Platform</title>
+  <meta name="description" content="Answers to common questions about ClawHQ — how to deploy, what agents are included, how it compares to Dify and Flowise, and how the stack works." />
+  <meta property="og:title" content="FAQ — ClawHQ Self-Hosted AI Team Platform" />
+  <meta property="og:description" content="Everything you need to know about ClawHQ: deployment, agents, channels, pricing, and how it fits into your stack." />
+  <meta property="og:url" content="https://clawhqplatform.com/faq/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400;1,6..72,700&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ClawHQ",
+    "url": "https://clawhqplatform.com",
+    "description": "Self-hosted AI team platform with 30+ pre-installed agents, Discord and Slack integration, and one Docker command to deploy. MIT licensed, no per-seat fees.",
+    "sameAs": [
+      "https://github.com/ModologyStudiosLLC/clawhq-platform"
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is ClawHQ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ClawHQ is a self-hosted AI team platform that ships with 30+ pre-installed agents, fully wired to Discord, Slack, and Telegram. One Docker command deploys the entire stack: OpenClaw (agent gateway), OpenFang (agent runtime), Paperclip (memory), and Hermes (compression). MIT licensed with no per-seat fees."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I deploy ClawHQ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Run: docker compose up -d from the ClawHQ platform directory. The entire stack — agent gateway, runtime, memory, channels — comes up in one command. Full setup takes about 2 minutes. See the quickstart at clawhqplatform.com/docs/quickstart."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is ClawHQ open source?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. ClawHQ is MIT licensed and available at github.com/ModologyStudiosLLC/clawhq-platform. The full platform — agents, channels, runtime, and dashboard — is free to self-host with no per-seat fees."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What agents come pre-installed with ClawHQ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ClawHQ ships with 30+ agents including: Researcher, Email Assistant, Doc Writer, Coder, Analyst, Social Media, Planner, Translator, Legal Assistant, Sales Assistant, Security Auditor, Recruiter, Customer Support, Test Engineer, Architect, and Tutor. All are active immediately after deployment with no additional configuration."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What channels does ClawHQ support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ClawHQ supports Discord, Slack, Telegram, and Webhook out of the box. All channels are pre-configured and connected — you wire in your tokens and they're live. No custom integration code required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is ClawHQ different from Dify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Dify is an LLM app builder where you construct workflows and agents from scratch using a visual editor. ClawHQ ships with 30+ pre-built agents already deployed and coordinating as a team — you don't build, you delegate. ClawHQ is also pre-wired to Discord, Slack, and Telegram; Dify requires integration setup for each channel."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is ClawHQ different from Flowise?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Flowise is a drag-and-drop LangChain UI for building individual AI workflows. ClawHQ is a complete team of pre-deployed agents that coordinate with each other. Flowise is best when you want to build and customize AI pipelines visually; ClawHQ is best when you want a full AI team operational immediately without building anything."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I add my own agents to ClawHQ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Custom agents can be added via the ClawMart pack system. You can install community-built skill packs or create your own and load them into the platform."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What LLM providers does ClawHQ support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ClawHQ works with any OpenAI-compatible LLM API including Anthropic, OpenAI, Gemini, DeepSeek, Groq, and local models via Ollama. Configure your provider in the environment variables and all agents use it automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does ClawHQ send data to external servers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. ClawHQ is self-hosted with zero telemetry. All data stays within your own infrastructure. It is air-gap capable — deployable in fully isolated networks, suitable for compliance and regulated industry requirements."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does the ClawHQ stack include?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ClawHQ bundles six pre-configured services: OpenClaw (agent gateway and channel routing), OpenFang (autonomous agent runtime built in Rust), Paperclip (agent memory and context), Hermes (context compression), Mem0 (long-term memory), and an Orchestration layer for agent coordination."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    :root {
+      --bg: #050507; --bg-raised: #0c0c0f; --bg-float: #111115;
+      --surface: rgba(255,255,255,0.04); --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.07); --border-light: rgba(255,255,255,0.12);
+      --text: #f5f5f7; --text-2: rgba(245,245,247,0.72);
+      --text-3: rgba(245,245,247,0.44); --text-4: rgba(245,245,247,0.24);
+      --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+      --accent-glow: rgba(105,218,255,0.22); --green: #69f6b8;
+      --max-w: 1160px; --radius: 18px; --radius-sm: 10px;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Newsreader', Georgia, serif;
+      --font-mono: 'SF Mono', 'Geist Mono', 'Fira Code', monospace;
+    }
+    [data-theme="light"] {
+      --bg: #fafaf8; --bg-raised: #f0f0ec; --bg-float: #e8e8e4;
+      --surface: rgba(0,0,0,0.03); --surface-hover: rgba(0,0,0,0.06);
+      --border: rgba(0,0,0,0.08); --border-light: rgba(0,0,0,0.14);
+      --text: #1d1d1f; --text-2: rgba(29,29,31,0.72);
+      --text-3: rgba(29,29,31,0.44); --text-4: rgba(29,29,31,0.24);
+      --accent: #0066cc; --accent-dim: rgba(0,102,204,0.10);
+      --accent-glow: rgba(0,102,204,0.18); --green: #1a9c6e;
+    }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+    /* Nav */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; transition: background 0.3s, border-color 0.3s; border-bottom: 1px solid transparent; }
+    nav.scrolled { background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-color: var(--border); }
+    [data-theme="light"] nav.scrolled { background: rgba(250,250,248,0.92); border-color: var(--border); }
+    .nav-inner { max-width: var(--max-w); margin: 0 auto; width: 100%; display: flex; align-items: center; }
+    .nav-brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; margin-right: auto; color: var(--text); }
+    .logo-accent { fill: var(--accent); } .logo-mark { fill: var(--accent); }
+    .nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; color: var(--text); }
+    .nav-links { display: flex; align-items: center; gap: 32px; margin-right: 32px; }
+    .nav-links a { font-size: 14px; font-weight: 400; color: var(--text-3); transition: color 0.15s; letter-spacing: -0.01em; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-theme { width: 32px; height: 32px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); color: var(--text-3); font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, color 0.15s; }
+    .nav-theme:hover { background: var(--surface-hover); color: var(--text); }
+    .nav-cta { padding: 7px 18px; background: var(--text); color: var(--bg); border-radius: 980px; font-size: 13px; font-weight: 500; letter-spacing: -0.01em; transition: opacity 0.15s; }
+    .nav-cta:hover { opacity: 0.86; }
+    /* Page header */
+    .page-header { padding: 120px 32px 80px; max-width: var(--max-w); margin: 0 auto; }
+    .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+    .page-header h1 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px); font-weight: 400; letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 20px; }
+    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header p { font-size: 17px; color: var(--text-2); max-width: 520px; line-height: 1.65; }
+    /* FAQ */
+    .faq-wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 32px 120px; }
+    .faq-cols { display: grid; grid-template-columns: 240px 1fr; gap: 64px; align-items: start; }
+    .faq-nav { position: sticky; top: 80px; }
+    .faq-nav-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-4); margin-bottom: 16px; }
+    .faq-nav-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .faq-nav-list a { font-size: 13px; color: var(--text-3); padding: 5px 0; display: block; transition: color 0.15s; border-left: 2px solid transparent; padding-left: 12px; }
+    .faq-nav-list a:hover { color: var(--text); border-left-color: var(--border-light); }
+    .faq-content { display: flex; flex-direction: column; gap: 64px; }
+    .faq-group h2 { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-4); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .faq-list { display: flex; flex-direction: column; gap: 2px; }
+    .faq-item { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; transition: border-color 0.2s; background: var(--surface); }
+    .faq-item:hover { border-color: var(--border-light); }
+    .faq-item.open { border-color: rgba(105,218,255,0.2); background: rgba(105,218,255,0.03); }
+    .faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; background: none; border: none; cursor: pointer; text-align: left; font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; transition: color 0.15s; }
+    .faq-q:hover { color: var(--accent); }
+    .faq-icon { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.25s, border-color 0.2s, background 0.2s; color: var(--text-3); }
+    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16,1,0.3,1); }
+    .faq-item.open .faq-a { max-height: 500px; }
+    .faq-a-inner { padding: 0 20px 18px; font-size: 14px; color: var(--text-2); line-height: 1.75; border-top: 1px solid var(--border); padding-top: 14px; }
+    .faq-a-inner code { font-family: var(--font-mono); font-size: 12px; background: var(--bg-float); border: 1px solid var(--border-light); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+    .faq-a-inner a { color: var(--accent); }
+    /* CTA */
+    .cta-section { max-width: var(--max-w); margin: 0 auto; padding: 0 32px 120px; }
+    .cta-box { background: var(--bg-raised); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 56px 64px; display: flex; align-items: center; justify-content: space-between; gap: 48px; position: relative; overflow: hidden; }
+    .cta-box::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%); pointer-events: none; }
+    .cta-box h2 { font-family: var(--font-display); font-size: clamp(24px, 3vw, 38px); font-weight: 400; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .cta-box h2 em { font-style: italic; color: var(--accent); }
+    .cta-box p { font-size: 15px; color: var(--text-2); }
+    .cta-actions { display: flex; gap: 12px; flex-shrink: 0; }
+    .btn-primary { padding: 11px 24px; background: var(--text); color: var(--bg); border-radius: 980px; font-size: 14px; font-weight: 500; white-space: nowrap; transition: opacity 0.15s; }
+    .btn-primary:hover { opacity: 0.86; }
+    .btn-secondary { padding: 11px 24px; background: var(--surface); border: 1px solid var(--border-light); color: var(--text-2); border-radius: 980px; font-size: 14px; font-weight: 400; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+    .btn-secondary:hover { background: var(--surface-hover); color: var(--text); }
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 40px 32px; }
+    .footer-inner { max-width: var(--max-w); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-brand { display: flex; align-items: center; gap: 16px; }
+    .footer-copy { font-size: 13px; color: var(--text-4); }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a { font-size: 13px; color: var(--text-3); transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+    @media (max-width: 900px) {
+      .faq-cols { grid-template-columns: 1fr; }
+      .faq-nav { display: none; }
+      .cta-box { flex-direction: column; padding: 40px 32px; }
+      .nav-links { display: none; }
+      .footer-inner { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <div class="nav-logo-mark">
+        <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:22px;width:auto;">
+          <polygon class="logo-mark" points="6,30 10,30 19,6 15,6" opacity="0.45"/>
+          <polygon class="logo-mark" points="13,30 17,30 26,6 22,6" opacity="0.72"/>
+          <polygon class="logo-mark" points="20,30 24,30 33,6 29,6"/>
+          <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+          <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+        </svg>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/#stack">Stack</a>
+      <a href="/#agents">Agents</a>
+      <a href="/#enterprise">Enterprise</a>
+      <a href="/faq/" class="active">FAQ</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-theme" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon">☀</span></button>
+      <a href="/docs/quickstart" class="nav-cta">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <p class="eyebrow">FAQ</p>
+  <h1>Frequently asked<br><em>questions</em></h1>
+  <p>Everything you need to know about deploying, configuring, and extending ClawHQ.</p>
+</div>
+
+<div class="faq-wrap">
+  <div class="faq-cols">
+    <aside class="faq-nav">
+      <div class="faq-nav-label">Categories</div>
+      <ul class="faq-nav-list">
+        <li><a href="#general">General</a></li>
+        <li><a href="#deployment">Deployment</a></li>
+        <li><a href="#agents">Agents &amp; Channels</a></li>
+        <li><a href="#stack">The Stack</a></li>
+        <li><a href="#comparisons">Comparisons</a></li>
+        <li><a href="#privacy">Privacy &amp; Data</a></li>
+      </ul>
+    </aside>
+
+    <div class="faq-content">
+
+      <div class="faq-group" id="general">
+        <h2>General</h2>
+        <div class="faq-list">
+
+          <div class="faq-item open">
+            <button class="faq-q" aria-expanded="true">
+              What is ClawHQ?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">ClawHQ is a self-hosted AI team platform. It ships with 30+ pre-installed agents fully wired to Discord, Slack, and Telegram — one Docker command deploys the entire stack. The agents coordinate as a team: you delegate tasks, they work. MIT licensed, no per-seat fees, zero telemetry.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Is ClawHQ open source?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes. ClawHQ is MIT licensed and the full source is on <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>. The entire platform — agents, channels, runtime, dashboard — is free to self-host with no per-seat fees.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Who is ClawHQ for?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Teams and individuals who want a full AI workforce operational immediately — without building agents from scratch, wiring up integrations, or managing a complex LLM stack. Also teams with privacy requirements who can't send data to cloud AI platforms.</div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="faq-group" id="deployment">
+        <h2>Deployment</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How do I deploy ClawHQ?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Clone the repo, configure your <code>.env</code> file with your LLM API key and channel tokens, then run <code>docker compose up -d</code>. The full stack comes up in one command. Full walkthrough: <a href="/docs/quickstart">clawhqplatform.com/docs/quickstart</a>.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What are the server requirements?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Any machine that runs Docker. For production use, 2 vCPU and 4GB RAM is a reasonable baseline. ClawHQ runs on Linux, macOS, and Windows with Docker Desktop. Works on VPS, bare metal, local machine, and cloud VMs.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Can ClawHQ run in an air-gapped environment?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes. ClawHQ is air-gap capable and suitable for isolated networks, compliance environments, and regulated industries. Pair with a local LLM provider (Ollama) to remove all external API dependencies.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What LLM providers are supported?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Any OpenAI-compatible API: Anthropic (Claude), OpenAI (GPT-4o), Gemini, DeepSeek, Groq, Together AI, and local models via Ollama. Set your provider in <code>.env</code> — all agents use it automatically.</div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="faq-group" id="agents">
+        <h2>Agents &amp; Channels</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What agents come pre-installed?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">30+ agents active from day one: Researcher, Email Assistant, Doc Writer, Coder, Analyst, Social Media Manager, Planner, Translator, Legal Assistant, Sales Assistant, Security Auditor, Recruiter, Customer Support, Test Engineer, Architect, Tutor, and more. No configuration required — they're live immediately after deployment.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Which channels does ClawHQ support?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Discord, Slack, Telegram, and Webhook. All channels are pre-configured in the stack — provide your bot tokens in <code>.env</code> and they connect automatically. No custom integration code required.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Can I add my own custom agents?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes. Custom agents and skill packs can be installed via ClawMart, the community pack registry. You can also author your own packs and load them into your ClawHQ instance.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How do agents coordinate with each other?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">The Orchestration layer routes tasks to the right agent based on intent, and agents can delegate sub-tasks to specialists. For example, a Researcher agent can hand off a draft to the Doc Writer, which hands off to the Email Assistant for delivery — without manual intervention.</div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="faq-group" id="stack">
+        <h2>The Stack</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What does the ClawHQ stack include?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Six pre-configured services: <strong>OpenClaw</strong> (agent gateway — routes messages from channels to agents), <strong>OpenFang</strong> (agent runtime built in Rust — sandboxed, autonomous, fast), <strong>Paperclip</strong> (per-agent memory and context), <strong>Hermes</strong> (context compression — reduces token usage), <strong>Mem0</strong> (long-term memory), and an <strong>Orchestration layer</strong> for multi-agent coordination. All wired together. You don't configure the connections — they're done.</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What is OpenFang?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">OpenFang is the autonomous agent runtime underneath ClawHQ, built in Rust. Each agent runs sandboxed with full tool access — web search, code execution, GitHub, file system, and more. The Rust runtime means low memory overhead and fast parallel execution across many agents.</div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="faq-group" id="comparisons">
+        <h2>Comparisons</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How is ClawHQ different from Dify?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Dify is a visual LLM app builder — you construct agents and workflows from scratch using a drag-and-drop editor. ClawHQ ships with 30+ agents already deployed and coordinating. You don't build — you delegate. ClawHQ is also channel-native (Discord, Slack, Telegram pre-wired); Dify requires custom integration for each channel. <a href="/vs-dify/">Full comparison →</a></div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How is ClawHQ different from Flowise?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Flowise is a drag-and-drop LangChain UI for building individual AI pipelines. ClawHQ is a complete team of pre-deployed coordinating agents. Flowise gives you the tools to build; ClawHQ gives you the team. <a href="/vs-flowise/">Full comparison →</a></div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How is ClawHQ different from n8n?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">n8n is a workflow automation platform — you build trigger-based automations using a visual editor. ClawHQ agents are autonomous: they reason, plan, use tools, and handle ambiguity without a predefined workflow. They're complementary: n8n for deterministic automations, ClawHQ for tasks that require judgment. <a href="/vs-n8n/">Full comparison →</a></div></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="faq-group" id="privacy">
+        <h2>Privacy &amp; Data</h2>
+        <div class="faq-list">
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Does ClawHQ send data to external servers?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">No. ClawHQ is self-hosted with zero telemetry — no analytics, no usage reporting, no callbacks to any external server. All data stays within your own infrastructure. The only external connections are the LLM API calls you configure (which go directly to your chosen provider, not through us).</div></div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              Is ClawHQ suitable for regulated industries or compliance environments?
+              <span class="faq-icon"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5 1v7M1 4.5h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Yes. ClawHQ is air-gap capable — deployable in fully isolated networks with no external connectivity. Pair with a local LLM provider (Ollama) to eliminate all external API calls entirely. Suitable for defense, healthcare, legal, and financial compliance environments.</div></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <div class="cta-box">
+    <div>
+      <h2>Your AI team is<br><em>waiting for you.</em></h2>
+      <p>Open source, self-hosted, ready to deploy.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="/docs/quickstart" class="btn-primary">Deploy in 2 minutes →</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:20px;width:auto;opacity:0.7;">
+        <polygon class="logo-mark" points="6,30 10,30 19,6 15,6" opacity="0.45"/>
+        <polygon class="logo-mark" points="13,30 17,30 26,6 22,6" opacity="0.72"/>
+        <polygon class="logo-mark" points="20,30 24,30 33,6 29,6"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+      </svg>
+      <span class="footer-copy">© 2026 Modology Studios</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/vs-dify/">vs Dify</a>
+      <a href="/vs-flowise/">vs Flowise</a>
+      <a href="/vs-n8n/">vs n8n</a>
+      <a href="https://getclawcost.com" target="_blank">ClawCost</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 24), { passive: true });
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(el => { el.classList.remove('open'); el.querySelector('.faq-q').setAttribute('aria-expanded', 'false'); });
+      if (!isOpen) { item.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+    });
+  });
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  themeToggle.addEventListener('click', () => {
+    const isLight = document.documentElement.dataset.theme === 'light';
+    document.documentElement.dataset.theme = isLight ? 'dark' : 'light';
+    themeIcon.textContent = isLight ? '☀' : '🌙';
+  });
+</script>
+</body>
+</html>
