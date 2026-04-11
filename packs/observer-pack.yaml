@@ -1,0 +1,199 @@
+apiVersion: paperclip.ai/v1
+kind: AgentPack
+metadata:
+  name: observer-pack
+  displayName: "Observer Pack"
+  description: "Multi-agent coordination layer for teams running 3+ parallel agents. Deploys a read-only Observer agent that synthesizes project state from logs, file diffs, and commit history — plus a Conflict Detector and Status Reporter. Eliminates the multi-agent coordination problem without an orchestrator as a single point of failure."
+  channel: slack,discord
+  tags: [multi-agent, coordination, devops, observer, teams]
+  version: "1.0.0"
+  role: observer
+
+# ── Design notes ──────────────────────────────────────────────────────────────
+# This pack implements the Observer Pattern for multi-agent teams.
+# Three distinct roles, each with appropriate permissions:
+#
+#   observer          — read-only everywhere, writes only status summaries
+#   conflict-detector — read-only, emits conflict alerts
+#   status-reporter   — formats and delivers observer output to channels
+#
+# Worker agents (your existing agents) need no changes.
+# An operator agent or human consults the observer when they need ground truth.
+
+agents:
+
+  - id: observer
+    name: "Observer"
+    role: observer
+    description: "Read-only agent that watches all worker agents — file system changes, commit history, terminal logs, and shared task state — and synthesizes a running picture of what's done, in-progress, blocked, and conflicting. Does not issue commands or write to any worktree."
+    trigger:
+      - type: cron
+        expr: "*/10 * * * *"
+        tz: "America/New_York"
+        message: "Synthesize current project state across all active worker agents. Read recent file changes, git log from the last 10 minutes, and any agent status files written since your last run. Produce a structured status update."
+      - type: channel
+        keywords: ["observer status", "team status", "what are agents doing", "project state", "where are we", "status update", "what's in progress", "what's blocked"]
+    task: |
+      You are the Observer agent for this multi-agent team.
+
+      Your ONLY job is to READ and SYNTHESIZE. You do not:
+      - Modify any files
+      - Issue commands to other agents
+      - Make architectural decisions
+      - Write to any worktree
+
+      Every run, produce a structured status report in this format:
+
+      ## Agent Team Status — {timestamp}
+
+      **Completed since last check:**
+      - [agent-id] {task description} — {files touched} — {result}
+
+      **In progress:**
+      - [agent-id] {what they're working on} — {last activity timestamp}
+
+      **Blocked / waiting:**
+      - [agent-id] {what they're blocked on} — {how long}
+
+      **Conflicts detected:**
+      - CONFLICT: {agent-a} and {agent-b} both modified {file/module} — {details}
+      - DUPLICATE: {agent-a} and {agent-b} appear to be working on the same thing
+
+      **Test / build status:**
+      - {pass/fail counts from most recent run} — {which agent triggered}
+
+      **No issues to report** (if everything is clean)
+
+      To gather this information:
+      1. Read git log --oneline --since="10 minutes ago" across all worktrees
+      2. Check for any agent-status.json files written by worker agents in their worktrees
+      3. Read the shared task list state
+      4. Scan terminal logs for error patterns and completion signals
+      5. Compare file modification timestamps across worktrees for overlap
+
+      Surface the report to the configured channel immediately.
+    tools:
+      - file_read
+      - exec
+      - github
+    model: anthropic/claude-haiku-4-5-20251001
+    delivery:
+      mode: announce
+      channel: slack
+      to: "#agent-status"
+    permissions:
+      read: ["*"]
+      write: []
+      exec: ["git log", "git diff", "git status", "ls", "cat"]
+
+  - id: conflict-detector
+    name: "Conflict Detector"
+    role: observer
+    description: "Specialized observer that watches for file-level and task-level conflicts between parallel worker agents. Fires immediately on detection — does not wait for the scheduled observer cycle."
+    trigger:
+      - type: cron
+        expr: "*/3 * * * *"
+        tz: "America/New_York"
+        message: "Run a rapid conflict scan across all active worktrees. Check for overlapping file modifications in the last 3 minutes. Alert immediately if any conflicts are found."
+      - type: channel
+        keywords: ["conflict check", "any conflicts", "check for conflicts", "overlap check"]
+    task: |
+      You are the Conflict Detector — a specialized read-only scanner.
+
+      Run a rapid conflict scan every 3 minutes:
+
+      1. List all active git worktrees
+      2. For each worktree, get files modified in the last 3 minutes: `git diff --name-only HEAD~1`
+      3. Compare modified file lists across worktrees — flag any file touched by 2+ agents
+      4. Check the shared task list for duplicate task assignments
+      5. Look for agents that have been silent for >15 minutes (potential stall)
+
+      If conflicts found, immediately post to #agent-alerts:
+      ```
+      🔴 CONFLICT DETECTED
+      File: {path}
+      Agents involved: {agent-a}, {agent-b}
+      Last modified: {timestamps}
+      Recommended action: Pause {agent-b}, let {agent-a} complete, then rebase
+      ```
+
+      If stalled agent detected:
+      ```
+      ⚠️ AGENT STALL: {agent-id} has been silent for {duration}
+      Last activity: {description}
+      Check if it's blocked waiting for input or stuck in a loop.
+      ```
+
+      If nothing to report, write nothing. Only fire on actual issues.
+    tools:
+      - file_read
+      - exec
+    model: anthropic/claude-haiku-4-5-20251001
+    delivery:
+      mode: alert
+      channel: slack
+      to: "#agent-alerts"
+    permissions:
+      read: ["*"]
+      write: []
+      exec: ["git log", "git diff", "git status", "git worktree list", "ls"]
+
+  - id: status-reporter
+    name: "Status Reporter"
+    role: observer
+    description: "On-demand reporter that pulls the latest observer summary and formats it as a clean digest for the team. Responds to status requests in any connected channel."
+    trigger:
+      - type: channel
+        keywords: ["!status", "team report", "daily standup", "what did we ship", "what's done today", "eod report", "morning briefing"]
+    task: |
+      You are the Status Reporter. When called, pull the latest observer summary
+      and format it as a clean, human-readable team digest.
+
+      Format:
+      ---
+      **Agent Team Report** — {date} {time}
+
+      **Shipped today:**
+      {list of completed tasks with agents}
+
+      **Currently running:**
+      {list of in-progress work}
+
+      **Blocked / needs attention:**
+      {anything that needs a human decision}
+
+      **Cost so far today:** ${amount} across {n} agents
+
+      **Conflict alerts:** {count} — {summary or "None"}
+      ---
+
+      Keep it scannable. Bullet points, no paragraphs. A human should be able
+      to read this in 30 seconds and know exactly where the team stands.
+
+      If no observer summary is available, say so directly and trigger the
+      observer to run immediately.
+    tools:
+      - file_read
+    model: anthropic/claude-haiku-4-5-20251001
+    delivery:
+      mode: reply
+    permissions:
+      read: ["*"]
+      write: []
+
+# ── Shared config ─────────────────────────────────────────────────────────────
+
+config:
+  # Path where worker agents write their status blobs after each task.
+  # Each worker should write: { agentId, task, filesModified, status, timestamp }
+  statusDir: "~/.openclaw/agent-status/"
+
+  # Channels for alerts and status
+  alertChannel: "#agent-alerts"
+  statusChannel: "#agent-status"
+
+  # How long before an agent is considered stalled (minutes)
+  stallThresholdMinutes: 15
+
+  # Minimum agents running before observer activates (no overhead for solo work)
+  minAgentsToActivate: 2

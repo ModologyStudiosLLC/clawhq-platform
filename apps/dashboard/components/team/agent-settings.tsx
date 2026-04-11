@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Check, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { AGENT_ROLE_META, type AgentRole } from "@/lib/types";
 
 interface Agent {
   id: string;
@@ -57,6 +58,7 @@ export function AgentSettings({ agentId }: { agentId: string }) {
   const [profile, setProfile] = useState("");
   const [provider, setProvider] = useState("");
   const [model, setModel] = useState("");
+  const [agentRole, setAgentRole] = useState<AgentRole>("worker");
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -76,6 +78,7 @@ export function AgentSettings({ agentId }: { agentId: string }) {
         setProfile(found.profile ?? "general");
         setProvider(found.model_provider ?? "anthropic");
         setModel(found.model_name ?? "");
+        setAgentRole((found as any).agentRole ?? "worker");
       }
       setBudget(b);
       setLoading(false);
@@ -251,9 +254,38 @@ export function AgentSettings({ agentId }: { agentId: string }) {
             />
           </div>
 
+          {/* Team role */}
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-muted)" }}>Team role</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["worker", "observer", "operator"] as AgentRole[]).map(r => {
+                const meta = AGENT_ROLE_META[r];
+                const active = agentRole === r;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setAgentRole(r)}
+                    className="flex flex-col items-center gap-1 px-2 py-2.5 rounded-lg text-xs font-medium transition-all"
+                    style={{
+                      background: active ? meta.dim : "var(--color-surface-2)",
+                      border: `1px solid ${active ? meta.color : "var(--color-border)"}`,
+                      color: active ? meta.color : "var(--color-text-muted)",
+                    }}
+                  >
+                    <span className="font-semibold">{meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs mt-1.5" style={{ color: "var(--color-text-subtle)" }}>
+              {AGENT_ROLE_META[agentRole].description}
+            </p>
+          </div>
+
           {/* Profile */}
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-muted)" }}>Role / profile</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-text-muted)" }}>Behavior profile</label>
             <select
               value={profile}
               onChange={e => setProfile(e.target.value)}
