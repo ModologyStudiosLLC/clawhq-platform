@@ -1,0 +1,132 @@
+---
+title: Agent Skills
+description: Free instruction-layer skills that extend what your agents know how to do.
+---
+
+Skills are SKILL.md instruction files that load into your agents' context and change their behavior. Unlike packs (which deploy full agent teams), skills teach a single agent a capability — memory architecture, learning loops, marketing frameworks, and more.
+
+All skills listed here are free and open source.
+
+## Installing a skill
+
+```bash
+# Install from ClawHQ packs
+cp ~/.clawhq/packs/skills/<slug>/SKILL.md ~/.openclaw/skills/<slug>/SKILL.md
+
+# Or install via the CLI
+clawhq skills install <slug>
+```
+
+Skills in `~/.openclaw/skills/` are auto-detected by Hermes and any OpenClaw agent with skills enabled. To verify:
+
+```
+@Hermes what skills do you have loaded?
+```
+
+---
+
+## Memory & Learning
+
+### Agent Memory Architecture
+
+Foundational three-tier persistent memory system for any agent.
+
+| | |
+|---|---|
+| **Slug** | `agent-memory-architecture` |
+| **Price** | Free |
+| **Tiers** | HOT (always loaded) · WARM (context-loaded) · COLD (archived) |
+
+Structures agent memory into HOT (`hot.md`, ≤80 lines, always loaded), WARM (project and domain scoped files), and COLD (archived). Includes daily append-only logs, an index file, and automatic promotion/demotion rules.
+
+Use this as the memory foundation. Other skills like `meta-learning-loop` and `self-improving` build on top of it.
+
+**What it gives your agent:**
+- Persistent memory across sessions without manual maintenance
+- Automatic tiering — hot facts stay fast, cold facts stay available
+- Daily logs that never summarize away important context
+- Commands: `memory status`, `what do you remember about X?`, `forget X`
+
+```bash
+clawhq skills install agent-memory-architecture
+```
+
+---
+
+### Meta-Learning Loop
+
+Three-phase system that extracts failures, distills principles, and tracks learning velocity.
+
+| | |
+|---|---|
+| **Slug** | `meta-learning-loop` |
+| **Price** | Free |
+| **Phases** | Extract → Distill → Track |
+
+Runs automatically after sessions with failures or corrections, and on a weekly cadence. Goes beyond remembering corrections — it identifies *why* things failed and distills durable behavioral rules from repeated patterns.
+
+**What it gives your agent:**
+- Failure log with root cause tagging (`wrong-assumption`, `revision-loop`, `missing-context`, etc.)
+- Principle distillation: when 3+ failures share a root cause, a named rule is created
+- Weekly velocity report: are failures actually decreasing?
+- Commands: `run learning loop`, `show learning velocity`, `what principles apply to X?`
+
+```bash
+clawhq skills install meta-learning-loop
+```
+
+---
+
+### Self-Improving
+
+Self-reflection, self-criticism, and correction-tracking for agents.
+
+| | |
+|---|---|
+| **Slug** | `self-improving` |
+| **Price** | Free |
+
+Logs corrections and explicit preferences, promotes patterns after 3 occurrences, and integrates with the heartbeat system for recurring maintenance. The most mature skill in the memory stack — use it alongside `agent-memory-architecture` for a complete setup.
+
+```bash
+clawhq skills install self-improving
+```
+
+---
+
+## Recommended stack
+
+For an agent with full memory and learning capabilities, install all three in order:
+
+```bash
+clawhq skills install agent-memory-architecture
+clawhq skills install self-improving
+clawhq skills install meta-learning-loop
+```
+
+The memory architecture provides the file structure. Self-improving handles correction tracking. The meta-learning loop adds structured failure analysis and velocity tracking on top.
+
+---
+
+## Build your own skill
+
+A skill is a single SKILL.md file with a frontmatter header:
+
+```markdown
+---
+name: My Skill
+slug: my-skill
+version: 1.0.0
+description: "One sentence on what this skill teaches an agent."
+---
+
+## When to Use
+...
+
+## Rules
+...
+```
+
+Drop it in `~/.openclaw/skills/my-skill/SKILL.md` and it will be detected automatically.
+
+See the [agent-memory-architecture SKILL.md](https://github.com/ModologyStudiosLLC/clawhq-packs/blob/main/skills/agent-memory-architecture/SKILL.md) for a full example.

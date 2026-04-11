@@ -70,6 +70,7 @@
         "guides/hermes",
         "guides/channels",
         "guides/packs",
+        "guides/skills",
         "guides/agent-teams",
         "guides/model-router",
         "guides/integrations",
