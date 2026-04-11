@@ -48,7 +48,11 @@ spec:
 | Field | Required | Description |
 |---|---|---|
 | `ref` | ✓ | Agent reference — `clawhq://name` or relative path |
-| `role` | ✓ | Role in the pack (e.g. `primary`, `support`) |
+| `role` | ✓ | Role in the pack. Use `primary` / `support` for general packs. For multi-agent coordination packs, use `worker`, `observer`, or `operator` — see [Agent Teams](/guides/agent-teams). |
+| `permissions` | | Filesystem permission overrides. Only meaningful for `observer` and `operator` roles. |
+| `permissions.read` | | Glob list of paths the agent may read. `["*"]` = all worktrees. |
+| `permissions.write` | | Glob list of paths the agent may write. `[]` = read-only (correct for observers). |
+| `permissions.exec` | | Allowlist of shell commands the agent may invoke (e.g. `["git log", "git diff"]`). |
 | `priority` | | Execution order (lower = higher priority) |
 | `config.model` | | Model override for this agent |
 | `config.tools` | | Tool list |

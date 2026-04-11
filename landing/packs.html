@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Packs — ClawHQ</title>
+  <meta name="description" content="Pre-built AI agent packs for ClawHQ. Drop one into your deployment and your team is running in minutes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400;1,6..72,700&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #050507;
+      --surface:      rgba(255,255,255,0.04);
+      --surface-hover:rgba(255,255,255,0.07);
+      --border:       rgba(255,255,255,0.07);
+      --border-light: rgba(255,255,255,0.12);
+      --text:         #f5f5f7;
+      --text-2:       rgba(245,245,247,0.72);
+      --text-3:       rgba(245,245,247,0.50);
+      --text-4:       rgba(245,245,247,0.36);
+      --accent:       #69daff;
+      --accent-dim:   rgba(105,218,255,0.10);
+      --accent-glow:  rgba(105,218,255,0.22);
+      --green:        #69f6b8;
+      --purple:       #ac8aff;
+      --max-w:        1160px;
+      --radius:       18px;
+      --radius-sm:    10px;
+      --font-body:    'Inter', system-ui, sans-serif;
+      --font-display: 'Newsreader', Georgia, serif;
+      --font-mono:    'Geist Mono', monospace;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:           #fafafa;
+        --surface:      rgba(0,0,0,0.03);
+        --surface-hover:rgba(0,0,0,0.06);
+        --border:       rgba(0,0,0,0.08);
+        --border-light: rgba(0,0,0,0.14);
+        --text:         #111;
+        --text-2:       rgba(17,17,17,0.72);
+        --text-3:       rgba(17,17,17,0.50);
+        --text-4:       rgba(17,17,17,0.36);
+        --accent:       #0066cc;
+        --accent-dim:   rgba(0,102,204,0.10);
+        --accent-glow:  rgba(0,102,204,0.18);
+      }
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5,5,7,0.82);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    @media (prefers-color-scheme: light) {
+      nav { background: rgba(250,250,248,0.88); }
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 9px; color: var(--text); }
+    .logo-accent { fill: var(--accent); }
+    .logo-mark   { fill: var(--accent); }
+    .nav-wordmark { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 14px; color: var(--text-3); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--text); color: var(--bg);
+      padding: 8px 18px; border-radius: 980px;
+      font-size: 14px; font-weight: 500;
+      transition: opacity 0.15s;
+    }
+    .nav-cta:hover { opacity: 0.86; }
+
+    /* ── HERO ── */
+    .page-hero {
+      padding: 100px 32px 72px;
+      max-width: var(--max-w); margin: 0 auto;
+      text-align: center;
+    }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent);
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-bottom: 24px;
+    }
+    .eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--accent); }
+    .page-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 500; letter-spacing: -0.02em; line-height: 1.08;
+      margin-bottom: 20px;
+    }
+    .page-hero p {
+      font-size: 18px; color: var(--text-3); max-width: 560px; margin: 0 auto 16px;
+    }
+    .free-note {
+      font-size: 13px; color: var(--text-4); margin-top: 8px;
+    }
+    .free-note a { color: var(--accent); border-bottom: 1px solid var(--accent-dim); }
+    .free-note a:hover { border-color: var(--accent); }
+
+    /* ── BUNDLE BANNER ── */
+    .bundle-banner {
+      max-width: var(--max-w); margin: 0 auto 72px;
+      padding: 0 32px;
+    }
+    .bundle-card {
+      background: linear-gradient(135deg, rgba(105,218,255,0.08) 0%, rgba(172,138,255,0.08) 100%);
+      border: 1px solid rgba(105,218,255,0.2);
+      border-radius: var(--radius);
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 32px; flex-wrap: wrap;
+    }
+    .bundle-left h2 {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .bundle-left p { color: var(--text-3); font-size: 15px; max-width: 480px; }
+    .bundle-included {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px;
+    }
+    .bundle-chip {
+      font-size: 11px; padding: 3px 10px; border-radius: 980px;
+      background: var(--accent-dim); color: var(--accent);
+      font-family: var(--font-mono); letter-spacing: 0.02em;
+    }
+    .bundle-right { text-align: center; flex-shrink: 0; }
+    .bundle-price {
+      font-family: var(--font-display);
+      font-size: 48px; font-weight: 700; letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .bundle-was {
+      font-size: 13px; color: var(--text-4); text-decoration: line-through; margin-bottom: 4px;
+    }
+    .bundle-save {
+      font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 500;
+    }
+    .bundle-btn {
+      display: inline-block; margin-top: 16px;
+      background: var(--accent); color: #000;
+      padding: 12px 28px; border-radius: 980px;
+      font-size: 15px; font-weight: 600;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .bundle-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── PACK GRID ── */
+    .packs-section {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 0 32px 120px;
+    }
+    .section-label {
+      font-size: 13px; font-weight: 500; color: var(--text-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+    .packs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+    .pack-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex; flex-direction: column;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .pack-card:hover {
+      border-color: var(--border-light);
+      background: var(--surface-hover);
+    }
+    .pack-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 16px;
+      margin-bottom: 14px;
+    }
+    .pack-icon {
+      width: 42px; height: 42px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .pack-name {
+      font-family: var(--font-display);
+      font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .pack-price-tag {
+      font-family: var(--font-display);
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+      flex-shrink: 0; color: var(--text);
+    }
+    .pack-desc {
+      font-size: 14px; color: var(--text-3); line-height: 1.6;
+      margin-bottom: 18px; flex: 1;
+    }
+    .pack-agents {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+    }
+    .pack-agent-chip {
+      font-size: 11px; padding: 3px 9px; border-radius: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-3); font-family: var(--font-mono);
+    }
+    .pack-buy-btn {
+      display: block; width: 100%;
+      background: var(--text); color: var(--bg);
+      padding: 11px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; text-align: center;
+      transition: opacity 0.15s;
+    }
+    .pack-buy-btn:hover { opacity: 0.82; }
+
+    .pack-free-badge {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em;
+      font-weight: 500; color: var(--green);
+      background: rgba(105,246,184,0.1); border: 1px solid rgba(105,246,184,0.25);
+      padding: 3px 10px; border-radius: 980px;
+    }
+    .pack-free-btn {
+      display: block; width: 100%;
+      background: rgba(105,246,184,0.1); color: var(--green);
+      border: 1px solid rgba(105,246,184,0.3);
+      padding: 11px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; text-align: center;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .pack-free-btn:hover { opacity: 0.85; }
+    .pack-pro-badge {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em;
+      font-weight: 500; color: var(--accent);
+      background: var(--accent-dim); border: 1px solid rgba(105,218,255,0.25);
+      padding: 3px 10px; border-radius: 980px;
+    }
+
+    /* ── FREE TEMPLATES ── */
+    .templates-section {
+      border-top: 1px solid var(--border);
+      padding: 80px 32px;
+      max-width: var(--max-w); margin: 0 auto;
+    }
+    .templates-section h2 {
+      font-family: var(--font-display);
+      font-size: 32px; font-weight: 500; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .templates-section p { color: var(--text-3); margin-bottom: 32px; }
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .template-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 20px;
+    }
+    .template-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .template-desc { font-size: 13px; color: var(--text-3); }
+
+    /* ── SUCCESS BANNER ── */
+    .success-banner {
+      display: none;
+      background: rgba(105,246,184,0.1); border: 1px solid rgba(105,246,184,0.3);
+      border-radius: var(--radius-sm); padding: 16px 24px;
+      margin: 0 32px 32px; max-width: var(--max-w);
+      color: var(--green); font-size: 14px; font-weight: 500;
+    }
+    .success-banner.visible { display: block; }
+
+    /* ── NOTIFY ── */
+    .notify-section {
+      border-top: 1px solid var(--border);
+      padding: 80px 32px;
+      max-width: var(--max-w); margin: 0 auto;
+      text-align: center;
+    }
+    .notify-section h2 {
+      font-family: var(--font-display);
+      font-size: 32px; font-weight: 500; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .notify-section p { color: var(--text-3); font-size: 15px; margin-bottom: 28px; }
+    .notify-form {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap; max-width: 480px; margin: 0 auto;
+    }
+    .notify-input {
+      flex: 1; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 16px;
+      font-size: 14px; color: var(--text);
+      font-family: var(--font-body);
+      outline: none; transition: border-color 0.15s;
+    }
+    .notify-input::placeholder { color: var(--text-4); }
+    .notify-input:focus { border-color: var(--border-light); }
+    .notify-btn {
+      background: var(--text); color: var(--bg);
+      padding: 11px 22px; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer;
+      font-family: var(--font-body);
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .notify-btn:hover { opacity: 0.82; }
+    .notify-success {
+      display: none; color: var(--green);
+      font-size: 14px; margin-top: 12px;
+    }
+    .notify-success.visible { display: block; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 32px;
+    }
+    .footer-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 9px; }
+    .footer-wordmark { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+    .footer-copy { font-size: 13px; color: var(--text-4); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--text-4); transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .bundle-card { flex-direction: column; text-align: center; }
+      .bundle-included { justify-content: center; }
+      .packs-grid { grid-template-columns: 1fr; }
+      .templates-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;width:auto;">
+        <polygon points="6,30 10,30 19,6 15,6" class="logo-mark" opacity="0.45"/>
+        <polygon points="13,30 17,30 26,6 22,6" class="logo-mark" opacity="0.72"/>
+        <polygon points="20,30 24,30 33,6 29,6" class="logo-mark"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a href="/docs/quickstart" class="nav-cta">Get started</a>
+  </div>
+</nav>
+
+<!-- ── SUCCESS BANNER ── -->
+<div class="success-banner" id="successBanner">
+  ✓ Purchase complete — check your email for your license key. Go to <strong>Settings → Packs</strong> in your dashboard to activate it.
+</div>
+
+<!-- ── HERO ── -->
+<div class="page-hero">
+  <p class="eyebrow">Agent Packs</p>
+  <h1>Your team.<br><em>Pre-configured.</em></h1>
+  <p>Drop a pack into your ClawHQ deployment and a full AI team is running in minutes. Built on the open Paperclip standard.</p>
+  <p class="free-note">Just want to explore? <a href="/docs/templates/overview">Free community templates</a> are available in the docs.</p>
+</div>
+
+<!-- ── BUNDLE BANNER ── -->
+<div class="bundle-banner">
+  <div class="bundle-card">
+    <div class="bundle-left">
+      <h2>All Packs Bundle</h2>
+      <p>Every pack in one purchase. Sales, engineering, finance, support, marketing, real estate, e-commerce, and creator workflows — all unlocked.</p>
+      <div class="bundle-included">
+        <span class="bundle-chip">Reskilling Core</span>
+        <span class="bundle-chip">Engineering</span>
+        <span class="bundle-chip">Finance</span>
+        <span class="bundle-chip">Sales</span>
+        <span class="bundle-chip">Support</span>
+        <span class="bundle-chip">Marketing Agency</span>
+        <span class="bundle-chip">Real Estate</span>
+        <span class="bundle-chip">E-commerce</span>
+        <span class="bundle-chip">Creator Suite</span>
+        <span class="bundle-chip">Decision Brief</span>
+        <span class="bundle-chip">Full-Stack Marketer</span>
+      </div>
+    </div>
+    <div class="bundle-right">
+      <p class="bundle-was">$1040 separately</p>
+      <p class="bundle-price">$299</p>
+      <p class="bundle-save">Save $741</p>
+      <a href="https://buy.stripe.com/bJe28s2IP6ZheG94Vm2Fa0b" class="bundle-btn">Get all packs →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW PACKS ── -->
+<div class="packs-section" style="padding-bottom:80px;">
+  <p class="section-label">New packs — free &amp; pro</p>
+  <div class="packs-grid">
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">👁️</div>
+          <div class="pack-name" style="margin-top:12px;">Observer Pack</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Run 3+ agents in parallel without coordination failures. An observer watches all workers, a conflict detector fires on file collisions, and a status reporter answers <code>!status</code> on demand — no orchestrator needed.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">observer</span>
+        <span class="pack-agent-chip">conflict-detector</span>
+        <span class="pack-agent-chip">status-reporter</span>
+      </div>
+      <a href="/guides/agent-teams" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📊</div>
+          <div class="pack-name" style="margin-top:12px;">Data Analyst</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Turn any CSV, JSON, spreadsheet, or database query into charts, tables, and statistical summaries — no code required. Works on any data source your agents can access.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">data-reader</span>
+        <span class="pack-agent-chip">chart-generator</span>
+        <span class="pack-agent-chip">stats-analyst</span>
+        <span class="pack-agent-chip">report-writer</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">📰</div>
+          <div class="pack-name" style="margin-top:12px;">Weekly Briefing</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Every Friday: a synthesized digest from Slack, GitHub, Linear, and email. What mattered, what's at risk, what needs a decision — delivered to your channel in 2 minutes.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">digest-collector</span>
+        <span class="pack-agent-chip">priority-ranker</span>
+        <span class="pack-agent-chip">briefing-writer</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(232,121,249,0.1);">✍️</div>
+          <div class="pack-name" style="margin-top:12px;">Content Engine</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Draft LinkedIn posts, tweets, and newsletter sections from your notes. Schedule and repurpose across formats in one automated flow.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">draft-writer</span>
+        <span class="pack-agent-chip">repurposer</span>
+        <span class="pack-agent-chip">scheduler</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,168,37,0.1);">📣</div>
+          <div class="pack-name" style="margin-top:12px;">Paid Ads Manager</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Plan and run paid campaigns across Google, Meta, LinkedIn, and Twitter/X. Writes ad copy with AIDA/PAS/BAB frameworks, builds audience targeting, generates creative briefs, and calculates ROAS and CPA targets.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">paid-ads-manager</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(52,211,153,0.1);">🎧</div>
+          <div class="pack-name" style="margin-top:12px;">Support Builder</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Turn rough notes, support tickets, and Slack threads into polished FAQ pages and help articles. Runs gap analysis to find unanswered questions and builds a content roadmap. Works with Mintlify, Notion, Confluence, and Intercom.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">support-builder</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(251,191,36,0.1);">🔭</div>
+          <div class="pack-name" style="margin-top:12px;">Competitor Intel</div>
+        </div>
+        <div class="pack-price-tag">$9<span style="font-size:0.6em;font-weight:500">/mo</span></div>
+      </div>
+      <p class="pack-desc">Evidence-based competitor teardowns using Helmer's 7 Powers framework. Positioning snapshot, moat scoring, vulnerability map, and attack brief — every claim tied to a specific observable signal. Runs quarterly re-audits and diffs against your stored baseline.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">competitor-intel</span>
+      </div>
+      <a href="https://buy.stripe.com/5kQ6oI97dgzRdC5cnO2Fa0y" class="pack-buy-btn">Get Competitor Intel →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(167,139,250,0.1);">📄</div>
+          <div class="pack-name" style="margin-top:12px;">Proposal Generator</div>
+        </div>
+        <div class="pack-price-tag">$9<span style="font-size:0.6em;font-weight:500">/mo</span></div>
+      </div>
+      <p class="pack-desc">Generate professional client proposals and Statements of Work from a brief description. Scope, deliverables, phased timelines, and pricing tables. Standard T&Cs: IP ownership, kill fee, revision rounds, warranty, liability cap, and change order process. Stores your rates in memory — no re-entry across sessions.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">proposal-generator</span>
+      </div>
+      <a href="https://buy.stripe.com/8x24gA5V1dnFgOhbjK2Fa0w" class="pack-buy-btn">Get Proposal Generator →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">⚙️</div>
+          <div class="pack-name" style="margin-top:12px;">Code Review</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Automated code review in Discord or Slack. Paste a snippet or name a file — get severity-rated feedback in seconds. 🔴 Critical (security/data loss), 🟡 Warning (logic/reliability), 🔵 Suggestion (style/perf). Works on any language.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">code-reviewer</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">🔍</div>
+          <div class="pack-name" style="margin-top:12px;">Reddit Intel</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Weekly Reddit scan across your target subreddits and keywords. Sentiment analysis, competitor mentions, trending pain points, and market signals — posted to Discord every Monday morning. No Reddit credentials required.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">reddit-intel</span>
+        <span class="pack-agent-chip">sentiment-analyst</span>
+        <span class="pack-agent-chip">discord-reporter</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">🔬</div>
+          <div class="pack-name" style="margin-top:12px;">AutoResearch</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Autonomous self-optimizing agent loop. Define a goal and eval command, let the agent iterate — keeping improvements, discarding failures — until convergence. No human in the loop once it starts.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">ar-planner</span>
+        <span class="pack-agent-chip">ar-runner</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📈</div>
+          <div class="pack-name" style="margin-top:12px;">Finance Dashboards</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Generate five self-contained, interactive HTML dashboards — P&amp;L, Revenue, Cost Centers, Pipeline Forecast, and Cash Flow — from raw CSV data. Refresh monthly without rebuilding.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">dash-pl</span>
+        <span class="pack-agent-chip">dash-revenue</span>
+        <span class="pack-agent-chip">dash-cost</span>
+        <span class="pack-agent-chip">dash-pipeline</span>
+        <span class="pack-agent-chip">dash-cashflow</span>
+      </div>
+      <a href="https://buy.stripe.com/fZu5kE2IPabtbtXevW2Fa0g" class="pack-buy-btn">Buy Finance Dashboards →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(172,138,255,0.1);">🧠</div>
+          <div class="pack-name" style="margin-top:12px;">Karpathy Knowledge</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Obsidian-style knowledge vault for your workspace. Ingest URLs and files into staging, synthesize wiki entries by topic, and answer questions by navigating the vault — no vector DB, no embeddings.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">kb-ingest</span>
+        <span class="pack-agent-chip">kb-wiki-gen</span>
+        <span class="pack-agent-chip">kb-query</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📋</div>
+          <div class="pack-name" style="margin-top:12px;">Workflow Docs</div>
+        </div>
+        <span class="pack-free-badge">Free</span>
+      </div>
+      <p class="pack-desc">Tango-style workflow documentation, automatically. Every multi-step task your agent completes becomes a numbered, shareable SOP — saved to your docs folder in real time. No extension required.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">workflow-recorder</span>
+        <span class="pack-agent-chip">sop-writer</span>
+        <span class="pack-agent-chip">guide-indexer</span>
+      </div>
+      <a href="/docs/quickstart" class="pack-free-btn">Install free →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">⚡</div>
+          <div class="pack-name" style="margin-top:12px;">Decision Brief</div>
+        </div>
+        <div class="pack-price-tag">$29</div>
+      </div>
+      <p class="pack-desc">Transform scattered notes, interview transcripts, and Slack threads into an execution-ready decision brief in under 2 minutes. Weighted scoring, gap detection, and machine-readable JSON output included.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">signal-extractor</span>
+        <span class="pack-agent-chip">gap-detector</span>
+        <span class="pack-agent-chip">brief-writer</span>
+      </div>
+      <a href="https://buy.stripe.com/bJe14oerxdnF0Pj5Zq2Fa0k" class="pack-buy-btn">Buy Decision Brief →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">🗂️</div>
+          <div class="pack-name" style="margin-top:12px;">Executive Assistant</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Your AI chief of staff. Calendar management, inbox triage, travel coordination, meeting prep, stakeholder briefings, and expense tracking — fully automated.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">scheduler</span>
+        <span class="pack-agent-chip">inbox-triage</span>
+        <span class="pack-agent-chip">meeting-prep</span>
+        <span class="pack-agent-chip">travel-coordinator</span>
+        <span class="pack-agent-chip">expense-tracker</span>
+      </div>
+      <a href="https://buy.stripe.com/5kQ14o97d3N52Xr0F62Fa0d" class="pack-buy-btn">Buy Executive Assistant →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(251,191,36,0.1);">🔭</div>
+          <div class="pack-name" style="margin-top:12px;">Competitor Intel</div>
+        </div>
+        <div class="pack-price-tag">$9<span style="font-size:0.6em;font-weight:500">/mo</span></div>
+      </div>
+      <p class="pack-desc">Evidence-based competitor teardowns using Helmer's 7 Powers framework. Positioning snapshot, moat scoring, vulnerability map, and attack brief — every claim tied to a specific observable signal. Runs quarterly re-audits and diffs against your stored baseline.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">competitor-intel</span>
+      </div>
+      <a href="https://buy.stripe.com/5kQ6oI97dgzRdC5cnO2Fa0y" class="pack-buy-btn">Get Competitor Intel →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">🤝</div>
+          <div class="pack-name" style="margin-top:12px;">Deal Room</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Research prospects on LinkedIn, draft outreach sequences, prep call briefs, and log everything to your CRM. Built for reps who close deals, not manage tools.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">prospect-researcher</span>
+        <span class="pack-agent-chip">outreach-writer</span>
+        <span class="pack-agent-chip">call-brief-prepper</span>
+        <span class="pack-agent-chip">crm-logger</span>
+      </div>
+      <a href="https://buy.stripe.com/6oUaEYcjp5VdgOhdrS2Fa0f" class="pack-buy-btn">Buy Deal Room →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── PACK GRID ── -->
+<div class="packs-section">
+  <p class="section-label">Individual packs — $99 each</p>
+  <div class="packs-grid">
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">🎓</div>
+          <div class="pack-name" style="margin-top:12px;">Reskilling Core</div>
+        </div>
+        <div class="pack-price-tag">$49</div>
+      </div>
+      <p class="pack-desc">6 agents + workflows for workforce augmentation and AI reskilling programs. Designed for HR teams and training consultants moving companies from manual to AI-assisted operations.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">skills-assessor</span>
+        <span class="pack-agent-chip">learning-path</span>
+        <span class="pack-agent-chip">progress-tracker</span>
+        <span class="pack-agent-chip">coach</span>
+        <span class="pack-agent-chip">roi-reporter</span>
+      </div>
+      <a href="https://buy.stripe.com/5kQ7sM97d0ATfKdevW2Fa0m" class="pack-buy-btn">Buy Reskilling Core →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(172,138,255,0.1);">⚙️</div>
+          <div class="pack-name" style="margin-top:12px;">Augmented Engineering</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Engineering team agents — code review, incident response, sprint planning, and technical documentation. Cuts review cycles and on-call toil.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">code-reviewer</span>
+        <span class="pack-agent-chip">incident-responder</span>
+        <span class="pack-agent-chip">sprint-planner</span>
+        <span class="pack-agent-chip">doc-writer</span>
+      </div>
+      <a href="https://buy.stripe.com/4gMfZi1EL97p41v1Ja2Fa03" class="pack-buy-btn">Buy Engineering Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📊</div>
+          <div class="pack-name" style="margin-top:12px;">Augmented Finance</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Finance and compliance agents — reporting, anomaly detection, forecasting, and audit prep. For finance teams spending too much time on manual reconciliation.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">report-generator</span>
+        <span class="pack-agent-chip">anomaly-detector</span>
+        <span class="pack-agent-chip">forecaster</span>
+        <span class="pack-agent-chip">audit-prepper</span>
+      </div>
+      <a href="https://buy.stripe.com/bJefZi8392J1btX4Vm2Fa04" class="pack-buy-btn">Buy Finance Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">📈</div>
+          <div class="pack-name" style="margin-top:12px;">Augmented Sales</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Sales team agents — lead enrichment, personalized outreach, deal tracking, and competitive intelligence. Turns reps into AI-assisted closers.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">lead-enricher</span>
+        <span class="pack-agent-chip">outreach-writer</span>
+        <span class="pack-agent-chip">deal-tracker</span>
+        <span class="pack-agent-chip">competitor-watcher</span>
+      </div>
+      <a href="https://buy.stripe.com/cNi00kgzF83lgOh2Ne2Fa05" class="pack-buy-btn">Buy Sales Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">🎧</div>
+          <div class="pack-name" style="margin-top:12px;">Augmented Support</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Customer support agents — triage, response drafting, escalation routing, and CSAT tracking. Handles the volume so your team handles the relationships.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">triage</span>
+        <span class="pack-agent-chip">responder</span>
+        <span class="pack-agent-chip">escalation</span>
+        <span class="pack-agent-chip">csat-tracker</span>
+      </div>
+      <a href="https://buy.stripe.com/fZueVe839bfx2XrfA02Fa06" class="pack-buy-btn">Buy Support Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(251,191,36,0.1);">📋</div>
+          <div class="pack-name" style="margin-top:12px;">Support Builder</div>
+        </div>
+        <div class="pack-price-tag">$29</div>
+      </div>
+      <p class="pack-desc">Turn scattered support chaos into help pages users actually read. Generates FAQ pages, help articles, gap analysis, and a content roadmap — all in your authentic voice.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">faq-builder</span>
+        <span class="pack-agent-chip">help-writer</span>
+        <span class="pack-agent-chip">gap-analyst</span>
+        <span class="pack-agent-chip">content-roadmap</span>
+      </div>
+      <a href="https://buy.stripe.com/8x28wQ3MT97p2Xr9bC2Fa0t" class="pack-buy-btn">Buy Support Builder →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(232,121,249,0.1);">🎬</div>
+          <div class="pack-name" style="margin-top:12px;">Creator Suite</div>
+        </div>
+        <div class="pack-price-tag">$49</div>
+      </div>
+      <p class="pack-desc">12-agent content system — scripting, scheduling, repurposing, and analytics. For creators and media teams who need to publish more without burning out.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">scriptwriter</span>
+        <span class="pack-agent-chip">scheduler</span>
+        <span class="pack-agent-chip">repurposer</span>
+        <span class="pack-agent-chip">analytics</span>
+        <span class="pack-agent-chip">+8 more</span>
+      </div>
+      <a href="https://buy.stripe.com/28E00k0AHdnF69D87y2Fa0l" class="pack-buy-btn">Buy Creator Suite →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📣</div>
+          <div class="pack-name" style="margin-top:12px;">Marketing Agency</div>
+        </div>
+        <div class="pack-price-tag">$49</div>
+      </div>
+      <p class="pack-desc">Content strategy, copywriting, SEO analysis, social scheduling, and client reporting agents. For agencies and in-house marketing teams scaling output without scaling headcount.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">strategist</span>
+        <span class="pack-agent-chip">copywriter</span>
+        <span class="pack-agent-chip">seo-analyst</span>
+        <span class="pack-agent-chip">scheduler</span>
+        <span class="pack-agent-chip">reporter</span>
+      </div>
+      <a href="https://buy.stripe.com/3cI28sbflerJ69D3Ri2Fa0n" class="pack-buy-btn">Buy Marketing Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">🏠</div>
+          <div class="pack-name" style="margin-top:12px;">Real Estate</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Listing copy, lead follow-up, market research, offer strategy, and open house prep agents. For agents and brokerages spending too much time on paperwork and not enough on clients.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">listing-writer</span>
+        <span class="pack-agent-chip">lead-follow-up</span>
+        <span class="pack-agent-chip">market-analyst</span>
+        <span class="pack-agent-chip">offer-advisor</span>
+      </div>
+      <a href="https://buy.stripe.com/fZueVegzFabt0Pj1Ja2Fa09" class="pack-buy-btn">Buy Real Estate Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(172,138,255,0.1);">🛍️</div>
+          <div class="pack-name" style="margin-top:12px;">E-commerce</div>
+        </div>
+        <div class="pack-price-tag">$99</div>
+      </div>
+      <p class="pack-desc">Product copy, review responses, competitor pricing, inventory alerts, and cart recovery agents. For e-commerce brands turning operational work into revenue.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">product-writer</span>
+        <span class="pack-agent-chip">review-responder</span>
+        <span class="pack-agent-chip">competitor-pricer</span>
+        <span class="pack-agent-chip">cart-recovery</span>
+      </div>
+      <a href="https://buy.stripe.com/bJe14o8395Vdcy1fA02Fa0a" class="pack-buy-btn">Buy E-commerce Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,218,255,0.1);">🔬</div>
+          <div class="pack-name" style="margin-top:12px;">Product Research</div>
+        </div>
+        <div class="pack-price-tag">$49</div>
+      </div>
+      <p class="pack-desc">Full user research lifecycle — interview scripts, surveys, usability tests, personas, JTBD analysis, and findings synthesis. For product teams making data-informed decisions.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">research-planner</span>
+        <span class="pack-agent-chip">interview-scripter</span>
+        <span class="pack-agent-chip">survey-designer</span>
+        <span class="pack-agent-chip">findings-synthesizer</span>
+        <span class="pack-agent-chip">persona-builder</span>
+        <span class="pack-agent-chip">jtbd-analyst</span>
+      </div>
+      <a href="https://buy.stripe.com/3cI7sM3MTfvNfKddrS2Fa0o" class="pack-buy-btn">Buy Research Pack →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(105,246,184,0.1);">📈</div>
+          <div class="pack-name" style="margin-top:12px;">Full-Stack Marketer</div>
+        </div>
+        <div class="pack-price-tag">$149</div>
+      </div>
+      <p class="pack-desc">14 agents covering every marketing lever: CRO, cold outreach, email sequences, copywriting, pricing psychology, launch strategy, paid ads, lead magnets, A/B testing, and revenue ops. One pack, the complete marketing workflow.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">page-cro</span>
+        <span class="pack-agent-chip">cold-email</span>
+        <span class="pack-agent-chip">copywriting</span>
+        <span class="pack-agent-chip">pricing-strategy</span>
+        <span class="pack-agent-chip">launch-strategy</span>
+        <span class="pack-agent-chip">paid-ads</span>
+        <span class="pack-agent-chip">ab-test-setup</span>
+        <span class="pack-agent-chip">revops</span>
+        <span class="pack-agent-chip">+6 more</span>
+      </div>
+      <a href="https://buy.stripe.com/9B600k6Z5cjBfKdcnO2Fa0u" class="pack-buy-btn">Buy Full-Stack Marketer →</a>
+    </div>
+
+    <div class="pack-card">
+      <div class="pack-header">
+        <div>
+          <div class="pack-icon" style="background:rgba(249,115,22,0.1);">🏭</div>
+          <div class="pack-name" style="margin-top:12px;">Landing Foundry</div>
+        </div>
+        <div class="pack-price-tag">$49</div>
+      </div>
+      <p class="pack-desc">9-agent pipeline: drop in a URL or brief, get a deployable landing page out. Extract → strategy → brand → copy → visuals → architecture → build → QA. Every stage runs a specialist model — most of it free.</p>
+      <div class="pack-agents">
+        <span class="pack-agent-chip">lp-extractor</span>
+        <span class="pack-agent-chip">lp-strategist</span>
+        <span class="pack-agent-chip">lp-copywriter</span>
+        <span class="pack-agent-chip">lp-builder</span>
+        <span class="pack-agent-chip">lp-qa</span>
+        <span class="pack-agent-chip">+4 more</span>
+      </div>
+      <a href="https://buy.stripe.com/5kQ28s5V10ATeG9cnO2Fa0v" class="pack-buy-btn">Buy Landing Foundry →</a>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ── THEMATIC BUNDLES ── -->
+<div class="bundle-banner" style="margin-top:16px;">
+
+  <!-- Sales Bundle -->
+  <div class="bundle-card" style="margin-bottom:16px;">
+    <div class="bundle-left">
+      <h2>Sales Bundle</h2>
+      <p>Everything a revenue team needs — prospect smarter, close faster, and retain longer. Combines the top three sales-focused packs.</p>
+      <div class="bundle-included">
+        <span class="bundle-chip">Augmented Sales</span>
+        <span class="bundle-chip">Augmented Support</span>
+        <span class="bundle-chip">Marketing Agency</span>
+      </div>
+    </div>
+    <div class="bundle-right">
+      <p class="bundle-was">$247 separately</p>
+      <p class="bundle-price">$149</p>
+      <p class="bundle-save">Save $98</p>
+      <a href="https://buy.stripe.com/4gMcN6fvB2J17dH87y2Fa0p" class="bundle-btn">Get Sales Bundle →</a>
+    </div>
+  </div>
+
+  <!-- Finance Bundle -->
+  <div class="bundle-card" style="margin-bottom:16px;">
+    <div class="bundle-left">
+      <h2>Finance Bundle</h2>
+      <p>Automate financial reporting, model complex scenarios, and streamline executive workflows — built for finance and ops teams.</p>
+      <div class="bundle-included">
+        <span class="bundle-chip">Finance Dashboards</span>
+        <span class="bundle-chip">Augmented Finance</span>
+        <span class="bundle-chip">Executive Assistant</span>
+      </div>
+    </div>
+    <div class="bundle-right">
+      <p class="bundle-was">$297 separately</p>
+      <p class="bundle-price">$149</p>
+      <p class="bundle-save">Save $148</p>
+      <a href="https://buy.stripe.com/aFa7sMerx0ATdC573u2Fa0q" class="bundle-btn">Get Finance Bundle →</a>
+    </div>
+  </div>
+
+  <!-- Engineering Bundle -->
+  <div class="bundle-card" style="margin-bottom:16px;">
+    <div class="bundle-left">
+      <h2>Engineering Bundle</h2>
+      <p>Accelerate from research to shipped product. Combines deep product research, competitive intelligence, and engineering acceleration.</p>
+      <div class="bundle-included">
+        <span class="bundle-chip">Augmented Engineering</span>
+        <span class="bundle-chip">Product Research</span>
+        <span class="bundle-chip">Competitor Intel</span>
+      </div>
+    </div>
+    <div class="bundle-right">
+      <p class="bundle-was">$247 separately</p>
+      <p class="bundle-price">$149</p>
+      <p class="bundle-save">Save $98</p>
+      <a href="https://buy.stripe.com/fZudRa5V1gzR41v4Vm2Fa0r" class="bundle-btn">Get Engineering Bundle →</a>
+    </div>
+  </div>
+
+  <!-- Starter Bundle -->
+  <div class="bundle-card">
+    <div class="bundle-left">
+      <h2>Starter Bundle</h2>
+      <p>The best starting point for individuals and small teams leveling up with AI. Covers content creation, skill-building, and sharp decision-making.</p>
+      <div class="bundle-included">
+        <span class="bundle-chip">Creator Suite</span>
+        <span class="bundle-chip">Reskilling Core</span>
+        <span class="bundle-chip">Decision Brief</span>
+      </div>
+    </div>
+    <div class="bundle-right">
+      <p class="bundle-was">$127 separately</p>
+      <p class="bundle-price">$79</p>
+      <p class="bundle-save">Save $48</p>
+      <a href="https://buy.stripe.com/dRm5kEerxdnFbtX1Ja2Fa0s" class="bundle-btn">Get Starter Bundle →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FREE TEMPLATES ── -->
+<div class="templates-section">
+  <h2>Free community templates</h2>
+  <p>Not ready to buy? Start with a free template. These are single-agent configs you can drop into any ClawHQ deployment.</p>
+  <div class="templates-grid">
+    <div class="template-card">
+      <div class="template-name">Research Assistant</div>
+      <div class="template-desc">On-demand research briefings with sources.</div>
+    </div>
+    <div class="template-card">
+      <div class="template-name">Lead Qualification Bot</div>
+      <div class="template-desc">Researches B2B prospects before your first call.</div>
+    </div>
+    <div class="template-card">
+      <div class="template-name">Code Review Agent</div>
+      <div class="template-desc">Reviews code for bugs, security issues, and style.</div>
+    </div>
+    <div class="template-card">
+      <div class="template-name">Content Scheduler</div>
+      <div class="template-desc">Drafts and schedules social posts and newsletters.</div>
+    </div>
+    <div class="template-card">
+      <div class="template-name">Support Triage</div>
+      <div class="template-desc">Classifies tickets and drafts responses. P1/P2 HITL.</div>
+    </div>
+    <div class="template-card">
+      <div class="template-name">Daily Digest</div>
+      <div class="template-desc">Morning briefing with news and priorities. Delivered to Discord DM.</div>
+    </div>
+  </div>
+  <p style="margin-top:24px; font-size:14px; color:var(--text-4);">
+    <a href="/docs/templates/overview" style="color:var(--accent); border-bottom:1px solid var(--accent-dim);">Browse all templates in the docs →</a>
+  </p>
+</div>
+
+<!-- ── NOTIFY ── -->
+<div class="notify-section">
+  <h2>New packs dropping soon.</h2>
+  <p>Get notified when new agent packs are released. No spam — one email per new pack.</p>
+  <form class="notify-form" id="notifyForm" action="https://api.web3forms.com/submit" method="POST">
+    <input type="hidden" name="access_key" value="d22048a6-090f-4663-8cec-0fc0efdf19ea" />
+    <input type="hidden" name="subject" value="New ClawHQ pack notification signup" />
+    <input type="hidden" name="redirect" value="false" />
+    <input type="email" name="email" placeholder="your@email.com" required class="notify-input" />
+    <button type="submit" class="notify-btn">Notify me</button>
+  </form>
+  <p class="notify-success" id="notifySuccess">✓ You're on the list.</p>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:20px;width:auto;opacity:0.7;">
+        <polygon points="6,30 10,30 19,6 15,6" class="logo-mark" opacity="0.45"/>
+        <polygon points="13,30 17,30 26,6 22,6" class="logo-mark" opacity="0.72"/>
+        <polygon points="20,30 24,30 33,6 29,6" class="logo-mark"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Helvetica,Arial,sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+      </svg>
+      <span class="footer-copy">© 2026 Modology Studios LLC</span>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/docs">Docs</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Show success banner after Stripe redirect
+  if (new URLSearchParams(window.location.search).get('success') === '1') {
+    document.getElementById('successBanner').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Web3Forms notify signup — submit via fetch to avoid page redirect
+  document.getElementById('notifyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.notify-btn');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: new FormData(this),
+      });
+      const data = await res.json();
+      if (data.success) {
+        this.style.display = 'none';
+        document.getElementById('notifySuccess').classList.add('visible');
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

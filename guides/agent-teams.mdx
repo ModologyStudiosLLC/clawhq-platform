@@ -1,0 +1,112 @@
+---
+title: Agent Teams
+description: Run multiple agents in parallel without coordination failures. The Observer Pattern for ClawHQ.
+---
+
+Most multi-agent setups eventually hit the same wall: agents step on each other. One modifies a file another is reading. Two agents work on the same module without knowing. Work gets duplicated because there is no shared picture of what is done and what is not. This is the multi-agent coordination problem.
+
+The **Observer Pattern** solves it without adding an orchestrator as a new single point of failure.
+
+## How it works
+
+Three distinct roles, each with appropriate permissions:
+
+| Role | Permissions | Job |
+|---|---|---|
+| **Worker** | Write to own worktree | Executes tasks. Does its job, nothing else. |
+| **Observer** | Read everywhere, write nowhere | Watches all workers, synthesizes project state. |
+| **Operator** | Elevated — merge, deploy, restart | Consults the observer, makes decisions. |
+
+Workers just work. The observer just watches. An operator (you, or a decision-making agent) consults the observer when they need to know where things stand — without digging through logs or asking each agent individually.
+
+## The Observer Pack
+
+The quickest way to get started is the **Observer Pack**, which deploys three agents:
+
+- **Observer** — runs every 10 minutes, reads git history, file diffs, and agent status blobs across all worktrees, posts a structured summary to `#agent-status`
+- **Conflict Detector** — runs every 3 minutes, alerts immediately to `#agent-alerts` when two agents touch the same file or a worker stalls
+- **Status Reporter** — on-demand, responds to `!status` or `team report` in any channel
+
+Install it from the Packs page, or download the YAML from the Agent Teams dashboard.
+
+## Agent Teams dashboard
+
+The **Agent Teams** page (`/agent-teams`) gives you a live view of your multi-agent team:
+
+- **Team Roster** — all agents grouped by role, with status, current task, and last activity
+- **Observer Synthesis** — what's in-progress, completed this cycle, and blocked
+- **Conflict Log** — detected file conflicts and stalls, with severity and resolution status
+
+The dashboard runs on live observer output once the Observer Pack is deployed. Before that it shows example data so you can explore the layout.
+
+## Setting an agent's team role
+
+Every agent has a **Team Role** field in its settings (`/team → [agent] → Team Role`). Choose from:
+
+- **Worker** — default for all agents. Writes to its own worktree.
+- **Observer** — read-only. Sets the expectation that this agent should not modify files.
+- **Operator** — elevated. Reserved for agents that merge branches, trigger deploys, or restart workers.
+
+Setting the role doesn't enforce permissions at the OS level — it's a declaration that shapes how the Agent Teams dashboard groups and displays agents, and how the Observer Pack treats each agent's output.
+
+## When to add an observer
+
+The observer layer adds overhead. Don't deploy it for solo or dual-agent setups.
+
+Add an observer when:
+- You're running **3 or more agents** in parallel on the same codebase or project
+- You find yourself **manually tracking** which agent finished what
+- You've had **conflicts** where one agent undid another's work
+- You're spending mental energy just **figuring out where things stand**
+
+That frustration is the signal. Start with one agent, get it working, add a second on a separate task, and reach for the observer when the coordination overhead becomes the bottleneck.
+
+## Observer output format
+
+The observer writes a structured status update every cycle:
+
+```
+## Agent Team Status — 2026-04-10 23:15
+
+Completed since last check:
+- [frontend-agent] Built /agent-teams UI — modified 4 files — merged clean
+
+In progress:
+- [backend-agent] Writing /api/agent-teams route — last commit 9 min ago
+
+Blocked / waiting:
+- (none)
+
+Conflicts detected:
+- (none)
+
+Build status: 24 passing, 0 failing
+```
+
+This output is posted to your configured Slack or Discord channel and consumed by the Agent Teams dashboard.
+
+## Status blobs
+
+For the observer to do its job well, configure your worker agents to write a small status file after each task:
+
+```json
+{
+  "agentId": "backend-agent",
+  "task": "Write /api/agent-teams route",
+  "status": "completed",
+  "filesModified": ["apps/dashboard/app/api/agent-teams/route.ts"],
+  "timestamp": "2026-04-10T23:14:22Z"
+}
+```
+
+Write these to `~/.openclaw/agent-status/<agent-id>.json`. The Observer Pack reads this directory on each cycle.
+
+## Observation mechanisms
+
+The Observer Pack combines three approaches:
+
+1. **Git log scanning** — `git log --oneline --since="10 minutes ago"` across all worktrees. Fast and reliable for codebases using git.
+2. **Status blobs** — structured JSON files written by each worker after each task. Less real-time but more structured and queryable.
+3. **Log scraping** — reads terminal logs for error patterns, completion signals, and stall indicators.
+
+Mature setups use all three. Start with git log scanning — it requires no changes to your existing agents.
