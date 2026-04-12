@@ -414,3 +414,44 @@ agents:
 
 See the [Pack Schema Reference](/reference/pack-schema) for all available fields.
 
+
+## Pack security vetting
+
+Every pack uploaded to the ClawHQ registry is automatically vetted before it is stored. The vetter rejects packs that fail any hard check.
+
+### Checks run on all packs
+
+| Check | Level | What it catches |
+|-------|-------|-----------------|
+| Schema fields present | **FAIL** | Missing `apiVersion`, `kind`, `name`, `version`, or `description` |
+| No hardcoded secrets | **FAIL** | API keys, tokens, PEM blocks, or `password:` fields in YAML text |
+| Dangerous tools need hitl | **FAIL** | `bash`, `exec`, `fs_delete`, `cron` declared without `hitl: true` |
+| External URLs in prompts | WARN | HTTP/S URLs in task or instructions text |
+| Semver version | WARN | Version field not in `1.0.0` format |
+| Tags declared | WARN | No tags (affects discoverability and audit filtering) |
+
+### Additional checks for third-party packs
+
+Packs submitted from outside the ClawHQ team are subject to stricter rules:
+
+| Check | Level | Requirement |
+|-------|-------|-------------|
+| Publisher identity | **FAIL** | `metadata.publisher` must be present and cannot be `clawhq` |
+| Contact or repo | **FAIL** | `metadata.contact` (email) or `metadata.repository` (URL) required |
+| External URLs | **FAIL** | Upgraded from warning to hard fail — no external URLs in task prompts |
+| Tags | **FAIL** | Tags are mandatory, not optional |
+
+### Vet packs locally before uploading
+
+```bash
+# Vet all packs in the packs/ directory
+npx tsx scripts/vet-pack.ts packs/
+
+# Vet a single pack
+npx tsx scripts/vet-pack.ts packs/my-pack.yaml
+
+# Vet an external/third-party pack with stricter rules
+npx tsx scripts/vet-pack.ts my-vendor-pack.yaml --third-party
+```
+
+Exit code `0` means all packs pass (warnings are allowed). Exit code `1` means at least one FAIL — the pack will be rejected by the registry.
