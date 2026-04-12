@@ -294,13 +294,3 @@ curl -X POST http://localhost:4300/sentinel/scan \
   ]
 }
 ```
-
----
-
-## Pack vetting
-
-Sentinel's security posture extends to the pack registry. Every pack uploaded via the admin API is vetted before it is stored — hardcoded secrets, high-risk tools without human-in-the-loop approval, and schema violations are all hard failures that block the upload.
-
-Third-party packs (submitted with `X-ClawHQ-Pack-Origin: external`) face stricter rules: publisher identity is required, external URLs in task prompts are a hard fail (not a warning), and contact information is mandatory for accountability.
-
-See [Pack security vetting](/guides/packs#pack-security-vetting) for the full check list and CLI usage.
