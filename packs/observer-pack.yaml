@@ -197,3 +197,9 @@ config:
 
   # Minimum agents running before observer activates (no overhead for solo work)
   minAgentsToActivate: 2
+
+  settings:
+    hitl:
+      enabled: true
+      human_handles:
+        - "Review and approve any execution command before it runs"

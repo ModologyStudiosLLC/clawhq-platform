@@ -300,8 +300,16 @@ export default {
       const packId = pathname.replace("/admin/packs/", "");
       if (!packId) return json({ error: "pack id required" }, 400);
       const yaml = await request.text();
+
+      // Vet the pack before storing — reject hard failures
+      const { vetPack } = await import("./vet.js");
+      const vetResult = vetPack(packId, yaml);
+      if (vetResult.status === "fail") {
+        return json({ error: "pack failed vetting", vet: vetResult }, 422);
+      }
+
       await env.LICENSES.put(`pack:${packId}`, yaml);
-      return json({ ok: true, packId });
+      return json({ ok: true, packId, vet: vetResult });
     }
 
     return json({ error: "not found" }, 404);
