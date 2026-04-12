@@ -4,7 +4,7 @@
  * Stateless, dependency-free YAML pack security checker.
  * Runs in both Cloudflare Workers (upload pre-flight) and Node.js (CLI).
  *
- * Checks:
+ * First-party checks (all packs):
  *   FAIL  — schema-required  : missing apiVersion / kind / name / version / description
  *   FAIL  — hardcoded-secret : API keys, tokens, or credentials found in pack text
  *   FAIL  — dangerous-no-hitl: high-risk tools declared without hitl enabled
@@ -12,6 +12,12 @@
  *   WARN  — semver           : version field is not valid semver
  *   WARN  — no-tags          : pack declares no tags (discoverability + audit trail)
  *   INFO  — tool-summary     : lists all tools the pack requests
+ *
+ * Third-party stricter checks (thirdParty: true, or publisher ≠ "clawhq"):
+ *   FAIL  — tp-publisher     : publisher field must be present and not "clawhq"
+ *   FAIL  — tp-contact       : contact or repository field required
+ *   FAIL  — tp-external-url  : external URLs are a hard fail (not just a warning)
+ *   FAIL  — tp-no-tags       : tags are required for third-party packs
  */
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -112,7 +118,16 @@ function extractUrls(yaml: string): string[] {
 
 // ── Vetter ────────────────────────────────────────────────────────────────────
 
-export function vetPack(packId: string, yaml: string): VetResult {
+export interface VetOptions {
+  /**
+   * Force third-party mode regardless of the publisher field.
+   * Use this when accepting packs from community submission endpoints.
+   * First-party uploads (via admin token) should leave this false.
+   */
+  thirdParty?: boolean;
+}
+
+export function vetPack(packId: string, yaml: string, opts: VetOptions = {}): VetResult {
   const checks: VetCheck[] = [];
 
   // ── Schema checks ──────────────────────────────────────────────────────────
@@ -209,6 +224,13 @@ export function vetPack(packId: string, yaml: string): VetResult {
     });
   }
 
+  // ── Third-party stricter checks ────────────────────────────────────────────
+
+  const isThirdParty = opts.thirdParty === true || isThirdPartyPack(yaml);
+  if (isThirdParty) {
+    runThirdPartyChecks(yaml, checks);
+  }
+
   // ── Final status ───────────────────────────────────────────────────────────
 
   const status = checks.some(c => c.level === "fail")
@@ -219,6 +241,68 @@ export function vetPack(packId: string, yaml: string): VetResult {
 
   return { packId, status, checks };
 }
+
+// ── Third-party vetting ───────────────────────────────────────────────────────
+
+const FIRST_PARTY_PUBLISHERS = new Set(["clawhq", "clawhq-labs", ""]);
+
+/** Returns true if the pack YAML identifies as third-party based on the publisher field. */
+function isThirdPartyPack(yaml: string): boolean {
+  const publisher = extract(yaml, "publisher") ?? "";
+  return !FIRST_PARTY_PUBLISHERS.has(publisher.toLowerCase().trim());
+}
+
+function runThirdPartyChecks(yaml: string, checks: VetCheck[]): void {
+  const publisher = extract(yaml, "publisher");
+  if (!publisher) {
+    checks.push({
+      id: "tp-publisher",
+      level: "fail",
+      message: 'Third-party packs must declare metadata.publisher (e.g. "publisher: acme-corp")',
+    });
+  } else if (FIRST_PARTY_PUBLISHERS.has(publisher.toLowerCase().trim())) {
+    checks.push({
+      id: "tp-publisher",
+      level: "fail",
+      message: `Third-party packs cannot claim publisher "${publisher}" — that is reserved for ClawHQ`,
+    });
+  }
+
+  const hasContact = /contact\s*:\s*\S+/.test(yaml);
+  const hasRepo = /repository\s*:\s*\S+/.test(yaml);
+  if (!hasContact && !hasRepo) {
+    checks.push({
+      id: "tp-contact",
+      level: "fail",
+      message: "Third-party packs must include metadata.contact (email) or metadata.repository (URL) for accountability",
+    });
+  }
+
+  // External URLs are a hard fail for third-party (WARN for first-party)
+  const urls = extractUrls(yaml);
+  if (urls.length > 0) {
+    // Upgrade the existing external-url WARN to a FAIL by replacing it
+    const warnIdx = checks.findIndex(c => c.id === "external-url");
+    const msg = `Third-party pack references external URLs — remove or move to metadata.repository: ${urls.slice(0, 3).join(", ")}${urls.length > 3 ? " …" : ""}`;
+    if (warnIdx >= 0) {
+      checks[warnIdx] = { id: "tp-external-url", level: "fail", message: msg };
+    } else {
+      checks.push({ id: "tp-external-url", level: "fail", message: msg });
+    }
+  }
+
+  // Tags are required for third-party
+  const hasTagsWarn = checks.find(c => c.id === "no-tags");
+  if (hasTagsWarn) {
+    checks.splice(checks.indexOf(hasTagsWarn), 1, {
+      id: "tp-no-tags",
+      level: "fail",
+      message: "Third-party packs must declare tags for filtering and audit",
+    });
+  }
+}
+
+// ── Vetter (updated signature) ────────────────────────────────────────────────
 
 /** Format a VetResult for human-readable CLI output. */
 export function formatVetResult(result: VetResult): string {

@@ -301,9 +301,12 @@ export default {
       if (!packId) return json({ error: "pack id required" }, 400);
       const yaml = await request.text();
 
-      // Vet the pack before storing — reject hard failures
+      // Vet the pack before storing — reject hard failures.
+      // Pass thirdParty:true when the upload is flagged as external origin
+      // (e.g. future community submission endpoint vs. internal admin upload).
       const { vetPack } = await import("./vet.js");
-      const vetResult = vetPack(packId, yaml);
+      const thirdParty = request.headers.get("X-ClawHQ-Pack-Origin") === "external";
+      const vetResult = vetPack(packId, yaml, { thirdParty });
       if (vetResult.status === "fail") {
         return json({ error: "pack failed vetting", vet: vetResult }, 422);
       }

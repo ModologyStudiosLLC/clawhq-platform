@@ -3,12 +3,12 @@
  * ClawHQ Pack Vetter — CLI
  *
  * Usage:
- *   npx tsx scripts/vet-pack.ts [pack-file-or-dir]
+ *   npx tsx scripts/vet-pack.ts [pack-file-or-dir] [--third-party]
  *
  * Examples:
- *   npx tsx scripts/vet-pack.ts packs/code-review.yaml   # vet one pack
- *   npx tsx scripts/vet-pack.ts packs/                   # vet all packs in dir
- *   npx tsx scripts/vet-pack.ts                          # vet all in ./packs/
+ *   npx tsx scripts/vet-pack.ts packs/code-review.yaml          # vet one pack
+ *   npx tsx scripts/vet-pack.ts packs/                          # vet all packs
+ *   npx tsx scripts/vet-pack.ts external-pack.yaml --third-party # stricter checks
  *
  * Exit codes:
  *   0 — all pass (or warn only)
@@ -20,6 +20,7 @@ import path from "path";
 import { vetPack, formatVetResult, type VetResult } from "../services/pack-registry/src/vet.js";
 
 const PACKS_DEFAULT = path.resolve(process.cwd(), "packs");
+const thirdParty = process.argv.includes("--third-party");
 
 function collectYamlFiles(target: string): string[] {
   const stat = fs.statSync(target);
@@ -31,7 +32,7 @@ function collectYamlFiles(target: string): string[] {
 }
 
 function run(): void {
-  const arg = process.argv[2];
+  const arg = process.argv.find(a => !a.startsWith("--") && a !== process.argv[0] && a !== process.argv[1]);
   const target = arg ? path.resolve(arg) : PACKS_DEFAULT;
 
   let files: string[];
@@ -52,7 +53,7 @@ function run(): void {
   for (const file of files) {
     const yaml = fs.readFileSync(file, "utf8");
     const packId = path.basename(file, path.extname(file));
-    const result = vetPack(packId, yaml);
+    const result = vetPack(packId, yaml, { thirdParty });
     results.push(result);
     console.log(formatVetResult(result));
     console.log();
