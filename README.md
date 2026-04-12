@@ -86,6 +86,7 @@ The dashboard shows a badge in the top-right corner when your running instance i
 - Rate limiting — per-agent request and token limits
 - Seccomp sandboxing — blocks dangerous syscalls at the OS level
 - Audit logging — immutable append-only log of all configuration changes
+- Pack vetting — every pack upload is checked for hardcoded secrets, dangerous tools without hitl, and schema compliance before it is stored; third-party packs face stricter rules (publisher identity, contact required, external URLs are a hard fail)
 
 **Platform Security** — defence-in-depth across the full stack:
 - Authentication middleware — all API routes require a valid WorkOS session; returns 401 JSON (no browser redirect)
