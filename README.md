@@ -141,6 +141,14 @@ Pre-configured agent bundles. Install in one command, ready to work.
 | **Executive Assistant** | Calendar, inbox triage, travel, meeting prep, and expense tracking |
 | **Deal Room** | Prospect research, personalized outreach, pre-call briefings, CRM logging |
 
+**MSP & Enterprise packs** — [clawhqplatform.com/packs](https://clawhqplatform.com/packs)
+
+| Pack | What it does | Price |
+|---|---|---|
+| **MSP Management** | Multi-tenant client monitoring, white-label reporting, SLA tracking, onboarding automation | $49/mo |
+| **GRC Assessment Pack** | SOC 2, ISO 27001, NIST CSF, HIPAA, PCI-DSS gap analysis, evidence collection, policy drafting | $149/mo |
+| **Federal Compliance Pack** | FedRAMP SSP drafting, CMMC Level 2 assessment, POA&M management, ATO tracking, StateRAMP | $199/mo |
+
 Install from the dashboard: **Settings → Packs**, or copy a YAML file to `~/.clawhq/packs/` and restart Paperclip.
 
 ## Architecture
@@ -174,7 +182,7 @@ clawhq-platform/
 | Shipped | PII filter — redacts/blocks PII across inbound messages, tool outputs, and channel posts |
 | Shipped | Per-tool error tracking — success rate, avg duration, error count per tool via /api/tool-stats |
 | Shipped | Escalation-on-failure — Slack/Discord webhook when all LLM fallbacks exhausted |
-| Planned | Team management / RBAC — admin/member/viewer roles, invite by email |
+| Shipped | Team management / RBAC — admin/member/viewer roles, invite by email, seat limits, license tiers |
 | Planned | PWA — installable dashboard on iOS/Android, responsive sidebar, offline fallback |
 
 ## Community

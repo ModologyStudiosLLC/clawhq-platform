@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMMC Level 2 Checklist: What DoD Contractors Actually Need — ClawHQ</title>
+<meta name="description" content="CMMC Level 2 requires 110 practices across 14 domains. A full domain-by-domain checklist, SPRS score walkthrough, and the gaps that fail C3PAO assessments.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/cmmc-level2-checklist/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="CMMC Level 2 Checklist: What DoD Contractors Actually Need">
+<meta property="og:description" content="110 practices across 14 domains. A full domain-by-domain checklist, SPRS score walkthrough, and the gaps that fail C3PAO assessments.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/cmmc-level2-checklist/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CMMC Level 2 Checklist: What DoD Contractors Actually Need">
+<meta name="twitter:description" content="110 practices across 14 domains. Full checklist, SPRS score calculation, and the most common C3PAO assessment failures.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "CMMC Level 2 Checklist: What DoD Contractors Actually Need",
+  "description": "CMMC Level 2 requires 110 practices across 14 domains. A full domain-by-domain checklist and SPRS score calculation walkthrough.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#050507;--surface:rgba(255,255,255,0.04);--surface2:#0c0c0f;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f5f5f7;--text2:rgba(245,245,247,0.72);--text3:rgba(245,245,247,0.44);--accent:#69daff;--accent-dim:rgba(105,218,255,0.10);--green:#69f6b8;--orange:#fb923c;--radius:18px;--radius-sm:10px;}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+h1,h2,h3{font-family:'Newsreader',Georgia,serif;}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(rgba(105,218,255,0.025) 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,black 20%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,black 20%,transparent 80%);}
+.container{max-width:1160px;margin:0 auto;padding:0 32px;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;display:flex;align-items:center;padding:0 32px;background:rgba(5,5,7,0.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);}
+.nav-inner{max-width:1160px;margin:0 auto;width:100%;display:flex;align-items:center;}
+.nav-brand{margin-right:auto;color:var(--text);text-decoration:none;}
+.nav-wordmark{font-family:'Newsreader',serif;font-weight:700;font-size:17px;letter-spacing:-0.02em;}
+.nav-links{display:flex;align-items:center;gap:28px;margin-right:28px;}
+.nav-links a{font-size:14px;color:var(--text3);text-decoration:none;transition:color 0.15s;}
+.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-cta{background:var(--accent);color:#050507;font-weight:600;font-size:13px;padding:7px 16px;border-radius:8px;text-decoration:none;}
+.article-wrap{position:relative;z-index:1;padding-top:96px;padding-bottom:96px;}
+.article-header{max-width:740px;margin:0 auto 52px;}
+.article-breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);margin-bottom:24px;}
+.article-breadcrumb a{color:var(--text2);text-decoration:none;}
+.article-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text3);margin-bottom:28px;flex-wrap:wrap;}
+.article-tag{background:rgba(251,146,60,0.12);color:var(--orange);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;font-family:'Inter',sans-serif;}
+h1.article-title{font-size:clamp(30px,4vw,50px);font-weight:700;line-height:1.12;letter-spacing:-0.03em;color:var(--text);margin-bottom:20px;}
+.article-subtitle{font-size:18px;color:var(--text2);line-height:1.6;max-width:660px;font-family:'Inter',sans-serif;}
+.article-body{max-width:740px;margin:0 auto;}
+.article-body p{margin-bottom:22px;color:var(--text2);font-size:16px;line-height:1.8;font-family:'Inter',sans-serif;}
+.article-body h2{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-top:56px;margin-bottom:20px;color:var(--text);padding-bottom:12px;border-bottom:1px solid var(--border);}
+.article-body h3{font-size:18px;font-weight:600;margin-top:32px;margin-bottom:12px;color:var(--text);font-family:'Inter',sans-serif;}
+.article-body ul,.article-body ol{margin:0 0 22px 22px;color:var(--text2);font-size:16px;line-height:1.8;font-family:'Inter',sans-serif;}
+.article-body li{margin-bottom:6px;}
+.article-body strong{color:var(--text);font-weight:600;}
+.article-body a{color:var(--accent);text-decoration:none;}
+.article-body a:hover{text-decoration:underline;}
+.article-body hr{border:none;border-top:1px solid var(--border);margin:52px 0;}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:20px 24px;margin:32px 0;}
+.callout p{margin:0;font-size:15px;font-family:'Inter',sans-serif;}
+.callout-title{font-family:'Inter',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange);margin-bottom:10px;}
+.domain-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;margin:20px 0;}
+.domain-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.domain-code{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;color:var(--orange);background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.2);padding:3px 8px;border-radius:4px;}
+.domain-name{font-size:15px;font-weight:600;color:var(--text);font-family:'Inter',sans-serif;}
+.domain-count{font-size:12px;color:var(--text3);font-family:'Geist Mono',monospace;margin-left:auto;}
+.domain-gaps{margin-top:10px;font-size:13px;color:var(--text3);font-family:'Inter',sans-serif;padding-top:10px;border-top:1px solid var(--border);}
+.domain-gaps strong{color:#f87171;}
+.checklist{list-style:none;margin:10px 0 0 0;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px;color:var(--text2);font-family:'Inter',sans-serif;line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.03);}
+.checklist li:last-child{border-bottom:none;}
+.checklist li::before{content:'';flex-shrink:0;width:14px;height:14px;margin-top:2px;border-radius:3px;border:1.5px solid rgba(105,218,255,0.3);background:rgba(105,218,255,0.04);}
+.sprs-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:24px 28px;margin:28px 0;}
+.sprs-box h3{font-size:18px;margin-bottom:14px;margin-top:0;}
+.sprs-formula{font-family:'Geist Mono',monospace;font-size:16px;color:var(--green);background:rgba(105,246,184,0.06);border:1px solid rgba(105,246,184,0.15);border-radius:8px;padding:14px 18px;margin:14px 0;text-align:center;}
+.article-cta{background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(105,218,255,0.06));border:1px solid rgba(251,146,60,0.2);border-radius:var(--radius);padding:44px;margin-top:72px;text-align:center;}
+.article-cta h3{font-size:26px;font-weight:700;margin-bottom:12px;margin-top:0;}
+.article-cta p{color:var(--text2);margin-bottom:28px;font-size:15px;font-family:'Inter',sans-serif;}
+.btn-cta{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-weight:700;font-size:15px;padding:14px 32px;border-radius:var(--radius-sm);text-decoration:none;transition:opacity 0.15s,transform 0.15s;}
+.btn-cta:hover{opacity:0.85;transform:translateY(-1px);text-decoration:none;}
+.btn-outline{display:inline-flex;align-items:center;background:transparent;color:var(--text);font-weight:600;font-size:15px;padding:14px 32px;border-radius:var(--radius-sm);text-decoration:none;border:1px solid rgba(255,255,255,0.2);margin-left:12px;}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);text-decoration:none;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 0;}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.footer-brand{font-family:'Newsreader',serif;font-weight:700;font-size:16px;color:var(--text);text-decoration:none;}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap;}
+.footer-link{color:var(--text3);text-decoration:none;font-size:13px;}
+.footer-link:hover{color:var(--text2);}
+.footer-right{color:var(--text3);font-size:13px;}
+@media(max-width:640px){.nav-links{display:none;}.article-wrap{padding-top:80px;}.btn-outline{margin-left:0;margin-top:12px;}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a><a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="mailto:hello@clawhqplatform.com?subject=Federal%20Compliance%20Pack" class="nav-cta">Talk to us →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Compliance</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">CMMC</span>
+        <span>April 2026</span><span>·</span><span>12 min read</span>
+      </div>
+      <h1 class="article-title">CMMC Level 2 Checklist: What DoD Contractors Actually Need</h1>
+      <p class="article-subtitle">CMMC Level 2 certification is now required for any DoD contractor handling Controlled Unclassified Information. 110 practices across 14 domains — a full domain-by-domain checklist, SPRS score calculation, and the gaps that fail C3PAO assessments.</p>
+    </div>
+
+    <div class="article-body">
+
+      <div class="callout">
+        <div class="callout-title">Before you start: scope your CUI enclave</div>
+        <p>CMMC only applies to systems that process, store, or transmit CUI. Define your enclave first — what systems contain CUI, what networks carry it, who has access. A smaller, well-defended enclave is far easier to certify than a sprawling environment.</p>
+      </div>
+
+      <h2>The 14 Domains</h2>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">AC</span>
+          <span class="domain-name">Access Control</span>
+          <span class="domain-count">22 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Limit system access to authorized users only</li>
+          <li>Enforce least privilege — users get only the access their job requires</li>
+          <li>Use non-privileged accounts for non-privileged functions (admins use standard accounts for email/browsing)</li>
+          <li>Employ MFA for all network access to privileged and non-privileged accounts</li>
+          <li>Route remote access via managed access control points</li>
+          <li>Protect wireless access with authentication and encryption</li>
+          <li>Encrypt CUI on mobile devices and mobile computing platforms</li>
+          <li>Verify and control all connections to external systems</li>
+          <li>Control CUI posted or processed on publicly accessible systems</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> Non-privileged users with admin rights, VPN not enforced for remote access, personal devices accessing CUI without MDM enrollment, split tunneling enabled.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">AT</span>
+          <span class="domain-name">Awareness &amp; Training</span>
+          <span class="domain-count">3 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Ensure personnel are trained on security responsibilities</li>
+          <li>Provide insider threat awareness training</li>
+          <li>Train personnel on recognizing and reporting threats</li>
+        </ul>
+        <div class="domain-gaps"><strong>Evidence needed:</strong> Completion records with dates and names, training content or curriculum, insider threat training distinct from general security awareness.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">AU</span>
+          <span class="domain-name">Audit &amp; Accountability</span>
+          <span class="domain-count">9 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Create and retain audit logs enabling monitoring and investigation</li>
+          <li>Ensure individual user actions are traceable to those users</li>
+          <li>Alert on audit logging process failure</li>
+          <li>Protect audit information from unauthorized access, modification, and deletion</li>
+          <li>Synchronize system clocks across all systems</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> Logs not retained long enough (recommend 3 years), no centralized log aggregation, workstations not logging to a central system, no alerting on log failures.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">CM</span>
+          <span class="domain-name">Configuration Management</span>
+          <span class="domain-count">9 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Establish and maintain baseline configurations for all systems</li>
+          <li>Track, review, approve, and log changes to systems</li>
+          <li>Analyze security impact of changes prior to implementation</li>
+          <li>Employ least functionality — disable unused ports, protocols, services</li>
+          <li>Use allow-by-exception (whitelisting) or deny-by-exception (blacklisting) for software</li>
+          <li>Control and monitor user-installed software</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> No documented baselines, change management informal or undocumented, unnecessary services running, no software control enforcement.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">IA</span>
+          <span class="domain-name">Identification &amp; Authentication</span>
+          <span class="domain-count">11 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Authenticate identities before allowing access to systems</li>
+          <li>Use MFA for local and network access to privileged accounts</li>
+          <li>Use MFA for network access to non-privileged accounts</li>
+          <li>Use replay-resistant authentication (OTP, PKI, challenge-response)</li>
+          <li>Employ minimum password complexity and change requirements</li>
+          <li>Prohibit password reuse for a specified number of generations</li>
+          <li>Store and transmit only cryptographically-protected passwords</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> MFA not enforced for all remote access, password reuse not technically blocked, service accounts with shared credentials, passwords stored in plain text or reversible encryption.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">IR</span>
+          <span class="domain-name">Incident Response</span>
+          <span class="domain-count">3 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Establish an operational incident-handling capability (preparation, detection, containment, recovery)</li>
+          <li>Track, document, and report incidents to appropriate authorities</li>
+          <li>Test the incident response capability</li>
+        </ul>
+        <div class="domain-gaps"><strong>Evidence needed:</strong> Written IR plan, tabletop exercise record within past 12 months, documented incident tickets (even minor ones), process for reporting to DoD/US-CERT under DFARS 252.204-7012.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">MP</span>
+          <span class="domain-name">Media Protection</span>
+          <span class="domain-count">9 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Protect system media containing CUI (paper and digital)</li>
+          <li>Limit access to CUI on system media to authorized users</li>
+          <li>Sanitize or destroy media before disposal or reuse</li>
+          <li>Control the use of removable media on system components</li>
+          <li>Prohibit removable media without identifiable owner</li>
+          <li>Protect confidentiality of backup CUI at storage locations</li>
+          <li>Protect CUI during transport unless protected by alternative physical safeguards</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> USB drives allowed without controls, laptops lost without encryption enabled, backup media not encrypted, paper CUI not tracked or secured.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">RA</span>
+          <span class="domain-name">Risk Assessment</span>
+          <span class="domain-count">3 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Periodically assess risk to operations, assets, and individuals from CUI system operation</li>
+          <li>Scan for vulnerabilities periodically and when new vulnerabilities are identified</li>
+          <li>Remediate vulnerabilities in accordance with risk assessments</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> No formal risk assessment document, vulnerability scans not scheduled or not authenticated, scan results not tracked or remediated.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">SA</span>
+          <span class="domain-name">System &amp; Communications Protection</span>
+          <span class="domain-count">16 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Monitor, control, and protect communications at external boundaries and key internal boundaries</li>
+          <li>Deny network traffic by default; allow by exception (deny-all, permit-by-exception)</li>
+          <li>Prevent split tunneling — remote devices may not simultaneously use non-remote connections</li>
+          <li>Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission</li>
+          <li>Employ FIPS-validated cryptography when used to protect CUI</li>
+          <li>Protect CUI at rest</li>
+          <li>Separate user functionality from system management functionality</li>
+        </ul>
+        <div class="domain-gaps"><strong>Common gaps:</strong> CUI transmitted over unencrypted connections, FIPS-validated encryption not enforced (Windows not in FIPS mode, non-FIPS TLS ciphers), split tunneling enabled on VPN, CUI stored unencrypted on cloud storage.</div>
+      </div>
+
+      <div class="domain-card">
+        <div class="domain-header">
+          <span class="domain-code">SI</span>
+          <span class="domain-name">System &amp; Information Integrity</span>
+          <span class="domain-count">7 practices</span>
+        </div>
+        <ul class="checklist">
+          <li>Identify, report, and correct system flaws in a timely manner</li>
+          <li>Provide malware protection at appropriate locations</li>
+          <li>Update malicious code protection mechanisms</li>
+          <li>Perform periodic and real-time scans of files from external sources</li>
+          <li>Monitor systems to detect attacks and indicators of potential attacks</li>
+          <li>Identify unauthorized use of systems</li>
+        </ul>
+      </div>
+
+      <h2>Calculating Your SPRS Score</h2>
+
+      <div class="sprs-box">
+        <h3>SPRS Score Formula</h3>
+        <p>The Supplier Performance Risk System score is calculated from your self-assessment and must be uploaded before contract performance on any covered DoD contract.</p>
+        <div class="sprs-formula">Start at 110 → subtract points for each NOT MET practice</div>
+        <ul>
+          <li><strong>High-weighted practices</strong> (marked with * in NIST 800-171): subtract 5 points each when NOT MET</li>
+          <li><strong>Standard practices</strong>: subtract 1 point each when NOT MET</li>
+          <li>Score can go negative — many contractors with significant gaps score below zero</li>
+          <li>PARTIAL counts as NOT MET for scoring purposes (but documents remediation progress)</li>
+        </ul>
+        <p style="margin-top:16px;font-size:14px;">False attestation of an inflated SPRS score creates False Claims Act liability. Self-assessments are subject to DoD audit.</p>
+      </div>
+
+      <h2>Remaining Domains</h2>
+
+      <p>The full 14 domains also include: <strong>MA (Maintenance)</strong> — controlled maintenance, remote maintenance requiring MFA, media sanitation; <strong>PE (Physical Protection)</strong> — physical access controls, visitor escort, access audit logs; <strong>PS (Personnel Security)</strong> — background screening, termination procedures; and <strong>CA (Assessment)</strong> — internal assessments, POA&amp;M management for any NOT MET practices.</p>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/fedramp-ssp-guide/">How to write a FedRAMP System Security Plan that gets approved</a></p>
+
+      <div class="article-cta">
+        <h3>From zero to SPRS submission in one week.</h3>
+        <p>The Federal Compliance Pack's CMMC Assessment agent walks through all 14 domains, scores each practice, calculates your SPRS score, generates the DoD 7012 System Security Plan, and creates POA&M entries for every NOT MET practice. One MSP client went from zero to SPRS submission in 7 days.</p>
+        <a href="https://buy.stripe.com/fZu00k6Z56Zh0Pj0F62Fa0G" class="btn-cta">Get Federal Compliance Pack — $199/mo →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

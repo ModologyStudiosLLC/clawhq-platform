@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Write a FedRAMP System Security Plan That Actually Gets Approved — ClawHQ</title>
+<meta name="description" content="A FedRAMP Moderate SSP covers 325 controls. Most take 6–12 months and six figures in consulting fees. Here's what auditors actually look for and the reasons most SSPs fail JAB review.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/fedramp-ssp-guide/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="How to Write a FedRAMP System Security Plan That Actually Gets Approved">
+<meta property="og:description" content="What auditors look for in control implementation statements, how to handle inherited controls, and the 5 most common reasons SSPs fail JAB review.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/fedramp-ssp-guide/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to Write a FedRAMP System Security Plan That Actually Gets Approved">
+<meta name="twitter:description" content="What auditors look for in control implementation statements, how to handle inherited controls, and the 5 most common reasons SSPs fail JAB review.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Write a FedRAMP System Security Plan That Actually Gets Approved",
+  "description": "A FedRAMP Moderate SSP covers 325 controls. Most take 6–12 months and six figures in consulting fees.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --green: #69f6b8; --orange: #fb923c;
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-breadcrumb a:hover { color: var(--accent); }
+.article-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text3); margin-bottom: 28px; flex-wrap: wrap; }
+.article-tag { background: rgba(251,146,60,0.12); color: var(--orange); padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+h1.article-title { font-size: clamp(30px, 4vw, 50px); font-weight: 700; line-height: 1.12; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; max-width: 660px; font-family: 'Inter', sans-serif; font-weight: 400; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body p { margin-bottom: 22px; color: var(--text2); font-size: 16px; line-height: 1.8; font-family: 'Inter', sans-serif; }
+.article-body h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 56px; margin-bottom: 20px; color: var(--text); padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 36px; margin-bottom: 14px; color: var(--text); font-family: 'Inter', sans-serif; }
+.article-body ul, .article-body ol { margin: 0 0 22px 22px; color: var(--text2); font-size: 16px; line-height: 1.8; font-family: 'Inter', sans-serif; }
+.article-body li { margin-bottom: 8px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+.article-body code { font-family: 'Geist Mono', monospace; font-size: 13px; background: rgba(105,218,255,0.08); border: 1px solid rgba(105,218,255,0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; margin: 32px 0; }
+.callout p { margin: 0; font-size: 15px; font-family: 'Inter', sans-serif; }
+.callout-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 10px; }
+.example-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; margin: 24px 0; }
+.example-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+.example-label.bad { color: #f87171; }
+.example-label.good { color: var(--green); }
+.example-block p { margin: 0; font-size: 14px; line-height: 1.7; font-family: 'Inter', sans-serif; }
+.fail-list { list-style: none; margin: 0 0 28px 0; padding: 0; }
+.fail-list li { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); font-family: 'Inter', sans-serif; }
+.fail-list li:last-child { border-bottom: none; }
+.fail-num { flex-shrink: 0; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600; color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); padding: 2px 8px; border-radius: 4px; height: fit-content; margin-top: 2px; }
+.fail-content strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.fail-content span { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 24px 0; }
+.timeline-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; }
+.timeline-phase { font-size: 11px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+.timeline-label { font-size: 14px; color: var(--text); font-weight: 600; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+.timeline-duration { font-size: 13px; color: var(--text3); font-family: 'Geist Mono', monospace; }
+.article-cta { background: linear-gradient(135deg, rgba(251,146,60,0.08), rgba(105,218,255,0.06)); border: 1px solid rgba(251,146,60,0.2); border-radius: var(--radius); padding: 44px; margin-top: 72px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 700; margin-bottom: 12px; margin-top: 0; }
+.article-cta p { color: var(--text2); margin-bottom: 12px; font-size: 15px; font-family: 'Inter', sans-serif; }
+.cta-agents { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+.cta-agent { font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--orange); background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.2); padding: 4px 10px; border-radius: 6px; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--orange); color: #fff; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+.btn-cta:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.15s; margin-left: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-brand { font-family: 'Newsreader', serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-link { color: var(--text3); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { color: var(--text3); font-size: 13px; }
+@media (max-width: 640px) { .nav-links { display: none; } .article-wrap { padding-top: 80px; } .btn-outline { margin-left: 0; margin-top: 12px; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="mailto:hello@clawhqplatform.com?subject=Federal%20Compliance%20Pack" class="nav-cta">Talk to us →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Compliance</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">FedRAMP</span>
+        <span>April 2026</span><span>·</span><span>9 min read</span>
+      </div>
+      <h1 class="article-title">How to Write a FedRAMP System Security Plan That Actually Gets Approved</h1>
+      <p class="article-subtitle">A FedRAMP Moderate SSP covers 325 controls. Most organizations spend 6–12 months and six figures in consulting fees just to get to assessment. Here's what auditors actually look for — and where most SSPs fail.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>Writing control implementation statements is the most time-consuming part of the FedRAMP authorization process. Each of the 325 controls in the Moderate baseline needs a written description of exactly how your organization implements that control — specific enough that a 3PAO assessor can verify it against evidence. The FedRAMP PMO reviews hundreds of SSPs per year. They know within two paragraphs whether a system is genuinely compliant or whether someone filled in a template with plausible-sounding text.</p>
+
+      <h2>What the SSP Actually Is</h2>
+
+      <p>The SSP is not a policy document. Policies describe what you intend to do. The SSP describes what you actually do — the specific systems, configurations, tools, and processes that implement each NIST 800-53 Rev 5 control. Auditors reject SSPs that reference policies instead of describing implementations.</p>
+
+      <h2>The Sections Auditors Scrutinize First</h2>
+
+      <h3>Section 2 — System Categorization</h3>
+      <p>FIPS 199 categorization: Confidentiality, Integrity, and Availability at Low, Moderate, or High. Most commercial SaaS products land at Moderate. Justify each impact level using the information types from NIST SP 800-60. Don't understate — if auditors find the categorization wrong, the entire authorization is invalid.</p>
+
+      <h3>Section 3 — System Overview</h3>
+      <p>Two to four paragraphs describing what the system does, who uses it, and how it works. Write for a technical auditor who has never seen your product. Name the cloud provider, the deployment model, the services used. No marketing language.</p>
+
+      <h3>Section 8 — Information System Connections</h3>
+      <p>Every system that connects to your authorization boundary needs to be listed — every API integration, every third-party service, every data feed. Undocumented interconnections appear in 90% of first submissions. Document everything, including read-only connections.</p>
+
+      <h3>Section 9 — Controls</h3>
+      <p>The bulk of the document. 325 controls for the Moderate baseline, each requiring a Control Implementation Statement.</p>
+
+      <h2>How to Write Control Implementation Statements That Pass</h2>
+
+      <p>Each statement needs to answer four questions: <strong>What</strong> is implemented? <strong>How</strong> is it implemented? <strong>Who</strong> is responsible? <strong>Where</strong> does it apply?</p>
+
+      <div class="example-block">
+        <div class="example-label bad">Gets rejected</div>
+        <p>AC-2: The organization manages information system accounts. User accounts are provisioned according to least privilege principles and reviewed periodically.</p>
+      </div>
+
+      <div class="example-block">
+        <div class="example-label good">Gets approved</div>
+        <p>AC-2: User accounts are managed in Okta (Identity Provider). Account provisioning requires a manager-approved ticket in Jira (project: IT-ACCESS) before accounts are created. New accounts are provisioned with the minimum role required for job function per the access matrix maintained in Confluence. Account reviews are conducted quarterly using an automated Okta report reviewed by the ISSO. Service accounts are tracked in the service account register in GitHub. Accounts are deprovisioned within 24 hours of separation via the offboarding workflow in ServiceNow. The System Owner is responsible for approving all account actions.</p>
+      </div>
+
+      <p>The second version names the tools, the process, the responsible party, and the review cadence. An assessor can verify every claim against evidence.</p>
+
+      <h2>Inherited Controls: Where Most SSPs Get It Wrong</h2>
+
+      <p>If you're on AWS GovCloud, Azure Government, or GCP (all FedRAMP authorized), a significant portion of controls are inherited. You have to document the inheritance correctly or every inherited control becomes a finding.</p>
+
+      <ul>
+        <li>For each inherited control: state that it's inherited from the CSP, reference the CSP's FedRAMP package (authorization number and date), and describe what the CSP provides vs. what you're responsible for</li>
+        <li>Many controls are <strong>shared</strong> — partially inherited, partially customer-implemented. Document both layers</li>
+        <li>Get the Customer Responsibility Matrix (CRM) from your CSP first. Build your SSP around it</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Key point</div>
+        <p>AWS manages the underlying infrastructure accounts, but you manage the application-layer accounts. For AC-2, both layers need to be described in the control statement.</p>
+      </div>
+
+      <h2>The POA&amp;M Is Part of the SSP</h2>
+
+      <p>Any control you can't fully implement by assessment goes on the Plan of Action &amp; Milestones. The POA&amp;M is not a list of failures — it's a documented, managed remediation plan. Having items on the POA&amp;M at initial authorization is normal. Document each item before your assessment with a timeline:</p>
+
+      <ul>
+        <li>Critical findings: 30 days</li>
+        <li>High: 90 days</li>
+        <li>Moderate: 180 days</li>
+        <li>Low: 365 days</li>
+      </ul>
+
+      <h2>5 Reasons SSPs Fail JAB Review</h2>
+
+      <ol class="fail-list">
+        <li>
+          <span class="fail-num">FAIL 1</span>
+          <div class="fail-content">
+            <strong>System boundary is undefined</strong>
+            <span>If auditors can't determine what's in scope and what isn't, the entire SSP is invalid. Draw a clean boundary. Document every component inside it. Your network diagram must match what you describe in Section 3.</span>
+          </div>
+        </li>
+        <li>
+          <span class="fail-num">FAIL 2</span>
+          <div class="fail-content">
+            <strong>Controls marked Implemented with no specifics</strong>
+            <span>"Implemented" in the SSP creates an expectation that the 3PAO will find evidence of implementation. If the evidence isn't there, you have a finding — and a finding discovered during assessment is worse than one in the POA&M.</span>
+          </div>
+        </li>
+        <li>
+          <span class="fail-num">FAIL 3</span>
+          <div class="fail-content">
+            <strong>Organization-defined parameters left blank</strong>
+            <span>NIST 800-53 controls have parameters FedRAMP sets specific values for. If you leave them as "[organization-defined]", the reviewer sends it back. Fill in every parameter per the FedRAMP baseline document.</span>
+          </div>
+        </li>
+        <li>
+          <span class="fail-num">FAIL 4</span>
+          <div class="fail-content">
+            <strong>Diagrams don't match the text</strong>
+            <span>If the text says you use a WAF but the architecture diagram doesn't show one, that's a finding. If a data flow shows encryption but the text doesn't mention it, auditors will question whether it's actually implemented.</span>
+          </div>
+        </li>
+        <li>
+          <span class="fail-num">FAIL 5</span>
+          <div class="fail-content">
+            <strong>Missing controls</strong>
+            <span>Every control in the FedRAMP Moderate baseline must be addressed — Implemented, Inherited, Planned, or Not Applicable with documented justification. Missing controls are automatic rejections.</span>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Realistic Timeline</h2>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 1</div>
+          <div class="timeline-label">Scoping &amp; categorization</div>
+          <div class="timeline-duration">1–2 weeks</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 2</div>
+          <div class="timeline-label">System overview &amp; diagrams</div>
+          <div class="timeline-duration">2–4 weeks</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 3</div>
+          <div class="timeline-label">325 control statements</div>
+          <div class="timeline-duration">3–6 months</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 4</div>
+          <div class="timeline-label">Internal review &amp; revision</div>
+          <div class="timeline-duration">4–8 weeks</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-phase">Phase 5</div>
+          <div class="timeline-label">3PAO readiness assessment</div>
+          <div class="timeline-duration">2–4 weeks</div>
+        </div>
+      </div>
+
+      <p>That assumes dedicated staff who know what they're doing. Most engineering teams don't. The usual path is hiring a compliance consultant at $150–300/hour or a GRC platform at $50K–200K/year.</p>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/soc2-gap-analysis/">SOC 2 gap analysis — domain-by-domain checklist</a></p>
+
+      <div class="article-cta">
+        <h3>SSP drafting without the six-figure consulting bill.</h3>
+        <p>The Federal Compliance Pack's SSP drafter agent generates control implementation statements from your system description — NIST 800-53 Rev 5 for FedRAMP Moderate and High, with inheritance analysis against AWS, Azure, and GCP packages. Monthly ConMon reports, POA&amp;M lifecycle management, and ATO tracking included.</p>
+        <div class="cta-agents">
+          <span class="cta-agent">ssp-drafter</span>
+          <span class="cta-agent">poam-manager</span>
+          <span class="cta-agent">ato-tracker</span>
+          <span class="cta-agent">conmon-report</span>
+          <span class="cta-agent">cmmc-assessor</span>
+          <span class="cta-agent">stateramp-coordinator</span>
+        </div>
+        <a href="https://buy.stripe.com/fZu00k6Z56Zh0Pj0F62Fa0G" class="btn-cta">Get Federal Compliance Pack — $199/mo →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

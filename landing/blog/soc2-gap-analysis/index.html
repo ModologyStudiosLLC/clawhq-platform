@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC 2 Gap Analysis: How to Know If You're Actually Ready for an Audit — ClawHQ</title>
+<meta name="description" content="Most companies that fail their SOC 2 audit don't fail because they have bad security. They fail because they can't prove what they've built. A full domain-by-domain checklist and the 10 most common audit gaps.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/soc2-gap-analysis/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="SOC 2 Gap Analysis: How to Know If You're Actually Ready for an Audit">
+<meta property="og:description" content="A domain-by-domain checklist of SOC 2 Trust Services Criteria and the 10 gaps that cause most first-time audits to fail.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/soc2-gap-analysis/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SOC 2 Gap Analysis: How to Know If You're Actually Ready for an Audit">
+<meta name="twitter:description" content="A domain-by-domain checklist of SOC 2 Trust Services Criteria and the 10 gaps that cause most first-time audits to fail.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SOC 2 Gap Analysis: How to Know If You're Actually Ready for an Audit",
+  "description": "Most companies that fail their SOC 2 audit don't fail because they have bad security. They fail because they can't prove what they've built.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --green: #69f6b8; --purple: #ac8aff;
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-breadcrumb a:hover { color: var(--accent); }
+.article-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text3); margin-bottom: 28px; flex-wrap: wrap; }
+.article-tag { background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'Inter', sans-serif; }
+.article-tag.security { background: rgba(172,138,255,0.12); color: var(--purple); }
+h1.article-title { font-size: clamp(30px, 4vw, 50px); font-weight: 700; line-height: 1.12; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; max-width: 660px; font-family: 'Inter', sans-serif; font-weight: 400; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body p { margin-bottom: 22px; color: var(--text2); font-size: 16px; line-height: 1.8; font-family: 'Inter', sans-serif; }
+.article-body h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 56px; margin-bottom: 20px; color: var(--text); padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 36px; margin-bottom: 14px; color: var(--text); font-family: 'Inter', sans-serif; }
+.article-body ul, .article-body ol { margin: 0 0 22px 22px; color: var(--text2); font-size: 16px; line-height: 1.8; font-family: 'Inter', sans-serif; }
+.article-body li { margin-bottom: 8px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+.article-body code { font-family: 'Geist Mono', monospace; font-size: 13px; background: rgba(105,218,255,0.08); border: 1px solid rgba(105,218,255,0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; margin: 32px 0; }
+.callout p { margin: 0; font-size: 15px; font-family: 'Inter', sans-serif; }
+.callout-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 10px; }
+/* Checklist */
+.checklist { list-style: none; margin: 16px 0 28px 0; padding: 0; }
+.checklist li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 8px; font-size: 15px; color: var(--text2); font-family: 'Inter', sans-serif; line-height: 1.5; margin-bottom: 4px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); }
+.checklist li::before { content: ''; flex-shrink: 0; width: 16px; height: 16px; margin-top: 2px; border-radius: 4px; border: 1.5px solid rgba(105,218,255,0.35); background: rgba(105,218,255,0.04); }
+/* Criteria cards */
+.criteria-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px 28px; margin: 28px 0; }
+.criteria-label { font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.criteria-card h3 { font-size: 18px; margin-top: 0; margin-bottom: 10px; }
+.criteria-card p { font-size: 15px; color: var(--text2); margin-bottom: 16px; font-family: 'Inter', sans-serif; line-height: 1.65; }
+/* Top 10 gaps */
+.gap-list { counter-reset: gap-counter; list-style: none; margin: 0 0 28px 0; padding: 0; }
+.gap-list li { counter-increment: gap-counter; display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+.gap-list li:last-child { border-bottom: none; }
+.gap-number { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: rgba(172,138,255,0.12); border: 1px solid rgba(172,138,255,0.2); display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600; color: var(--purple); margin-top: 1px; }
+.gap-content strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.gap-content span { font-size: 14px; color: var(--text2); line-height: 1.6; font-family: 'Inter', sans-serif; }
+/* CTA */
+.article-cta { background: linear-gradient(135deg, rgba(172,138,255,0.08), rgba(105,218,255,0.08)); border: 1px solid rgba(172,138,255,0.2); border-radius: var(--radius); padding: 44px; margin-top: 72px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 700; margin-bottom: 12px; margin-top: 0; }
+.article-cta p { color: var(--text2); margin-bottom: 12px; font-size: 15px; font-family: 'Inter', sans-serif; }
+.cta-agents { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+.cta-agent { font-size: 12px; font-family: 'Geist Mono', monospace; color: var(--purple); background: rgba(172,138,255,0.1); border: 1px solid rgba(172,138,255,0.2); padding: 4px 10px; border-radius: 6px; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--purple); color: #fff; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+.btn-cta:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.15s, color 0.15s; margin-left: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-brand { font-family: 'Newsreader', serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-link { color: var(--text3); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { color: var(--text3); font-size: 13px; }
+@media (max-width: 640px) { .nav-links { display: none; } .article-wrap { padding-top: 80px; } .btn-outline { margin-left: 0; margin-top: 12px; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <span class="nav-wordmark">ClawHQ</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="mailto:hello@clawhqplatform.com?subject=GRC%20Assessment%20Pack" class="nav-cta">Talk to us →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a>
+        <span>›</span>
+        <a href="/blog/">Blog</a>
+        <span>›</span>
+        <span>Compliance</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag security">Compliance</span>
+        <span>April 2026</span>
+        <span>·</span>
+        <span>10 min read</span>
+      </div>
+      <h1 class="article-title">SOC 2 Gap Analysis: How to Know If You're Actually Ready for an Audit</h1>
+      <p class="article-subtitle">Most companies that fail their SOC 2 audit don't fail because they have bad security. They fail because they can't prove what they've built. A domain-by-domain checklist and the 10 gaps that show up in almost every first-time assessment.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>A gap analysis before your audit isn't optional — it's the difference between a clean Type II report and six months of remediation that delays your enterprise deals. This guide covers what each Trust Services Criteria domain actually requires, what evidence auditors look for, and the gaps that cause first-time assessments to fail.</p>
+
+      <div class="callout">
+        <div class="callout-title">Run it twice</div>
+        <p>At least 6 months before your target audit date, then again 30–60 days before. The gap between those two runs tells you whether your remediation is on track.</p>
+      </div>
+
+      <h2>What a SOC 2 Gap Analysis Is (and Isn't)</h2>
+
+      <p>A gap analysis compares what your controls require — the SOC 2 Trust Services Criteria — against what you currently have implemented. The output is a prioritized list of what needs to be fixed before an auditor looks at your environment.</p>
+
+      <ul>
+        <li><strong>It is:</strong> a map of where you stand today vs. where you need to be, a prioritized remediation roadmap, and a realistic timeline for submitting to audit</li>
+        <li><strong>It is not:</strong> a penetration test, a security assessment, or a guarantee that you'll pass</li>
+      </ul>
+
+      <h2>SOC 2 Trust Services Criteria — What Each Area Requires</h2>
+
+      <p>Every SOC 2 audit covers Security (the Common Criteria). Availability, Confidentiality, Processing Integrity, and Privacy are added only if your product specifically commits to them in customer contracts.</p>
+
+      <h3>Security — Common Criteria (CC)</h3>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC1</div>
+        <h3>Control Environment</h3>
+        <p>Does your organization have a formal security program? Documented policies, defined security roles, a risk assessment process, a vendor management program. Auditors want to see that security is managed, not improvised.</p>
+        <ul class="checklist">
+          <li>Information security policy in place and reviewed in the past 12 months</li>
+          <li>Security roles defined (CISO, security team, or designated security owner)</li>
+          <li>Background screening for employees with access to sensitive systems</li>
+          <li>Code of conduct or acceptable use policy signed by all employees</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC2</div>
+        <h3>Communication &amp; Information</h3>
+        <p>Do you communicate security requirements to employees and customers? This includes security awareness training, policy communication to new employees, and customer-facing commitments that match what's actually implemented.</p>
+        <ul class="checklist">
+          <li>Security awareness training completed by all employees, with completion records</li>
+          <li>New employee onboarding covers security policies</li>
+          <li>Customer-facing security commitments match what's actually implemented (your trust page isn't aspirational)</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC3</div>
+        <h3>Risk Assessment</h3>
+        <p>Do you formally identify, analyze, and respond to risk? Auditors won't expect enterprise-grade risk management from an early-stage company — but they do expect a documented process.</p>
+        <ul class="checklist">
+          <li>Risk assessment conducted in the past 12 months with documented output</li>
+          <li>Risks categorized by likelihood and impact</li>
+          <li>Mitigation decisions documented (accepted, transferred, mitigated, avoided)</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC4</div>
+        <h3>Monitoring</h3>
+        <p>Do you monitor controls to verify they're working? This includes internal audits, control reviews, and acting on findings.</p>
+        <ul class="checklist">
+          <li>Periodic review of access rights (quarterly or annual access certification)</li>
+          <li>Monitoring process for vendor risk</li>
+          <li>Documented response to identified control deficiencies</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC5</div>
+        <h3>Control Activities</h3>
+        <p>Are you actually doing what your policies say? The gap between documented policy and actual practice is where most audits find findings. If your policy says access is reviewed quarterly and you haven't done a review in 18 months, that's a finding regardless of how good the policy looks.</p>
+        <ul class="checklist">
+          <li>Access review completed within the audit period</li>
+          <li>Change management process followed for all production changes (with evidence — tickets, approvals)</li>
+          <li>Vendor security reviews completed for third-party processors</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC6</div>
+        <h3>Logical and Physical Access Controls</h3>
+        <p>This is where most technical findings live. CC6 covers who can access what, how access is granted and revoked, and how data is protected. It's the most checklist-intensive criteria and the one most audits scrutinize hardest.</p>
+        <ul class="checklist">
+          <li>Multi-factor authentication enforced for all production systems</li>
+          <li>MFA enforced for email and collaboration tools (Google Workspace, Microsoft 365)</li>
+          <li>Access provisioning requires documented approval</li>
+          <li>Access revoked within 24 hours of termination (with evidence — offboarding tickets with timestamps)</li>
+          <li>Privileged access (admin, root) is separate from day-to-day access and logged</li>
+          <li>Encryption at rest: production databases, backups, object storage</li>
+          <li>Encryption in transit: TLS 1.2+ enforced, no HTTP fallback</li>
+          <li>Network segmentation: production environment isolated from development and corporate networks</li>
+          <li>Remote access secured via VPN or zero-trust</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC7</div>
+        <h3>System Operations</h3>
+        <p>Do you monitor for threats and respond to them?</p>
+        <ul class="checklist">
+          <li>Vulnerability scanning on a regular cadence (quarterly minimum)</li>
+          <li>Critical vulnerabilities remediated within defined SLA (30 days for critical is standard)</li>
+          <li>Security monitoring and alerting in place (SIEM or equivalent)</li>
+          <li>Incident response plan documented</li>
+          <li>Incident response tested (tabletop exercise) within the past 12 months</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC8</div>
+        <h3>Change Management</h3>
+        <p>Are changes to the system controlled? The most common version of this finding: engineers merging their own PRs to production with no second reviewer.</p>
+        <ul class="checklist">
+          <li>All production changes go through a formal process (PR review, CAB approval, or equivalent)</li>
+          <li>Emergency changes are documented and retroactively approved</li>
+          <li>Software deployed to production is tested in a non-production environment first</li>
+          <li>Separation of duties: the person who writes code isn't the only one who approves it going to production</li>
+        </ul>
+      </div>
+
+      <div class="criteria-card">
+        <div class="criteria-label">CC9</div>
+        <h3>Risk Mitigation — Vendor Management</h3>
+        <p>Do you manage third-party and vendor risk? Every SaaS tool that touches production or customer data is a vendor that needs to be tracked.</p>
+        <ul class="checklist">
+          <li>Vendor list maintained with security tier designation</li>
+          <li>SOC 2 reports or security questionnaires obtained from critical vendors</li>
+          <li>Data processing agreements (DPAs) in place for vendors that process customer data</li>
+          <li>Vendor access to production systems requires MFA and is logged</li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Availability Criteria (A)</h2>
+      <p>Add if your product has uptime commitments in customer contracts or SLAs.</p>
+      <ul class="checklist">
+        <li>Uptime monitoring with alerting</li>
+        <li>Incident communication process documented and tested</li>
+        <li>RTO and RPO defined and tested</li>
+        <li>Business continuity and disaster recovery plan documented and tested within 12 months</li>
+        <li>Critical components have no single point of failure</li>
+      </ul>
+
+      <h2>Confidentiality Criteria (C)</h2>
+      <p>Add if you handle information customers designate as confidential.</p>
+      <ul class="checklist">
+        <li>Confidential information identified and classified</li>
+        <li>Confidential information encrypted at rest and in transit</li>
+        <li>Confidential information disposed of securely on contract termination</li>
+        <li>NDA/confidentiality agreements with employees and relevant vendors</li>
+      </ul>
+
+      <hr>
+
+      <h2>The 10 Most Common SOC 2 Gaps</h2>
+
+      <p>Based on what shows up in first-time assessments, in order of frequency:</p>
+
+      <ol class="gap-list">
+        <li>
+          <div class="gap-number">1</div>
+          <div class="gap-content">
+            <strong>No access review in the past 12 months</strong>
+            <span>The most common finding, period. CC5 requires periodic access certification. Schedule quarterly reviews and make sure they happen — the calendar invite isn't evidence, the completed review with a ticket and names is.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">2</div>
+          <div class="gap-content">
+            <strong>MFA not enforced everywhere</strong>
+            <span>One system without MFA — a legacy admin interface, an internal tool, a developer's direct database access — creates a finding for CC6. Auditors check all systems in scope, not just the ones you highlight.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">3</div>
+          <div class="gap-content">
+            <strong>Offboarding is manual and slow</strong>
+            <span>If you can't show that departed employees had access revoked within 24 hours — with a ticket, timestamp, and confirmation — you have a CC6 finding. Automate offboarding or build a checklist with evidence capture.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">4</div>
+          <div class="gap-content">
+            <strong>Policies exist but aren't followed</strong>
+            <span>If your change management policy requires two approvals but engineers are merging their own PRs, the policy actually creates the finding. The gap between what's documented and what's practiced is where auditors look hardest.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">5</div>
+          <div class="gap-content">
+            <strong>Vulnerability scans aren't happening or aren't authenticated</strong>
+            <span>Unauthenticated scans miss most findings. Results need to be tracked to remediation. If scans are running quarterly but you can't show the findings were closed, auditors treat it the same as no scanning.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">6</div>
+          <div class="gap-content">
+            <strong>No documented incident response test</strong>
+            <span>Having an IR plan isn't enough. You need evidence that you tested it — a tabletop exercise writeup with date and participant names. "We reviewed it" is not a test.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">7</div>
+          <div class="gap-content">
+            <strong>Vendor list is incomplete or unreviewed</strong>
+            <span>Auditors will ask for the complete list of third-party services that touch production or customer data, and evidence that critical vendors have been security-reviewed. Most companies undercount their vendor list by 40–60%.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">8</div>
+          <div class="gap-content">
+            <strong>Log retention is too short</strong>
+            <span>SOC 2 Type II covers a 12-month audit period. If logs are retained for 90 days, you can't support the full period. Most auditors want at minimum 12 months of retention for security-relevant logs.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">9</div>
+          <div class="gap-content">
+            <strong>Production and development environments aren't separated</strong>
+            <span>Developers with direct production database access, shared credentials between environments, or code deploying directly from developer machines without CI/CD — all CC6 findings.</span>
+          </div>
+        </li>
+        <li>
+          <div class="gap-number">10</div>
+          <div class="gap-content">
+            <strong>Security training has no records</strong>
+            <span>Completing training doesn't count if you can't prove who completed it and when. Completion certificates, LMS records, or even a signed acknowledgment with a date — something with names and timestamps.</span>
+          </div>
+        </li>
+      </ol>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/ai-agent-orchestration-complexity/">The hidden complexity of AI agent orchestration</a></p>
+
+      <div class="article-cta">
+        <h3>Run your SOC 2 gap analysis in one conversation.</h3>
+        <p>The GRC Assessment Pack includes a gap analyst agent that runs a structured domain-by-domain assessment, scores each control (Implemented / Partial / Gap), generates a prioritized remediation roadmap, and cross-maps to ISO 27001 and NIST CSF simultaneously.</p>
+        <div class="cta-agents">
+          <span class="cta-agent">framework-mapper</span>
+          <span class="cta-agent">gap-analyst</span>
+          <span class="cta-agent">evidence-collector</span>
+          <span class="cta-agent">policy-drafter</span>
+          <span class="cta-agent">risk-register-manager</span>
+          <span class="cta-agent">audit-report-generator</span>
+        </div>
+        <a href="https://buy.stripe.com/aFaeVeerxbfx7dH4Vm2Fa0F" class="btn-cta">Get GRC Assessment Pack — $149/mo →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

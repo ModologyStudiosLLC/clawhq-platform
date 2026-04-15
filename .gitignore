@@ -8,3 +8,17 @@ node_modules/
 # Packs live in private repo: github.com/ModologyStudiosLLC/clawhq-packs
 packs/
 .pyc
+__pycache__/
+
+# Video-lens transcript/metadata outputs
+metadata_*.json
+transcript_*.json
+
+# Local agent/tool configs
+.agents/
+.claude/
+.claw/
+
+# Claude Code skills (installed via npx skills add)
+skills/
+skills-lock.json

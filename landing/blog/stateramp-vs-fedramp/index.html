@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StateRAMP vs. FedRAMP: What Cloud Vendors Need to Know — ClawHQ</title>
+<meta name="description" content="StateRAMP is becoming required in state government procurement. If you already have FedRAMP, the equivalency path to StateRAMP authorization takes 60–90 days. Here's how it works.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/stateramp-vs-fedramp/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="StateRAMP vs. FedRAMP: What Cloud Vendors Need to Know">
+<meta property="og:description" content="If you already have FedRAMP, the equivalency path to StateRAMP authorization takes 60–90 days. Here's the comparison and the fast path.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/stateramp-vs-fedramp/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="StateRAMP vs. FedRAMP: What Cloud Vendors Need to Know">
+<meta name="twitter:description" content="StateRAMP is becoming required in state government procurement. If you already have FedRAMP, the equivalency path takes 60–90 days.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "StateRAMP vs. FedRAMP: What Cloud Vendors Need to Know",
+  "description": "StateRAMP is becoming required in state government procurement. The equivalency path for existing FedRAMP vendors takes 60–90 days.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --bg:#050507;--surface:rgba(255,255,255,0.04);--surface2:#0c0c0f;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--text:#f5f5f7;--text2:rgba(245,245,247,0.72);--text3:rgba(245,245,247,0.44);--accent:#69daff;--accent-dim:rgba(105,218,255,0.10);--green:#69f6b8;--orange:#fb923c;--radius:18px;--radius-sm:10px; }
+body { font-family:'Inter',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden; }
+h1,h2,h3 { font-family:'Newsreader',Georgia,serif; }
+.bg-grid { position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(rgba(105,218,255,0.025) 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,black 20%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,black 20%,transparent 80%); }
+.container { max-width:1160px;margin:0 auto;padding:0 32px; }
+nav { position:fixed;top:0;left:0;right:0;z-index:200;height:56px;display:flex;align-items:center;padding:0 32px;background:rgba(5,5,7,0.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border); }
+.nav-inner { max-width:1160px;margin:0 auto;width:100%;display:flex;align-items:center; }
+.nav-brand { margin-right:auto;color:var(--text);text-decoration:none; }
+.nav-wordmark { font-family:'Newsreader',serif;font-weight:700;font-size:17px;letter-spacing:-0.02em; }
+.nav-links { display:flex;align-items:center;gap:28px;margin-right:28px; }
+.nav-links a { font-size:14px;color:var(--text3);text-decoration:none;transition:color 0.15s; }
+.nav-links a:hover,.nav-links a.active { color:var(--text); }
+.nav-cta { background:var(--accent);color:#050507;font-weight:600;font-size:13px;padding:7px 16px;border-radius:8px;text-decoration:none; }
+.article-wrap { position:relative;z-index:1;padding-top:96px;padding-bottom:96px; }
+.article-header { max-width:740px;margin:0 auto 52px; }
+.article-breadcrumb { display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);margin-bottom:24px; }
+.article-breadcrumb a { color:var(--text2);text-decoration:none; }
+.article-meta { display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text3);margin-bottom:28px;flex-wrap:wrap; }
+.article-tag { background:rgba(251,146,60,0.12);color:var(--orange);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;font-family:'Inter',sans-serif; }
+h1.article-title { font-size:clamp(30px,4vw,50px);font-weight:700;line-height:1.12;letter-spacing:-0.03em;color:var(--text);margin-bottom:20px; }
+.article-subtitle { font-size:18px;color:var(--text2);line-height:1.6;max-width:660px;font-family:'Inter',sans-serif; }
+.article-body { max-width:740px;margin:0 auto; }
+.article-body p { margin-bottom:22px;color:var(--text2);font-size:16px;line-height:1.8;font-family:'Inter',sans-serif; }
+.article-body h2 { font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-top:56px;margin-bottom:20px;color:var(--text);padding-bottom:12px;border-bottom:1px solid var(--border); }
+.article-body h3 { font-size:20px;font-weight:600;margin-top:36px;margin-bottom:14px;color:var(--text);font-family:'Inter',sans-serif; }
+.article-body ul,.article-body ol { margin:0 0 22px 22px;color:var(--text2);font-size:16px;line-height:1.8;font-family:'Inter',sans-serif; }
+.article-body li { margin-bottom:8px; }
+.article-body strong { color:var(--text);font-weight:600; }
+.article-body a { color:var(--accent);text-decoration:none; }
+.article-body a:hover { text-decoration:underline; }
+.article-body hr { border:none;border-top:1px solid var(--border);margin:52px 0; }
+.compare-table { width:100%;border-collapse:collapse;margin:28px 0;font-family:'Inter',sans-serif;font-size:14px; }
+.compare-table th { text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2); }
+.compare-table td { padding:12px 14px;color:var(--text2);border-bottom:1px solid var(--border); }
+.compare-table tr:last-child td { border-bottom:none; }
+.compare-table td:first-child { color:var(--text);font-weight:500; }
+.levels { display:flex;flex-direction:column;gap:10px;margin:24px 0; }
+.level-item { display:flex;align-items:flex-start;gap:14px;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm); }
+.level-badge { flex-shrink:0;font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:var(--orange);background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.2);padding:3px 8px;border-radius:4px;white-space:nowrap;margin-top:1px; }
+.level-info strong { display:block;font-size:14px;color:var(--text);margin-bottom:3px; }
+.level-info span { font-size:13px;color:var(--text2);line-height:1.5; }
+.steps { display:flex;flex-direction:column;gap:0;margin:24px 0; }
+.step { display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--border); }
+.step:last-child { border-bottom:none; }
+.step-num { flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(105,218,255,0.1);border:1px solid rgba(105,218,255,0.2);display:grid;place-items:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);margin-top:2px; }
+.step-content strong { display:block;color:var(--text);font-size:15px;margin-bottom:4px;font-family:'Inter',sans-serif; }
+.step-content span { font-size:14px;color:var(--text2);line-height:1.6;font-family:'Inter',sans-serif; }
+.article-cta { background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(105,218,255,0.06));border:1px solid rgba(251,146,60,0.2);border-radius:var(--radius);padding:44px;margin-top:72px;text-align:center; }
+.article-cta h3 { font-size:26px;font-weight:700;margin-bottom:12px;margin-top:0; }
+.article-cta p { color:var(--text2);margin-bottom:28px;font-size:15px;font-family:'Inter',sans-serif; }
+.btn-cta { display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-weight:700;font-size:15px;padding:14px 32px;border-radius:var(--radius-sm);text-decoration:none;transition:opacity 0.15s,transform 0.15s; }
+.btn-cta:hover { opacity:0.85;transform:translateY(-1px);text-decoration:none; }
+.btn-outline { display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text);font-weight:600;font-size:15px;padding:14px 32px;border-radius:var(--radius-sm);text-decoration:none;border:1px solid rgba(255,255,255,0.2);margin-left:12px; }
+.btn-outline:hover { border-color:var(--accent);color:var(--accent);text-decoration:none; }
+footer { position:relative;z-index:1;border-top:1px solid var(--border);padding:32px 0; }
+.footer-inner { display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap; }
+.footer-brand { font-family:'Newsreader',serif;font-weight:700;font-size:16px;color:var(--text);text-decoration:none; }
+.footer-links { display:flex;gap:24px;flex-wrap:wrap; }
+.footer-link { color:var(--text3);text-decoration:none;font-size:13px; }
+.footer-link:hover { color:var(--text2); }
+.footer-right { color:var(--text3);font-size:13px; }
+@media (max-width:640px) { .nav-links { display:none; } .article-wrap { padding-top:80px; } .btn-outline { margin-left:0;margin-top:12px; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a><a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="mailto:hello@clawhqplatform.com?subject=Federal%20Compliance%20Pack" class="nav-cta">Talk to us →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Compliance</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">StateRAMP</span>
+        <span>April 2026</span><span>·</span><span>7 min read</span>
+      </div>
+      <h1 class="article-title">StateRAMP vs. FedRAMP: What Cloud Vendors Need to Know</h1>
+      <p class="article-subtitle">StateRAMP is becoming a hard requirement in state government procurement. If you already have FedRAMP, the equivalency path takes 60–90 days. If you don't, StateRAMP Moderate is a viable first step that's faster and cheaper than FedRAMP.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>More than 25 states have adopted StateRAMP as a procurement requirement or strong preference for cloud software. If you sell to state or local governments — or want to — you need to understand what StateRAMP requires, how it compares to FedRAMP, and the fastest path to authorization based on where you are today.</p>
+
+      <h2>What StateRAMP Is</h2>
+
+      <p>StateRAMP is a nonprofit organization that administers a cloud security authorization program specifically for state and local governments. It mirrors the FedRAMP structure — security packages, 3PAO assessments, continuous monitoring — but applies to state procurement rather than federal. The underlying control baseline is NIST 800-53 Rev 5, the same as FedRAMP. The authorization levels map to the same Low, Moderate, and High impact designations.</p>
+
+      <h2>Key Differences from FedRAMP</h2>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th>Factor</th><th>FedRAMP</th><th>StateRAMP</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Governing body</td><td>FedRAMP PMO / JAB</td><td>StateRAMP PMO (nonprofit)</td></tr>
+          <tr><td>Applies to</td><td>Federal agencies</td><td>State and local governments</td></tr>
+          <tr><td>Control baseline</td><td>NIST 800-53 Rev 5</td><td>NIST 800-53 Rev 5 (same)</td></tr>
+          <tr><td>Assessment body</td><td>FedRAMP-accredited 3PAO</td><td>StateRAMP-authorized 3PAO</td></tr>
+          <tr><td>Renewal cycle</td><td>3 years + monthly ConMon</td><td>Annual assessment</td></tr>
+          <tr><td>Ongoing reporting</td><td>Monthly ConMon packages to JAB</td><td>Quarterly POA&amp;M updates</td></tr>
+          <tr><td>Typical timeline</td><td>12–18 months</td><td>6–12 months (or 60–90 days via equivalency)</td></tr>
+          <tr><td>Typical cost</td><td>Higher</td><td>Lower (lighter ongoing requirements)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>StateRAMP Authorization Levels</h2>
+
+      <div class="levels">
+        <div class="level-item">
+          <span class="level-badge">PROGRESS VERIFIED</span>
+          <div class="level-info">
+            <strong>Limited assessment, not full authorization</strong>
+            <span>Demonstrates security progress to state procurement without a full authorization package. Used for low-risk systems where states want visibility but full StateRAMP isn't required.</span>
+          </div>
+        </div>
+        <div class="level-item">
+          <span class="level-badge">LOW</span>
+          <div class="level-info">
+            <strong>NIST 800-53 Low baseline</strong>
+            <span>For systems handling low-sensitivity state data. Relatively uncommon — most systems handling any meaningful state data land at Moderate.</span>
+          </div>
+        </div>
+        <div class="level-item">
+          <span class="level-badge">MODERATE</span>
+          <div class="level-info">
+            <strong>NIST 800-53 Moderate baseline — most common</strong>
+            <span>Required for systems handling most state government data including PII. This is where most commercial SaaS vendors targeting state/local government land.</span>
+          </div>
+        </div>
+        <div class="level-item">
+          <span class="level-badge">HIGH</span>
+          <div class="level-info">
+            <strong>Reserved for the most sensitive state data</strong>
+            <span>Law enforcement, tax, public safety. Rare for commercial vendors. Mirrors FedRAMP High requirements.</span>
+          </div>
+        </div>
+      </div>
+
+      <h2>The FedRAMP Equivalency Path — 60 to 90 Days</h2>
+
+      <p>If you're already FedRAMP Authorized, StateRAMP offers an equivalency pathway. Instead of a full 3PAO assessment, you submit a documentation package that demonstrates your existing FedRAMP authorization covers the StateRAMP requirements. The StateRAMP PMO reviews it and grants StateRAMP Authorized status without a new assessment.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Confirm eligibility</strong>
+            <span>FedRAMP Moderate or High authorization (JAB P-ATO or Agency ATO) qualifies for StateRAMP Moderate equivalency. Your ConMon must be current — no overdue POA&M items at Critical or High.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Submit the equivalency package to StateRAMP PMO</strong>
+            <span>Proof of FedRAMP authorization, current SSP, current SAR, POA&M, Customer Responsibility Matrix, and an attestation letter from your CSP executive.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>PMO review</strong>
+            <span>StateRAMP PMO reviews the package. If your FedRAMP authorization is current and ConMon is in good standing, StateRAMP Authorized status follows in 60–90 days with no new 3PAO engagement required.</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>Maintain Active status</strong>
+            <span>Annual assessment (select controls, StateRAMP-authorized 3PAO), quarterly POA&M updates, incident reporting within 72 hours, significant change notifications.</span>
+          </div>
+        </div>
+      </div>
+
+      <h2>If You Don't Have FedRAMP: StateRAMP as the Entry Point</h2>
+
+      <p>For vendors whose primary market is state and local government — not federal — pursuing StateRAMP Moderate directly is often the right move. It's faster, cheaper, and the ongoing requirements are significantly lighter than FedRAMP's monthly ConMon cycle.</p>
+
+      <p>The StateRAMP authorization process without FedRAMP equivalency: scoping and FIPS 199 categorization, engage a StateRAMP-authorized 3PAO, build the security package (SSP, SAP, POA&M), submit to StateRAMP PMO, receive authorization. Timeline: 6–12 months. If you complete StateRAMP first and later want FedRAMP, the SSP and evidence base you built are directly usable — you're not starting from scratch.</p>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/fedramp-ssp-guide/">How to write a FedRAMP System Security Plan that gets approved</a></p>
+
+      <div class="article-cta">
+        <h3>Manage your FedRAMP and StateRAMP authorizations in one place.</h3>
+        <p>The Federal Compliance Pack's StateRAMP Coordinator handles equivalency documentation, PMO submission packages, quarterly POA&M updates, and annual assessment preparation — alongside the SSP Drafter, ATO Tracker, and CMMC Assessor agents for your full federal compliance portfolio.</p>
+        <a href="https://buy.stripe.com/fZu00k6Z56Zh0Pj0F62Fa0G" class="btn-cta">Get Federal Compliance Pack — $199/mo →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
