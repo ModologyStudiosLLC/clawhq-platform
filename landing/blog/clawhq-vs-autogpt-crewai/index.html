@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClawHQ vs AutoGPT vs CrewAI: Self-Hosted Agent Orchestration Compared — ClawHQ</title>
+<meta name="description" content="A practical comparison of the three leading self-hosted AI agent frameworks. Architecture, channel support, security controls, cost management, and what each is actually built for.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/clawhq-vs-autogpt-crewai/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="ClawHQ vs AutoGPT vs CrewAI: Self-Hosted Agent Orchestration Compared">
+<meta property="og:description" content="A practical comparison of the three leading self-hosted AI agent frameworks — architecture, channel support, security, and cost management.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/clawhq-vs-autogpt-crewai/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ClawHQ vs AutoGPT vs CrewAI: Self-Hosted Agent Orchestration Compared",
+  "description": "A practical comparison of the three leading self-hosted AI agent frameworks.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --green: #69f6b8; --red: #ff6b6b; --orange: #ffab69;
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-breadcrumb a:hover { color: var(--accent); }
+.article-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text3); margin-bottom: 28px; flex-wrap: wrap; }
+.article-tag { background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+h1.article-title { font-size: clamp(30px, 4vw, 50px); font-weight: 700; line-height: 1.12; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; max-width: 660px; font-weight: 400; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body p { margin-bottom: 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 56px; margin-bottom: 20px; color: var(--text); padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 36px; margin-bottom: 14px; color: var(--text); font-family: 'Inter', sans-serif; }
+.article-body ul, .article-body ol { margin: 0 0 22px 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body li { margin-bottom: 8px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; margin: 32px 0; }
+.callout p { margin: 0; font-size: 15px; }
+.callout-title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+/* Comparison table */
+.compare-wrap { overflow-x: auto; margin: 32px 0; }
+.compare { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+.compare th { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border2); font-size: 13px; font-weight: 700; }
+.compare th:first-child { color: var(--text3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.compare th.clawhq { color: var(--accent); }
+.compare th.autogpt { color: #f9a825; }
+.compare th.crewai { color: #a78bfa; }
+.compare td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.compare td:first-child { color: var(--text3); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.compare td.clawhq { color: var(--text2); }
+.compare td.autogpt { color: var(--text2); }
+.compare td.crewai { color: var(--text2); }
+.compare tr:last-child td { border-bottom: none; }
+.yes { color: var(--green); font-weight: 600; }
+.no { color: var(--red); font-weight: 600; }
+.partial { color: var(--orange); font-weight: 600; }
+/* Profile cards */
+.profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 28px 0; }
+.profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 22px 24px; }
+.profile-card-name { font-weight: 700; font-size: 17px; margin-bottom: 6px; }
+.profile-card-name.clawhq { color: var(--accent); }
+.profile-card-name.autogpt { color: #f9a825; }
+.profile-card-name.crewai { color: #a78bfa; }
+.profile-card-tagline { font-size: 13px; color: var(--text3); margin-bottom: 14px; font-style: italic; }
+.profile-card p { font-size: 14px; color: var(--text2); line-height: 1.6; margin: 0; }
+/* CTA */
+.article-cta { background: linear-gradient(135deg, rgba(105,218,255,0.06), rgba(105,246,184,0.06)); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius); padding: 44px; margin-top: 72px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 700; margin-bottom: 12px; margin-top: 0; }
+.article-cta p { color: var(--text2); margin-bottom: 28px; font-size: 15px; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #050507; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+.btn-cta:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.15s, color 0.15s; margin-left: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-brand { font-family: 'Newsreader', serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-link { color: var(--text3); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { color: var(--text3); font-size: 13px; }
+@media (max-width: 640px) { .nav-links { display: none; } .article-wrap { padding-top: 80px; } .btn-outline { margin-left: 0; margin-top: 12px; } .profile-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="nav-cta">Get started →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Engineering</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">Engineering</span>
+        <span>April 2026</span><span>·</span><span>9 min read</span>
+      </div>
+      <h1 class="article-title">ClawHQ vs AutoGPT vs CrewAI: Self-Hosted Agent Orchestration Compared</h1>
+      <p class="article-subtitle">A practical look at the three leading self-hosted AI agent frameworks — what each is built for, where each breaks down, and which one fits your use case.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>All three projects are open source. All three let you self-host AI agents. That's where the similarity ends. AutoGPT, CrewAI, and ClawHQ are built for fundamentally different problems — comparing them without context produces misleading conclusions.</p>
+
+      <p>This is a practical comparison from the perspective of a team deciding what to deploy in production. Not a feature checkbox exercise.</p>
+
+      <div class="callout">
+        <div class="callout-title">Disclosure</div>
+        <p>This guide is written by the ClawHQ team. We've tried to be accurate and fair, but you should verify any comparison against each project's current documentation before making a decision.</p>
+      </div>
+
+      <h2>What Each Is Actually Built For</h2>
+
+      <div class="profile-grid">
+        <div class="profile-card">
+          <div class="profile-card-name autogpt">AutoGPT</div>
+          <div class="profile-card-tagline">Autonomous single-agent task execution</div>
+          <p>Originally a demo of how far a single GPT-4 agent could get on an open-ended goal. Has evolved into an agent platform with a visual task builder. Best for single-agent, goal-directed tasks where the agent decides its own steps.</p>
+        </div>
+        <div class="profile-card">
+          <div class="profile-card-name crewai">CrewAI</div>
+          <div class="profile-card-tagline">Python-first multi-agent workflows</div>
+          <p>A Python framework for defining crews of specialized agents with explicit roles and handoff logic. No UI — you write code. Best for developers who want programmatic control over agent collaboration and are comfortable with Python.</p>
+        </div>
+        <div class="profile-card">
+          <div class="profile-card-name clawhq">ClawHQ</div>
+          <div class="profile-card-tagline">Full-stack agent control plane</div>
+          <p>An integrated platform for deploying, managing, and monitoring agent teams across channels. Includes a dashboard, security controls, cost management, and pack system. Best for teams that want agents in production, not just in a dev environment.</p>
+        </div>
+      </div>
+
+      <h2>Feature Comparison</h2>
+
+      <div class="compare-wrap">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="clawhq">ClawHQ</th>
+              <th class="autogpt">AutoGPT</th>
+              <th class="crewai">CrewAI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Self-hosted</td>
+              <td class="clawhq"><span class="yes">Yes</span> — Docker Compose</td>
+              <td class="autogpt"><span class="yes">Yes</span> — Docker or script</td>
+              <td class="crewai"><span class="yes">Yes</span> — Python package</td>
+            </tr>
+            <tr>
+              <td>Web UI / Dashboard</td>
+              <td class="clawhq"><span class="yes">Yes</span> — full control plane</td>
+              <td class="autogpt"><span class="partial">Partial</span> — visual task builder</td>
+              <td class="crewai"><span class="no">No</span> — code only</td>
+            </tr>
+            <tr>
+              <td>Multi-agent coordination</td>
+              <td class="clawhq"><span class="yes">Yes</span> — DAG orchestration + org charts</td>
+              <td class="autogpt"><span class="partial">Partial</span> — limited multi-agent</td>
+              <td class="crewai"><span class="yes">Yes</span> — crews with explicit roles</td>
+            </tr>
+            <tr>
+              <td>Messaging channel support</td>
+              <td class="clawhq"><span class="yes">Yes</span> — 20+ channels built-in</td>
+              <td class="autogpt"><span class="no">No</span> — no channel integrations</td>
+              <td class="crewai"><span class="no">No</span> — library only, no channels</td>
+            </tr>
+            <tr>
+              <td>LLM providers</td>
+              <td class="clawhq">20+ providers + model router</td>
+              <td class="autogpt">OpenAI, Anthropic, Groq, others</td>
+              <td class="crewai">OpenAI, Anthropic, Groq, Ollama, others</td>
+            </tr>
+            <tr>
+              <td>Cost / budget controls</td>
+              <td class="clawhq"><span class="yes">Yes</span> — per-agent limits, monthly caps, router</td>
+              <td class="autogpt"><span class="partial">Partial</span> — basic token limits</td>
+              <td class="crewai"><span class="no">No</span> — no built-in cost controls</td>
+            </tr>
+            <tr>
+              <td>Security (PII, injection)</td>
+              <td class="clawhq"><span class="yes">Yes</span> — Sentinel, 6 layers</td>
+              <td class="autogpt"><span class="no">No</span> — no built-in security layer</td>
+              <td class="crewai"><span class="no">No</span> — no built-in security layer</td>
+            </tr>
+            <tr>
+              <td>SSO / RBAC</td>
+              <td class="clawhq"><span class="yes">Yes</span> — WorkOS, member management</td>
+              <td class="autogpt"><span class="no">No</span></td>
+              <td class="crewai"><span class="no">No</span></td>
+            </tr>
+            <tr>
+              <td>Audit logging</td>
+              <td class="clawhq"><span class="yes">Yes</span> — tamper-evident, SIEM export</td>
+              <td class="autogpt"><span class="no">No</span></td>
+              <td class="crewai"><span class="no">No</span></td>
+            </tr>
+            <tr>
+              <td>MCP integration</td>
+              <td class="clawhq"><span class="yes">Yes</span> — Tier 1 and Tier 2 built-in</td>
+              <td class="autogpt"><span class="partial">Partial</span> — some MCP support</td>
+              <td class="crewai"><span class="partial">Partial</span> — tool-based, not MCP-native</td>
+            </tr>
+            <tr>
+              <td>Pack / plugin system</td>
+              <td class="clawhq"><span class="yes">Yes</span> — YAML packs, ClawMart</td>
+              <td class="autogpt"><span class="partial">Partial</span> — plugin system</td>
+              <td class="crewai"><span class="no">No</span> — Python code only</td>
+            </tr>
+            <tr>
+              <td>Persistent memory</td>
+              <td class="clawhq"><span class="yes">Yes</span> — Hermes, long-term context</td>
+              <td class="autogpt"><span class="yes">Yes</span> — vector store memory</td>
+              <td class="crewai"><span class="partial">Partial</span> — via langchain memory</td>
+            </tr>
+            <tr>
+              <td>Real-time monitoring</td>
+              <td class="clawhq"><span class="yes">Yes</span> — WebSocket event feed, health sparklines</td>
+              <td class="autogpt"><span class="partial">Partial</span> — task logs</td>
+              <td class="crewai"><span class="no">No</span> — terminal output only</td>
+            </tr>
+            <tr>
+              <td>Setup time</td>
+              <td class="clawhq">~5 minutes</td>
+              <td class="autogpt">~15–30 minutes</td>
+              <td class="crewai">Python dev environment required</td>
+            </tr>
+            <tr>
+              <td>License</td>
+              <td class="clawhq">MIT</td>
+              <td class="autogpt">MIT</td>
+              <td class="crewai">MIT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Architecture Differences</h2>
+
+      <h3>AutoGPT</h3>
+
+      <p>AutoGPT pioneered the "single agent with a goal" model: give GPT-4 a task and let it plan its own steps, use tools, and iterate toward the goal without human guidance at each step. The architecture is fundamentally about autonomous execution of a single goal at a time.</p>
+
+      <p>The visual task builder added later makes it easier to define what the agent should do, but the core model is still single-agent, goal-directed execution. Multi-agent support exists but was added incrementally and isn't the primary design assumption.</p>
+
+      <p><strong>Where it shines:</strong> exploratory research tasks, one-off automation, scenarios where you want to see what an agent does when given an open-ended problem. <strong>Where it breaks:</strong> production deployments needing security controls, team-visible interfaces, or multi-channel routing.</p>
+
+      <h3>CrewAI</h3>
+
+      <p>CrewAI is a Python library that gives developers a clean abstraction for multi-agent collaboration: define agents with roles, define tasks, assign tasks to agents, run the crew. It's explicit — you specify exactly how agents should collaborate, what each agent is responsible for, and what the handoff looks like.</p>
+
+      <p>There's no UI. Deployment is whatever you build around it. No built-in channel integrations, no cost controls, no security layer. CrewAI assumes you're a developer who will build those things or doesn't need them yet.</p>
+
+      <p><strong>Where it shines:</strong> Python teams that want programmatic agent coordination with clean abstractions and don't need a pre-built interface. <strong>Where it breaks:</strong> teams that need a non-developer-accessible interface, production security controls, or channel integrations without custom development work.</p>
+
+      <h3>ClawHQ</h3>
+
+      <p>ClawHQ is a control plane — it manages the infrastructure around your agents rather than being the agent framework itself. Under the hood it runs OpenClaw (gateway), OpenFang (agent OS in Rust), Paperclip (orchestration), and Hermes (memory). Each is independently deployable; ClawHQ wires them together under one interface.</p>
+
+      <p>The design assumption is that agents need to be accessible to non-developers (via Slack, Discord, Telegram), need cost controls to stay within budget at scale, and need security controls to run safely in production environments that handle real user data.</p>
+
+      <p><strong>Where it shines:</strong> teams that need agents in production, not just prototypes — especially when non-technical team members need to interact with agents, or when security/compliance requirements apply. <strong>Where it breaks:</strong> if you need deep Python-level customization of the agent loop itself, CrewAI or a direct LLM SDK is more flexible.</p>
+
+      <h2>Which One Should You Use?</h2>
+
+      <p>The answer isn't about features — it's about what stage you're at and what problem you're solving.</p>
+
+      <ul>
+        <li><strong>Use AutoGPT</strong> if you want to experiment with autonomous single-agent behavior on a defined goal, you're a solo developer or researcher, and you don't need production infrastructure.</li>
+        <li><strong>Use CrewAI</strong> if you're a Python developer who wants programmatic control over multi-agent coordination and will build your own deployment layer around it.</li>
+        <li><strong>Use ClawHQ</strong> if you're deploying agents that non-developers need to use, if you have security or compliance requirements, if you need cost controls across multiple agents, or if you want a production-ready system in under 5 minutes.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Not mutually exclusive</div>
+        <p>Some teams use CrewAI for complex background workflows and ClawHQ for the channel-facing interface. ClawHQ's pack system can wrap CrewAI-style agent logic — the distinction between frameworks blurs as systems grow.</p>
+      </div>
+
+      <h2>The Honest Gaps</h2>
+
+      <p>ClawHQ's gaps are worth being honest about:</p>
+
+      <ul>
+        <li><strong>Deeper Python customization.</strong> If you need to customize the agent reasoning loop at the code level, CrewAI is more flexible. ClawHQ's pack system covers most use cases, but it's YAML-based, not code-based.</li>
+        <li><strong>Single-agent open-ended exploration.</strong> AutoGPT's "give it a goal and let it run" model is better for exploratory tasks where you don't know what steps are needed. ClawHQ agents work best with defined tasks and tools.</li>
+        <li><strong>Ecosystem maturity.</strong> AutoGPT and CrewAI have larger communities and more third-party integrations simply because they've been around longer.</li>
+      </ul>
+
+      <hr>
+
+      <div class="article-cta">
+        <h3>Try ClawHQ in 5 minutes</h3>
+        <p>Deploy a complete AI agent team — channels wired, security active, cost controls set — from a single command. MIT-licensed, self-hosted, no vendor lock-in.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="btn-cta">View on GitHub →</a>
+        <a href="/blog/deploy-ai-team-5-minutes/" class="btn-outline">5-minute deploy guide</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

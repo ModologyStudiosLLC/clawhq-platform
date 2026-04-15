@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connecting Your First Channel: Discord, Slack, and Telegram Setup — ClawHQ</title>
+<meta name="description" content="Step-by-step guide to wiring up Discord, Slack, and Telegram to your ClawHQ agents. Bot tokens, webhook URLs, and thread routing — everything you need to go from zero to messages in under 10 minutes.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/connect-channels/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="Connecting Your First Channel: Discord, Slack, and Telegram Setup">
+<meta property="og:description" content="Bot tokens, webhook URLs, and thread routing — wire up Discord, Slack, and Telegram to ClawHQ agents in under 10 minutes.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/connect-channels/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Connecting Your First Channel: Discord, Slack, and Telegram Setup",
+  "description": "Step-by-step guide to wiring up Discord, Slack, and Telegram to your ClawHQ agents.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --green: #69f6b8; --purple: #ac8aff; --orange: #ffab69;
+  --discord: #5865f2; --slack: #4a154b; --telegram: #2aabee;
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-breadcrumb a:hover { color: var(--accent); }
+.article-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text3); margin-bottom: 28px; flex-wrap: wrap; }
+.article-tag { background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+h1.article-title { font-size: clamp(30px, 4vw, 50px); font-weight: 700; line-height: 1.12; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; max-width: 660px; font-weight: 400; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body p { margin-bottom: 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 56px; margin-bottom: 20px; color: var(--text); padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 36px; margin-bottom: 14px; color: var(--text); font-family: 'Inter', sans-serif; }
+.article-body ul, .article-body ol { margin: 0 0 22px 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body li { margin-bottom: 8px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+pre { background: #0a0a0d; border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 20px 24px; overflow-x: auto; margin: 28px 0; font-family: 'Geist Mono', monospace; font-size: 13px; line-height: 1.7; color: #cdd6f4; }
+code { font-family: 'Geist Mono', monospace; font-size: 13px; background: rgba(105,218,255,0.08); border: 1px solid rgba(105,218,255,0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+pre code { background: none; border: none; padding: 0; color: inherit; }
+.comment { color: #6c7086; }
+.key { color: #89b4fa; }
+.val { color: #a6e3a1; }
+.str { color: #f38ba8; }
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; margin: 32px 0; }
+.callout.tip { border-left-color: var(--green); }
+.callout.tip .callout-title { color: var(--green); }
+.callout.warn { border-left-color: var(--orange); }
+.callout.warn .callout-title { color: var(--orange); }
+.callout p { margin: 0; font-size: 15px; }
+.callout-title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+/* Channel header */
+.channel-header { display: flex; align-items: center; gap: 14px; margin: 48px 0 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.channel-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+.channel-icon.discord { background: rgba(88,101,242,0.15); border: 1px solid rgba(88,101,242,0.25); }
+.channel-icon.slack { background: rgba(74,21,75,0.25); border: 1px solid rgba(74,21,75,0.4); }
+.channel-icon.telegram { background: rgba(42,171,238,0.12); border: 1px solid rgba(42,171,238,0.25); }
+.channel-header h2 { border: none; padding: 0; margin: 0; font-size: 26px; }
+/* Step list */
+.step-list { list-style: none; margin: 0 0 28px 0; padding: 0; counter-reset: step; }
+.step-list li { counter-increment: step; display: grid; grid-template-columns: 28px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.step-list li:last-child { border-bottom: none; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border2); display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text3); flex-shrink: 0; }
+.step-body strong { display: block; color: var(--text); font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.step-body span { font-size: 14px; color: var(--text2); line-height: 1.6; }
+/* Channel comparison */
+.channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
+.channel-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; }
+.channel-card-name { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--text); }
+.channel-card ul { margin: 0; padding: 0; list-style: none; }
+.channel-card ul li { font-size: 13px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; line-height: 1.4; }
+.channel-card ul li:last-child { border-bottom: none; }
+.channel-card ul li::before { content: '·'; color: var(--text3); flex-shrink: 0; }
+/* CTA */
+.article-cta { background: linear-gradient(135deg, rgba(105,218,255,0.06), rgba(105,246,184,0.06)); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius); padding: 44px; margin-top: 72px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 700; margin-bottom: 12px; margin-top: 0; }
+.article-cta p { color: var(--text2); margin-bottom: 28px; font-size: 15px; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #050507; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+.btn-cta:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.15s, color 0.15s; margin-left: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-brand { font-family: 'Newsreader', serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-link { color: var(--text3); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { color: var(--text3); font-size: 13px; }
+@media (max-width: 640px) { .nav-links { display: none; } .article-wrap { padding-top: 80px; } .btn-outline { margin-left: 0; margin-top: 12px; } .channel-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="nav-cta">Get started →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Configuration</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">Configuration</span>
+        <span>April 2026</span><span>·</span><span>7 min read</span>
+      </div>
+      <h1 class="article-title">Connecting Your First Channel: Discord, Slack, and Telegram Setup</h1>
+      <p class="article-subtitle">Bot tokens, webhook URLs, and agent routing — wire up the three most popular channels to your ClawHQ agents in under 10 minutes each.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>ClawHQ supports 20+ messaging channels. This guide covers the three with the most community traction: Discord (maker communities, developer teams), Slack (enterprise and internal tooling), and Telegram (international teams, communities that prefer mobile-first). All three follow the same pattern: create a bot in the platform's developer console, copy credentials into ClawHQ, point it at the right agents.</p>
+
+      <h2>Before You Start</h2>
+
+      <p>Channels are configured in <strong>Dashboard → Channels</strong>. You'll need ClawHQ running and at least one agent deployed. If you haven't done the initial setup, follow the <a href="/blog/deploy-ai-team-5-minutes/">5-minute deployment guide</a> first.</p>
+
+      <div class="channel-grid">
+        <div class="channel-card">
+          <div class="channel-card-name">Discord</div>
+          <ul>
+            <li>Gateway WebSocket connection</li>
+            <li>Slash command support</li>
+            <li>Thread-per-conversation routing</li>
+            <li>Server role-based access</li>
+            <li>Requires a Developer Portal bot</li>
+          </ul>
+        </div>
+        <div class="channel-card">
+          <div class="channel-card-name">Slack</div>
+          <ul>
+            <li>Events API + Socket Mode</li>
+            <li>Block Kit response formatting</li>
+            <li>Channel and DM routing</li>
+            <li>Workspace SSO integration</li>
+            <li>Requires a Slack App</li>
+          </ul>
+        </div>
+        <div class="channel-card">
+          <div class="channel-card-name">Telegram</div>
+          <ul>
+            <li>Long-polling or webhook</li>
+            <li>Group and private chat routing</li>
+            <li>Inline keyboard buttons</li>
+            <li>No platform approval required</li>
+            <li>Requires BotFather token only</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="channel-header">
+        <div class="channel-icon discord">⚡</div>
+        <h2>Discord</h2>
+      </div>
+
+      <h3>Step 1: Create the bot in Discord Developer Portal</h3>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Open the Developer Portal</strong><span>Go to discord.com/developers/applications and click <strong>New Application</strong>. Name it — this will appear as the bot's username.</span></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Create a bot user</strong><span>In the left sidebar, click <strong>Bot</strong>. Click <strong>Add Bot</strong>. Copy the <strong>Token</strong> — you'll need this in ClawHQ. Do not share this token publicly.</span></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Set required intents</strong><span>Under <strong>Privileged Gateway Intents</strong>, enable <strong>Message Content Intent</strong>. ClawHQ needs this to read message text, not just metadata.</span></div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body"><strong>Generate an invite URL</strong><span>Go to <strong>OAuth2 → URL Generator</strong>. Select <code>bot</code> scope. Under permissions, select: Send Messages, Read Messages/View Channels, Use Slash Commands, Read Message History. Copy the generated URL and open it to invite the bot to your server.</span></div>
+        </li>
+      </ul>
+
+      <h3>Step 2: Configure in ClawHQ</h3>
+
+      <p>Go to <strong>Dashboard → Channels → Discord</strong> and enter:</p>
+
+      <pre><code><span class="comment"># Dashboard → Channels → Discord</span>
+Bot Token:      <span class="str">your-bot-token-from-developer-portal</span>
+Client ID:      <span class="str">your-application-id</span>  <span class="comment"># found in General Information</span>
+Guild ID:       <span class="str">your-server-id</span>       <span class="comment"># right-click server → Copy Server ID</span></code></pre>
+
+      <h3>Step 3: Set agent routing</h3>
+
+      <p>Channel routing controls which agent responds in which channel. Configure it in the Channels page after entering credentials:</p>
+
+      <pre><code><span class="comment"># Route by Discord channel name</span>
+<span class="key">#general</span>     → <span class="str">support-agent</span>
+<span class="key">#dev</span>         → <span class="str">coding-agent</span>
+<span class="key">#help</span>        → <span class="str">support-agent</span>
+<span class="key">*</span>            → <span class="str">default-agent</span>   <span class="comment"># fallback for all other channels</span></code></pre>
+
+      <p>With thread routing enabled (default on), ClawHQ creates a new thread for each conversation and routes all replies in that thread to the same agent, preserving context.</p>
+
+      <div class="callout">
+        <div class="callout-title">Slash commands</div>
+        <p>ClawHQ automatically registers <code>/ask</code> as a slash command in your server. Users can invoke it from any channel to trigger the routed agent directly. Register custom commands via <strong>Channels → Discord → Slash Commands</strong>.</p>
+      </div>
+
+      <div class="channel-header">
+        <div class="channel-icon slack">⬡</div>
+        <h2>Slack</h2>
+      </div>
+
+      <h3>Step 1: Create a Slack App</h3>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Go to api.slack.com/apps</strong><span>Click <strong>Create New App → From scratch</strong>. Name it and select your workspace.</span></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Enable Socket Mode</strong><span>In the sidebar, click <strong>Socket Mode</strong> and toggle it on. Generate an App-Level Token with <code>connections:write</code> scope. Save this token — it starts with <code>xapp-</code>.</span></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Add Bot Token Scopes</strong><span>Go to <strong>OAuth & Permissions → Bot Token Scopes</strong>. Add: <code>app_mentions:read</code>, <code>channels:history</code>, <code>chat:write</code>, <code>im:history</code>, <code>im:read</code>, <code>im:write</code>. Install the app to your workspace and copy the Bot User OAuth Token (starts with <code>xoxb-</code>).</span></div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-body"><strong>Enable Event Subscriptions</strong><span>Go to <strong>Event Subscriptions</strong>. Toggle on. Subscribe to bot events: <code>app_mention</code>, <code>message.channels</code>, <code>message.im</code>. ClawHQ uses Socket Mode so no public URL is needed — events come through the websocket.</span></div>
+        </li>
+      </ul>
+
+      <h3>Step 2: Configure in ClawHQ</h3>
+
+      <pre><code><span class="comment"># Dashboard → Channels → Slack</span>
+Bot Token:        <span class="str">xoxb-your-bot-token</span>
+App-Level Token:  <span class="str">xapp-your-app-level-token</span>
+Signing Secret:   <span class="str">from Basic Information → App Credentials</span></code></pre>
+
+      <h3>Step 3: Set agent routing</h3>
+
+      <pre><code><span class="comment"># Route by Slack channel name or DM</span>
+<span class="key">#support</span>     → <span class="str">support-agent</span>
+<span class="key">#engineering</span> → <span class="str">coding-agent</span>
+<span class="key">@DM</span>          → <span class="str">assistant-agent</span>   <span class="comment"># direct messages go here</span>
+<span class="key">*</span>            → <span class="str">default-agent</span></code></pre>
+
+      <div class="callout tip">
+        <div class="callout-title">Mention vs. always-on</div>
+        <p>By default, ClawHQ only responds when the bot is @mentioned. Set <code>"mode": "always"</code> in the Slack channel config to respond to all messages in a channel. Use this for dedicated bot channels only — not #general.</p>
+      </div>
+
+      <div class="callout warn">
+        <div class="callout-title">Enterprise Grid workspaces</div>
+        <p>Enterprise Grid (org-level Slack) requires additional steps: the app must be installed at the org level, not just the workspace, and you need <code>admin.conversations:read</code> scope. Contact your Slack admin to complete the install.</p>
+      </div>
+
+      <div class="channel-header">
+        <div class="channel-icon telegram">✈</div>
+        <h2>Telegram</h2>
+      </div>
+
+      <p>Telegram is the fastest channel to set up — no developer portal, no app review, no OAuth. One token from BotFather and you're live.</p>
+
+      <h3>Step 1: Create a bot via BotFather</h3>
+
+      <ul class="step-list">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Open Telegram and search @BotFather</strong><span>Start a chat and send <code>/newbot</code>. Follow the prompts: choose a display name, then a username (must end in "bot").</span></div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Copy the API token</strong><span>BotFather replies with a token in the format <code>123456789:ABCdef...</code>. Copy it — this is all you need.</span></div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Optional: configure bot commands</strong><span>Send <code>/setcommands</code> to BotFather to register slash commands that appear in the command menu for users.</span></div>
+        </li>
+      </ul>
+
+      <h3>Step 2: Configure in ClawHQ</h3>
+
+      <pre><code><span class="comment"># Dashboard → Channels → Telegram</span>
+Bot Token:  <span class="str">123456789:ABCdef...</span>
+Mode:       <span class="str">polling</span>    <span class="comment"># or "webhook" if ClawHQ is publicly reachable</span></code></pre>
+
+      <p><strong>Polling vs. webhook:</strong> Use <code>polling</code> if ClawHQ is behind a firewall or on a local network. Use <code>webhook</code> if your instance has a public HTTPS URL — it's more efficient for high message volumes. For webhook mode, set the <code>Webhook URL</code> field to <code>https://your-clawhq-domain.com/webhook/telegram</code>.</p>
+
+      <h3>Step 3: Set agent routing</h3>
+
+      <pre><code><span class="comment"># Route by chat type</span>
+<span class="key">private</span>   → <span class="str">assistant-agent</span>    <span class="comment"># 1:1 DMs</span>
+<span class="key">group</span>     → <span class="str">support-agent</span>      <span class="comment"># group chats</span>
+<span class="key">channel</span>   → <span class="str">broadcast-agent</span>    <span class="comment"># Telegram channels</span></code></pre>
+
+      <div class="callout">
+        <div class="callout-title">Groups and privacy mode</div>
+        <p>In Telegram groups, bots only receive messages that start with <code>/</code> (commands) unless Privacy Mode is disabled. Disable it via BotFather: <code>/setprivacy → Disable</code>. Only do this if the bot needs to read all group messages — otherwise keep it enabled for cleaner signal.</p>
+      </div>
+
+      <h2>Testing Your Channel Connection</h2>
+
+      <p>After saving credentials in the Channels page, ClawHQ runs a health check automatically. You'll see a green status indicator if the connection is established. For manual testing:</p>
+
+      <ol>
+        <li>Send a test message in the connected channel (or DM the bot)</li>
+        <li>Check <strong>Dashboard → Activity</strong> — you should see an incoming event appear in the live feed within a few seconds</li>
+        <li>Confirm the agent responded in the channel</li>
+      </ol>
+
+      <p>If the health check is green but the agent isn't responding, the most common cause is routing — the channel or DM doesn't match any routing rule. Check your routing config and make sure there's a <code>*</code> wildcard fallback entry.</p>
+
+      <h2>Advanced: Multi-Channel Routing</h2>
+
+      <p>Once multiple channels are connected, you can route based on message content across channels. A support message in Discord can trigger the same agent as a DM in Telegram. Configure this in <strong>Dashboard → Channels → Cross-Channel Routing</strong>:</p>
+
+      <pre><code>{
+  <span class="key">"cross_channel"</span>: {
+    <span class="key">"enabled"</span>: <span class="val">true</span>,
+    <span class="key">"rules"</span>: [
+      {
+        <span class="key">"match"</span>: { <span class="key">"contains"</span>: [<span class="str">"urgent"</span>, <span class="str">"down"</span>, <span class="str">"broken"</span>] },
+        <span class="key">"route_to"</span>: <span class="str">"incident-agent"</span>,
+        <span class="key">"notify"</span>: <span class="str">"slack:#ops-alerts"</span>   <span class="comment">// escalate to Slack regardless of origin</span>
+      }
+    ]
+  }
+}</code></pre>
+
+      <hr>
+
+      <div class="article-cta">
+        <h3>20+ channels, one control plane</h3>
+        <p>Discord, Slack, Telegram, WhatsApp, Teams, email — configure all your channels in one place and route messages to the right agent automatically.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="btn-cta">Deploy ClawHQ →</a>
+        <a href="https://clawhqplatform.com/docs/channels" class="btn-outline">Read the docs</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

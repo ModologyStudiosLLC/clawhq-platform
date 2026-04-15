@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setting Up the ClawHQ Model Router: Budget Fallback and Task-Type Detection — ClawHQ</title>
+<meta name="description" content="The ClawHQ model router automatically selects the right LLM for each task — fast models for simple tasks, capable models for complex ones — and falls back to cheaper models when budget thresholds are hit. Here's how to configure it.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/configure-model-router/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="Setting Up the ClawHQ Model Router: Budget Fallback and Task-Type Detection">
+<meta property="og:description" content="Route tasks to the right model automatically. Configure budget fallback, task-type detection, and self-learning weights for 20+ LLM providers.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/configure-model-router/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Setting Up the ClawHQ Model Router: Budget Fallback and Task-Type Detection",
+  "description": "Route tasks to the right model automatically. Configure budget fallback, task-type detection, and self-learning weights for 20+ LLM providers.",
+  "datePublished": "2026-04-15",
+  "dateModified": "2026-04-15",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --green: #69f6b8; --purple: #ac8aff; --orange: #ffab69;
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-breadcrumb a:hover { color: var(--accent); }
+.article-meta { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text3); margin-bottom: 28px; flex-wrap: wrap; }
+.article-tag { background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+h1.article-title { font-size: clamp(30px, 4vw, 50px); font-weight: 700; line-height: 1.12; letter-spacing: -0.03em; color: var(--text); margin-bottom: 20px; }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; max-width: 660px; font-weight: 400; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body p { margin-bottom: 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 56px; margin-bottom: 20px; color: var(--text); padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-top: 36px; margin-bottom: 14px; color: var(--text); font-family: 'Inter', sans-serif; }
+.article-body ul, .article-body ol { margin: 0 0 22px 22px; color: var(--text2); font-size: 16px; line-height: 1.8; }
+.article-body li { margin-bottom: 8px; }
+.article-body strong { color: var(--text); font-weight: 600; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+pre { background: #0a0a0d; border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 20px 24px; overflow-x: auto; margin: 28px 0; font-family: 'Geist Mono', monospace; font-size: 13px; line-height: 1.7; color: #cdd6f4; }
+code { font-family: 'Geist Mono', monospace; font-size: 13px; background: rgba(105,218,255,0.08); border: 1px solid rgba(105,218,255,0.15); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+pre code { background: none; border: none; padding: 0; color: inherit; }
+.comment { color: #6c7086; }
+.key { color: #89b4fa; }
+.val { color: #a6e3a1; }
+.str { color: #f38ba8; }
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 20px 24px; margin: 32px 0; }
+.callout.tip { border-left-color: var(--green); }
+.callout.tip .callout-title { color: var(--green); }
+.callout p { margin: 0; font-size: 15px; }
+.callout-title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+/* Task type table */
+.task-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 14px; }
+.task-table th { background: var(--surface); color: var(--text3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border2); }
+.task-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; line-height: 1.5; }
+.task-table td:first-child { font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--accent); white-space: nowrap; }
+.task-table tr:last-child td { border-bottom: none; }
+/* Flow diagram */
+.flow { display: flex; flex-direction: column; gap: 0; margin: 32px 0; }
+.flow-step { display: flex; gap: 16px; align-items: flex-start; }
+.flow-line { display: flex; flex-direction: column; align-items: center; }
+.flow-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+.flow-connector { width: 2px; height: 32px; background: var(--border2); }
+.flow-step:last-child .flow-connector { display: none; }
+.flow-body { padding-bottom: 28px; }
+.flow-body strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+.flow-body span { font-size: 14px; color: var(--text2); line-height: 1.55; }
+/* Provider chips */
+.providers { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 28px; }
+.provider-chip { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text2); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; }
+/* CTA */
+.article-cta { background: linear-gradient(135deg, rgba(105,218,255,0.06), rgba(172,138,255,0.06)); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius); padding: 44px; margin-top: 72px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 700; margin-bottom: 12px; margin-top: 0; }
+.article-cta p { color: var(--text2); margin-bottom: 28px; font-size: 15px; }
+.btn-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #050507; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; transition: opacity 0.15s, transform 0.15s; }
+.btn-cta:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+.btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; font-size: 15px; padding: 14px 32px; border-radius: var(--radius-sm); text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: border-color 0.15s, color 0.15s; margin-left: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.footer-brand { font-family: 'Newsreader', serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-link { color: var(--text3); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { color: var(--text3); font-size: 13px; }
+@media (max-width: 640px) { .nav-links { display: none; } .article-wrap { padding-top: 80px; } .btn-outline { margin-left: 0; margin-top: 12px; } }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/" class="active">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank">GitHub</a>
+    </div>
+    <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="nav-cta">Get started →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a><span>›</span><a href="/blog/">Blog</a><span>›</span><span>Configuration</span>
+      </div>
+      <div class="article-meta">
+        <span class="article-tag">Configuration</span>
+        <span>April 2026</span><span>·</span><span>8 min read</span>
+      </div>
+      <h1 class="article-title">Setting Up the ClawHQ Model Router: Budget Fallback and Task-Type Detection</h1>
+      <p class="article-subtitle">Route tasks to the right model automatically — fast models for simple tasks, powerful models for complex ones, and automatic fallback when you hit your budget threshold.</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>Running all agent tasks through a single frontier model is the most expensive path to the same result. A support triage message doesn't need Claude Opus. A multi-document legal analysis probably does. The ClawHQ model router makes this decision automatically, per task, based on detected task type and your budget state.</p>
+
+      <p>This guide covers how the router works, how to configure task-type detection, how to set up provider fallback chains, and how to use the self-learning weights to let the router improve over time.</p>
+
+      <h2>How the Router Works</h2>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-body"><strong>Task classification</strong><span>The router analyzes the incoming task — message length, keywords, detected task type — and assigns it to a category: simple, moderate, complex, or code.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-body"><strong>Budget check</strong><span>The router checks the current budget state for the agent making the request. If the agent is above its soft threshold (e.g., 80% of monthly budget used), it downgrades by one tier.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-body"><strong>Provider selection</strong><span>From the candidate models for the task tier, the router picks based on a weighted score: self-learned success rate, configured preference weight, and current latency.</span></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-line"><div class="flow-dot"></div><div class="flow-connector"></div></div>
+          <div class="flow-body"><strong>Fallback on failure</strong><span>If the selected provider returns an error (rate limit, timeout, 5xx), the router immediately tries the next candidate in the fallback chain without failing the request.</span></div>
+        </div>
+      </div>
+
+      <h2>Supported Providers</h2>
+
+      <div class="providers">
+        <span class="provider-chip">anthropic</span>
+        <span class="provider-chip">openai</span>
+        <span class="provider-chip">groq</span>
+        <span class="provider-chip">gemini</span>
+        <span class="provider-chip">deepseek</span>
+        <span class="provider-chip">mistral</span>
+        <span class="provider-chip">cohere</span>
+        <span class="provider-chip">together</span>
+        <span class="provider-chip">fireworks</span>
+        <span class="provider-chip">ollama</span>
+        <span class="provider-chip">lmstudio</span>
+        <span class="provider-chip">openrouter</span>
+        <span class="provider-chip">azure-openai</span>
+        <span class="provider-chip">bedrock</span>
+        <span class="provider-chip">vertex</span>
+        <span class="provider-chip">perplexity</span>
+        <span class="provider-chip">xai</span>
+        <span class="provider-chip">zhipu</span>
+        <span class="provider-chip">moonshot</span>
+        <span class="provider-chip">01ai</span>
+      </div>
+
+      <p>Any provider with an OpenAI-compatible API can be added as a custom entry using the <code>openai-compat</code> adapter type.</p>
+
+      <h2>Task-Type Detection</h2>
+
+      <p>The router classifies each task into one of four tiers. You can tune the keywords and thresholds that drive classification, or hard-pin specific agents to a tier.</p>
+
+      <table class="task-table">
+        <thead>
+          <tr><th>Tier</th><th>Default Models</th><th>When Used</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>simple</td>
+            <td>claude-haiku-4-5, gemini-flash, groq-llama3-8b</td>
+            <td>Short messages, FAQ lookups, simple classification, status checks</td>
+          </tr>
+          <tr>
+            <td>moderate</td>
+            <td>claude-sonnet-4-6, gpt-4o-mini, gemini-pro</td>
+            <td>Multi-step tasks, summarization, draft generation, tool-use chains</td>
+          </tr>
+          <tr>
+            <td>complex</td>
+            <td>claude-opus-4-6, gpt-4o, gemini-ultra</td>
+            <td>Long documents, multi-document analysis, reasoning chains, ambiguous tasks</td>
+          </tr>
+          <tr>
+            <td>code</td>
+            <td>claude-sonnet-4-6, deepseek-coder, gpt-4o</td>
+            <td>Code generation, debugging, refactoring — routes to code-specialized models</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Configuring Task Detection</h3>
+
+      <pre><code><span class="comment">// model-router.json (or Settings → Model Router in dashboard)</span>
+{
+  <span class="key">"task_detection"</span>: {
+    <span class="key">"enabled"</span>: <span class="val">true</span>,
+    <span class="key">"simple_max_tokens"</span>: <span class="val">200</span>,   <span class="comment">// tasks under this token count start as "simple"</span>
+    <span class="key">"code_keywords"</span>: [
+      <span class="str">"function"</span>, <span class="str">"def "</span>, <span class="str">"class "</span>, <span class="str">"debug"</span>, <span class="str">"refactor"</span>, <span class="str">"implement"</span>
+    ],
+    <span class="key">"complex_keywords"</span>: [
+      <span class="str">"analyze"</span>, <span class="str">"compare"</span>, <span class="str">"synthesize"</span>, <span class="str">"evaluate"</span>, <span class="str">"summarize"</span>
+    ]
+  }
+}</code></pre>
+
+      <div class="callout tip">
+        <div class="callout-title">Hard-pinning agents</div>
+        <p>If you have an agent that always handles complex tasks (legal analysis, financial modeling), pin it to the <code>complex</code> tier so the router skips classification. Set <code>"tier": "complex"</code> in the agent's config in the Team page.</p>
+      </div>
+
+      <h2>Provider Configuration</h2>
+
+      <p>Configure providers in <strong>Settings → Integrations</strong>. Each provider needs an API key and an optional model override. If you don't specify models, the router uses its defaults for each tier.</p>
+
+      <pre><code>{
+  <span class="key">"providers"</span>: {
+    <span class="key">"anthropic"</span>: {
+      <span class="key">"api_key"</span>: <span class="str">"$ANTHROPIC_API_KEY"</span>,
+      <span class="key">"models"</span>: {
+        <span class="key">"simple"</span>: <span class="str">"claude-haiku-4-5-20251001"</span>,
+        <span class="key">"moderate"</span>: <span class="str">"claude-sonnet-4-6"</span>,
+        <span class="key">"complex"</span>: <span class="str">"claude-opus-4-6"</span>,
+        <span class="key">"code"</span>: <span class="str">"claude-sonnet-4-6"</span>
+      }
+    },
+    <span class="key">"groq"</span>: {
+      <span class="key">"api_key"</span>: <span class="str">"$GROQ_API_KEY"</span>,
+      <span class="key">"models"</span>: {
+        <span class="key">"simple"</span>: <span class="str">"llama3-8b-8192"</span>,
+        <span class="key">"moderate"</span>: <span class="str">"llama-3.3-70b-versatile"</span>
+      }
+    },
+    <span class="key">"ollama"</span>: {
+      <span class="key">"base_url"</span>: <span class="str">"http://localhost:11434"</span>,
+      <span class="key">"models"</span>: {
+        <span class="key">"simple"</span>: <span class="str">"mistral:7b"</span>,
+        <span class="key">"code"</span>: <span class="str">"deepseek-coder:6.7b"</span>
+      }
+    }
+  }
+}</code></pre>
+
+      <h2>Budget Fallback</h2>
+
+      <p>Budget fallback is the most cost-effective configuration you can make. Set soft and hard thresholds per agent or globally, and the router automatically downgrades to cheaper models as budget is consumed.</p>
+
+      <pre><code>{
+  <span class="key">"budget_fallback"</span>: {
+    <span class="key">"enabled"</span>: <span class="val">true</span>,
+    <span class="key">"global"</span>: {
+      <span class="key">"soft_threshold"</span>: <span class="val">0.8</span>,   <span class="comment">// at 80% spent: downgrade complex → moderate</span>
+      <span class="key">"hard_threshold"</span>: <span class="val">0.95</span>,  <span class="comment">// at 95% spent: downgrade all → simple</span>
+      <span class="key">"reset"</span>: <span class="str">"monthly"</span>        <span class="comment">// resets with the budget period</span>
+    },
+    <span class="key">"per_agent"</span>: {
+      <span class="key">"research-agent"</span>: {
+        <span class="key">"monthly_limit_usd"</span>: <span class="val">50</span>,
+        <span class="key">"soft_threshold"</span>: <span class="val">0.7</span>,
+        <span class="key">"hard_threshold"</span>: <span class="val">0.90</span>
+      }
+    }
+  }
+}</code></pre>
+
+      <h3>Fallback Chains</h3>
+
+      <p>The fallback chain defines which provider to try next if the primary fails. Ordered by preference — the router works down the list on each error:</p>
+
+      <pre><code>{
+  <span class="key">"fallback_chains"</span>: {
+    <span class="key">"complex"</span>: [
+      <span class="str">"anthropic/claude-opus-4-6"</span>,
+      <span class="str">"openai/gpt-4o"</span>,
+      <span class="str">"anthropic/claude-sonnet-4-6"</span>   <span class="comment">// downgrade if both above fail</span>
+    ],
+    <span class="key">"simple"</span>: [
+      <span class="str">"groq/llama3-8b-8192"</span>,           <span class="comment">// free tier first</span>
+      <span class="str">"ollama/mistral:7b"</span>,              <span class="comment">// local fallback</span>
+      <span class="str">"anthropic/claude-haiku-4-5"</span>
+    ]
+  }
+}</code></pre>
+
+      <div class="callout">
+        <div class="callout-title">Ollama as free fallback</div>
+        <p>If you run Ollama locally, add it as the last entry in your fallback chain for simple tasks. When your cloud provider API is down or rate-limited, simple tasks keep working at zero cost. Set <code>"base_url": "http://host.docker.internal:11434"</code> when running ClawHQ in Docker.</p>
+      </div>
+
+      <h2>Self-Learning Weights</h2>
+
+      <p>The router tracks success rate, average latency, and task completion quality for every model it uses. Over time, it shifts weight toward models that perform better for your specific workload. You don't need to tune this manually — it adjusts automatically.</p>
+
+      <p>You can see the current learned weights in Dashboard → Routing. The initial state gives all providers equal weight. After a few hundred tasks, you'll see clear differentiation. You can also reset weights to equal or manually set them:</p>
+
+      <pre><code>{
+  <span class="key">"learning"</span>: {
+    <span class="key">"enabled"</span>: <span class="val">true</span>,
+    <span class="key">"weight_decay"</span>: <span class="val">0.95</span>,         <span class="comment">// how much older data is discounted</span>
+    <span class="key">"min_samples"</span>: <span class="val">20</span>,             <span class="comment">// minimum runs before weight shifts</span>
+    <span class="key">"manual_overrides"</span>: {
+      <span class="key">"anthropic/claude-sonnet-4-6"</span>: <span class="val">1.2</span>  <span class="comment">// boost this model's weight by 20%</span>
+    }
+  }
+}</code></pre>
+
+      <h2>Monitoring the Router</h2>
+
+      <p>Dashboard → Routing shows a live view of routing decisions: which model handled each request, the detected task tier, cost per request, and the current learned weights. The last 24 hours of routing decisions are available via <code>GET /api/tool-stats</code> — this includes per-model success rates and average durations, which is useful for debugging unexpected routing behavior.</p>
+
+      <h3>Common Tuning Situations</h3>
+
+      <ul>
+        <li><strong>Router keeps picking the expensive model for simple tasks.</strong> Lower <code>simple_max_tokens</code> and add more simple-task keywords to the detection config. Or hard-pin the agent to <code>simple</code> tier.</li>
+        <li><strong>Quality is inconsistent after a fallback event.</strong> Your fallback chain is hitting a model that's significantly less capable. Add a middle tier to the chain instead of jumping straight from Opus to a 7B model.</li>
+        <li><strong>Budget threshold triggering too late.</strong> Lower <code>soft_threshold</code> from 0.8 to 0.6 so the downgrade happens earlier in the month.</li>
+        <li><strong>Self-learning weights converging on one provider too fast.</strong> Increase <code>min_samples</code> so the weights only shift after more data is collected.</li>
+      </ul>
+
+      <hr>
+
+      <div class="article-cta">
+        <h3>Stop routing all tasks to the same model</h3>
+        <p>The ClawHQ model router ships in every deployment. Configure it once and let it cut your LLM costs automatically without sacrificing quality on the tasks that need it.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="btn-cta">Deploy ClawHQ →</a>
+        <a href="https://clawhqplatform.com/docs/model-router" class="btn-outline">Read the docs</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
