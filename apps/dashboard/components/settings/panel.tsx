@@ -2028,11 +2028,9 @@ const TABS = [
   { id: "keys", label: "API Keys", icon: KeyRound },
 ];
 
-export function SettingsPanel({ showSSO = false }: { tier?: LicenseTier; showSSO?: boolean }) {
+export function SettingsPanel() {
   const [activeTab, setActiveTab] = useState("general");
-  const tabs = showSSO
-    ? [...TABS, { id: "sso", label: "SSO", icon: Shield }]
-    : TABS;
+  const tabs = TABS;
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState<Settings>(DEFAULT_SETTINGS);
   const [saving, setSaving] = useState(false);
@@ -2134,7 +2132,7 @@ export function SettingsPanel({ showSSO = false }: { tier?: LicenseTier; showSSO
         {activeTab === "packs" && <PacksTab />}
         {activeTab === "notifications" && <NotificationsTab settings={settings} onChange={patch} />}
         {activeTab === "keys" && <ApiKeysTab />}
-        {activeTab === "sso" && showSSO && <SSOPanel />}
+        {activeTab === "sso" && <SSOPanel />}
 
         {/* NL input (not shown on channels/integrations/router/packs/notifications/keys/sso tabs) */}
         {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && activeTab !== "keys" && activeTab !== "sso" && (
