@@ -6,7 +6,10 @@ import {
   ChevronDown, AlertTriangle, Sparkles, X, Save, Plug, Package, Download, Trash2, KeyRound
 } from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
+import { SSOPanel } from "@/components/sso/panel";
 import { toast } from "sonner";
+
+type LicenseTier = "free" | "pro" | "enterprise";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -2025,8 +2028,11 @@ const TABS = [
   { id: "keys", label: "API Keys", icon: KeyRound },
 ];
 
-export function SettingsPanel() {
+export function SettingsPanel({ showSSO = false }: { tier?: LicenseTier; showSSO?: boolean }) {
   const [activeTab, setActiveTab] = useState("general");
+  const tabs = showSSO
+    ? [...TABS, { id: "sso", label: "SSO", icon: Shield }]
+    : TABS;
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState<Settings>(DEFAULT_SETTINGS);
   const [saving, setSaving] = useState(false);
@@ -2095,7 +2101,7 @@ export function SettingsPanel() {
         {/* Tab bar */}
         <div className="flex gap-1 mb-6 p-1 rounded-xl w-fit"
           style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}>
-          {TABS.map(t => {
+          {tabs.map(t => {
             const Icon = t.icon;
             const active = activeTab === t.id;
             return (
@@ -2128,9 +2134,10 @@ export function SettingsPanel() {
         {activeTab === "packs" && <PacksTab />}
         {activeTab === "notifications" && <NotificationsTab settings={settings} onChange={patch} />}
         {activeTab === "keys" && <ApiKeysTab />}
+        {activeTab === "sso" && showSSO && <SSOPanel />}
 
-        {/* NL input (not shown on channels/integrations/router/packs/notifications/keys tabs) */}
-        {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && activeTab !== "keys" && (
+        {/* NL input (not shown on channels/integrations/router/packs/notifications/keys/sso tabs) */}
+        {activeTab !== "channels" && activeTab !== "integrations" && activeTab !== "router" && activeTab !== "packs" && activeTab !== "keys" && activeTab !== "sso" && (
           <div className="mt-6">
             <NaturalLanguageInput currentSettings={settings} onPropose={setProposal} />
           </div>

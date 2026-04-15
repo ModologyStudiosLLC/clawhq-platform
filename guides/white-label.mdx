@@ -1,0 +1,94 @@
+---
+title: "White-Label for MSPs"
+description: "Deploy a fully branded ClawHQ instance for each MSP client in about 4 hours."
+---
+
+# White-Label for MSPs
+
+ClawHQ supports full white-labeling via environment variables. MSPs can deploy a custom-branded AI agent dashboard per client — your logo, your domain, your colors. Clients never see "ClawHQ" unless you want them to.
+
+## How it works
+
+Six environment variables control the entire brand surface. Set them in your `docker-compose.yml` and redeploy.
+
+```yaml
+# docker-compose.yml — dashboard service environment block
+services:
+  dashboard:
+    environment:
+      NEXT_PUBLIC_TENANT_NAME: "AcmeMSP AI"         # Product name in UI
+      NEXT_PUBLIC_TENANT_SHORT_NAME: "AcmeMSP"      # Abbreviated name (header, tabs)
+      NEXT_PUBLIC_TENANT_COMPANY: "Acme Managed Services"  # Under the logo
+      NEXT_PUBLIC_TENANT_LOGO_URL: "/logo.png"       # Path to your logo (see below)
+      NEXT_PUBLIC_TENANT_ACCENT: "#6366F1"           # Primary accent color (hex)
+      NEXT_PUBLIC_TENANT_SUPPORT_EMAIL: "support@acmemsp.com"
+      NEXT_PUBLIC_TENANT_POWERED_BY: "true"          # Show "Powered by ClawHQ"? true/false
+```
+
+A `tenant.example.json` is included in the repo root with all fields documented.
+
+## What gets rebranded
+
+| Surface | Variable | Default |
+|---------|----------|---------|
+| Browser tab title | `TENANT_NAME` + `TENANT_COMPANY` | "ClawHQ — Modology Studios" |
+| Sidebar logo area | `TENANT_NAME`, `TENANT_COMPANY`, `TENANT_LOGO_URL` | ClawHQ claw mark |
+| Sign-in page title | `TENANT_NAME` | "ClawHQ" |
+| Onboarding wizard | `TENANT_NAME`, `TENANT_SHORT_NAME` | "ClawHQ" |
+| Primary accent color | `TENANT_ACCENT` | `#69DAF9` |
+| Footer attribution | `TENANT_POWERED_BY` | Shows "Powered by ClawHQ" |
+| Support email in messages | `TENANT_SUPPORT_EMAIL` | hello@clawhqplatform.com |
+
+## Adding a custom logo
+
+Copy your logo PNG (recommended: 200×200px, transparent background) into the dashboard `public/` directory:
+
+```bash
+cp acme-logo.png apps/dashboard/public/logo.png
+```
+
+Then set `NEXT_PUBLIC_TENANT_LOGO_URL=/logo.png`. The logo replaces the default claw SVG in the sidebar.
+
+## Per-client deployment
+
+Each client gets their own isolated Docker stack. The recommended structure:
+
+```
+/srv/clawhq/
+  acme-corp/          ← Client A
+    docker-compose.yml
+    .env              ← Contains TENANT_* vars for Acme Corp
+    data/
+  beta-industries/    ← Client B
+    docker-compose.yml
+    .env
+    data/
+```
+
+Point each client's subdomain to their instance:
+- `ai.acmecorp.com` → Client A stack (port 3000)
+- `ai.betaindustries.com` → Client B stack (port 3001)
+
+Use Caddy or nginx as a reverse proxy. The `tunnels` dashboard page has Cloudflare Tunnel and Tailscale setup for private access without open ports.
+
+## MSP partner program
+
+If you're deploying ClawHQ for MSP clients, you qualify for the MSP partner program:
+
+- **First month free** — use coupon code `MSP_PILOT_30` at checkout
+- **20% ongoing discount** — applied automatically for partner accounts
+- **Personal onboarding** — we'll walk through your first client deployment with you
+
+Email `hello@clawhqplatform.com` or see [clawhqplatform.com/#msp](https://clawhqplatform.com/#msp).
+
+## MSP packs
+
+Three agent packs are built specifically for MSP client deployments:
+
+| Pack | Price | Key agents |
+|------|-------|------------|
+| [MSP Management Suite](/packs#msp-management) | $149/mo | Client health, ticket triage, patch compliance, monthly reports, escalation detection, billing summary |
+| [IT Operations Pack](/packs#it-ops) | $99/mo | Infrastructure monitor, capacity planner, change log, on-call briefing |
+| [Security Operations Pack](/packs#security-ops) | $149/mo | Threat intel, vuln scan analyst, incident response, compliance monitor |
+
+Install via the Packs page in your dashboard or `clawhqplatform.com/packs`.
