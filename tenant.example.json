@@ -1,0 +1,16 @@
+{
+  "_comment": "ClawHQ white-label tenant configuration for MSP deployments.",
+  "_instructions": [
+    "Copy this file into your deployment and set the values below as NEXT_PUBLIC_TENANT_* environment variables.",
+    "In docker-compose.yml, add to the dashboard service environment block.",
+    "See docs/guides/white-label.md for full setup instructions."
+  ],
+
+  "NEXT_PUBLIC_TENANT_NAME": "AcmeMSP AI",
+  "NEXT_PUBLIC_TENANT_SHORT_NAME": "AcmeMSP",
+  "NEXT_PUBLIC_TENANT_COMPANY": "Acme Managed Services",
+  "NEXT_PUBLIC_TENANT_LOGO_URL": "/logo.png",
+  "NEXT_PUBLIC_TENANT_ACCENT": "#6366F1",
+  "NEXT_PUBLIC_TENANT_SUPPORT_EMAIL": "support@acmemsp.com",
+  "NEXT_PUBLIC_TENANT_POWERED_BY": "true"
+}

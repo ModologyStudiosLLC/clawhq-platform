@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Shield } from "lucide-react";
+import { tenant } from "@/lib/tenant";
 
 export default function SignInPage() {
   return (
@@ -23,7 +24,7 @@ export default function SignInPage() {
             className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black mb-5"
             style={{
               background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-              color: "#0e0e10",
+              color: "var(--color-on-brand)",
               fontFamily: "Manrope, sans-serif",
             }}
           >
@@ -33,7 +34,7 @@ export default function SignInPage() {
             className="text-2xl font-bold mb-1"
             style={{ fontFamily: "Manrope, sans-serif", color: "var(--color-text)" }}
           >
-            ClawHQ
+            {tenant.name}
           </h1>
           <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
             Your AI agent command center
@@ -63,7 +64,7 @@ export default function SignInPage() {
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all"
             style={{
               background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-              color: "#0e0e10",
+              color: "var(--color-on-brand)",
             }}
           >
             Continue with WorkOS
@@ -86,14 +87,14 @@ export default function SignInPage() {
           >
             <Shield size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--color-primary)" }} />
             <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
-              ClawHQ uses WorkOS for authentication. Your agents, data, and API keys stay within your self-hosted instance.
+              {tenant.name} uses WorkOS for authentication. Your agents, data, and API keys stay within your self-hosted instance.
             </p>
           </div>
         </div>
 
         {/* Footer */}
         <p className="text-center text-xs mt-6" style={{ color: "var(--color-text-subtle)" }}>
-          Modology Studios · ClawHQ
+          {tenant.company}{tenant.poweredBy ? ` · Powered by ClawHQ` : ""}
         </p>
       </div>
     </div>

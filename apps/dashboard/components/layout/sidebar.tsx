@@ -27,6 +27,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import Image from "next/image";
+import { tenant } from "@/lib/tenant";
 
 export interface SidebarUser {
   name: string;
@@ -82,16 +83,20 @@ export function Sidebar({ user, onNavigate }: SidebarProps) {
     >
       {/* Logo — claw mark + serif wordmark, matches clawhqplatform.com */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b" style={{ borderColor: "var(--color-border)" }}>
-        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 22, height: 22, flexShrink: 0 }}>
-          <polygon points="2,24 6,24 13,4 9,4" fill="var(--color-primary)" opacity="0.45"/>
-          <polygon points="8,24 12,24 19,4 15,4" fill="var(--color-primary)" opacity="0.72"/>
-          <polygon points="14,24 18,24 25,4 21,4" fill="var(--color-primary)"/>
-        </svg>
+        {tenant.logoUrl ? (
+          <Image src={tenant.logoUrl} alt={tenant.name} width={22} height={22} style={{ flexShrink: 0, objectFit: "contain" }} />
+        ) : (
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 22, height: 22, flexShrink: 0 }}>
+            <polygon points="2,24 6,24 13,4 9,4" fill="var(--color-primary)" opacity="0.45"/>
+            <polygon points="8,24 12,24 19,4 15,4" fill="var(--color-primary)" opacity="0.72"/>
+            <polygon points="14,24 18,24 25,4 21,4" fill="var(--color-primary)"/>
+          </svg>
+        )}
         <div>
           <p className="leading-none" style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em", color: "var(--color-text)" }}>
-            Claw<span style={{ color: "var(--color-primary)" }}>HQ</span>
+            {tenant.name}
           </p>
-          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-sans)" }}>Modology Studios</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-sans)" }}>{tenant.company}</p>
         </div>
       </div>
 

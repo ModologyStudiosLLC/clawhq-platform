@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, Cpu, Wifi } from "lucide-react";
+import { tenant } from "@/lib/tenant";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -202,7 +203,7 @@ export function OnboardingWizard() {
             C
           </div>
           <h1 className="text-3xl font-bold mb-3" style={{ fontFamily: "var(--font-display)" }}>
-            Welcome to ClawHQ
+            Welcome to {tenant.name}
           </h1>
           <p className="text-sm leading-relaxed mb-8" style={{ color: "var(--color-text-muted)" }}>
             Your AI agent team. Works with Claude, GPT-4, Gemini, DeepSeek, local
@@ -450,7 +451,7 @@ export function OnboardingWizard() {
               Choose your AI provider
             </h2>
             <p className="text-sm mb-5" style={{ color: "var(--color-text-muted)" }}>
-              ClawHQ works with any provider. You can switch or add more in Settings at any time.
+              Works with any provider. You can switch or add more in Settings at any time.
             </p>
 
             {/* Provider cards */}
@@ -519,7 +520,7 @@ export function OnboardingWizard() {
                 </div>
                 {selected.helpText && (
                   <p className="text-xs" style={{ color: "var(--color-text-subtle)" }}>
-                    Stored locally, never sent to Modology.{" "}
+                    Stored locally, never leaves your instance.{" "}
                     {selected.helpUrl && (
                       <a href={selected.helpUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)", textDecoration: "underline" }}>
                         {selected.helpText} →
@@ -565,11 +566,11 @@ export function OnboardingWizard() {
             Where do you want to talk to your agents?
           </h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>
-            Connect a channel or use ClawHQ&apos;s built-in chat. You can add more in Settings later.
+            Connect a channel or use the built-in chat. You can add more in Settings later.
           </p>
           <div className="space-y-2 mb-6">
             {[
-              { emoji: "💬", label: "ClawHQ Chat",  desc: "Use the built-in interface right here", tag: "Recommended", action: next },
+              { emoji: "💬", label: `${tenant.shortName} Chat`, desc: "Use the built-in interface right here", tag: "Recommended", action: next },
               { emoji: "🎮", label: "Discord",       desc: "Talk to agents in your Discord server",   action: () => { window.location.href = "/channels"; } },
               { emoji: "🟣", label: "Slack",         desc: "Use agents inside your workspace",        action: () => { window.location.href = "/channels"; } },
               { emoji: "✈️", label: "Telegram",      desc: "Message agents on Telegram",              action: () => { window.location.href = "/channels"; } },
