@@ -185,6 +185,18 @@ clawhq-platform/
 | Shipped | Team management / RBAC — admin/member/viewer roles, invite by email, seat limits, license tiers |
 | Planned | PWA — installable dashboard on iOS/Android, responsive sidebar, offline fallback |
 
+## Enterprise
+
+Pro and Enterprise features — RBAC, member management, SSO (WorkOS), and audit log export — are provided by the **clawhq-enterprise** private overlay. The overlay replaces the open-source stubs in this repo with the full implementations.
+
+| Plan | Features | Price |
+|---|---|---|
+| **Free** (this repo) | 3 agents, 1 user, all OSS features | Free forever |
+| **Pro** | 25 agents, 5 members, audit log | Contact us |
+| **Enterprise** | Unlimited agents + members, RBAC, SSO, white-label | Contact us |
+
+Contact [hello@clawhqplatform.com](mailto:hello@clawhqplatform.com) for Pro and Enterprise access.
+
 ## Community
 
 - [Docs](https://clawhqplatform.com/docs/introduction) — guides, reference, agent templates
