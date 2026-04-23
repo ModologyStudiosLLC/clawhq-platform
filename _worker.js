@@ -141,23 +141,40 @@ export default {
         }
 
         const attioToken = env.ATTIO_API_KEY;
+        if (!attioToken) {
+          return new Response(JSON.stringify({ error: "ATTIO_API_KEY not configured" }), { status: 500, headers: cors });
+        }
 
         // Upsert person in Attio
+        const parts = name ? name.trim().split(/\s+/) : [];
+        const personPayload = {
+          data: {
+            values: {
+              email_addresses: [{ email_address: email }],
+            }
+          }
+        };
+        if (parts.length > 0) {
+          personPayload.data.values.name = [{
+            first_name: parts[0],
+            last_name: parts.slice(1).join(" ") || parts[0],
+            full_name: name,
+          }];
+        }
+        if (usecase) {
+          personPayload.data.values.job_title = [{ value: `ClawHQ Demo Request - ${usecase.slice(0, 80)}` }];
+        }
+
         const personRes = await fetch("https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses", {
           method: "PUT",
           headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            data: {
-              values: {
-                name: name ? [{ first_name: name.split(" ")[0], last_name: name.split(" ").slice(1).join(" ") || "" }] : undefined,
-                email_addresses: [{ email_address: email }],
-                job_title: usecase ? [`ClawHQ Demo Request — ${usecase.slice(0, 80)}`] : undefined,
-              }
-            }
-          }),
+          body: JSON.stringify(personPayload),
         });
 
         const person = await personRes.json();
+        if (!personRes.ok) {
+          return new Response(JSON.stringify({ error: "attio_person_failed", detail: person }), { status: 500, headers: cors });
+        }
         const personId = person?.data?.id?.record_id;
 
         if (personId) {
@@ -181,7 +198,8 @@ export default {
             data: {
               values: {
                 name: [{ value: dealName }],
-                stage: [{ status_id: "af706003-b27b-4f75-b35b-5ca71fa7633b" }], // Lead
+                stage: [{ status: "Lead" }],
+                owner: [{ referenced_actor_type: "workspace-member", referenced_actor_id: "663a07ba-fae7-4c70-a264-8d36eed81a9b" }],
                 associated_people: [{ target_object: "people", target_record_id: personId }],
               }
             }
