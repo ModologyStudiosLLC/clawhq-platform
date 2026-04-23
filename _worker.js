@@ -160,8 +160,8 @@ export default {
         const person = await personRes.json();
         const personId = person?.data?.id?.record_id;
 
-        // Add a note with full context
         if (personId) {
+          // Add note to person
           await fetch("https://api.attio.com/v2/notes", {
             method: "POST",
             headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
@@ -173,6 +173,34 @@ export default {
                 content: `Name: ${name || "—"}\nEmail: ${email}\nCompany: ${company || "—"}\nUse case: ${usecase || "—"}\nSource: tryclawhq.com\nSubmitted: ${new Date().toISOString()}`,
               }
             }),
+          });
+
+          // Create a Deal linked to the person
+          const dealName = company ? `${company} — ClawHQ Demo` : `${name || email} — ClawHQ Demo`;
+          const dealBody = {
+            data: {
+              values: {
+                name: [{ value: dealName }],
+                stage: [{ status_id: "af706003-b27b-4f75-b35b-5ca71fa7633b" }], // Lead
+                associated_people: [{ target_object: "people", target_record_id: personId }],
+              }
+            }
+          };
+          if (company) {
+            // Upsert company and link it
+            const coRes = await fetch("https://api.attio.com/v2/objects/companies/records?matching_attribute=name", {
+              method: "PUT",
+              headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
+              body: JSON.stringify({ data: { values: { name: [{ value: company }] } } }),
+            });
+            const coData = await coRes.json();
+            const coId = coData?.data?.id?.record_id;
+            if (coId) dealBody.data.values.associated_company = [{ target_object: "companies", target_record_id: coId }];
+          }
+          await fetch("https://api.attio.com/v2/objects/deals/records", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
+            body: JSON.stringify(dealBody),
           });
         }
 
