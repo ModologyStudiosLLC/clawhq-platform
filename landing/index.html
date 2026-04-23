@@ -2554,7 +2554,47 @@
   </div>
   <div class="early-adopter-block reveal">
     <p class="early-adopter-desc">ClawHQ is in active deployment. We're working directly with a small group of teams to harden the platform, shape the roadmap, and make sure the onboarding is fast. If you're interested in deploying ClawHQ in your organization, reach out — we'll get you up and running personally.</p>
-    <a href="mailto:michael@modologystudios.com" class="btn btn-solid">Request early access →</a>
+    <form id="demo-form" style="display:flex;flex-direction:column;gap:12px;max-width:480px;margin:24px auto 0;">
+      <input id="df-name"    type="text"  placeholder="Your name"              style="padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none;" required />
+      <input id="df-email"   type="email" placeholder="Work email"             style="padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none;" required />
+      <input id="df-company" type="text"  placeholder="Company (optional)"     style="padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none;" />
+      <input id="df-usecase" type="text"  placeholder="What are you trying to automate?" style="padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none;" />
+      <button type="submit" id="df-btn" style="padding:13px 24px;border-radius:8px;background:#7c6af7;color:#fff;font-size:15px;font-weight:600;border:none;cursor:pointer;">Request early access →</button>
+      <p id="df-msg" style="font-size:13px;text-align:center;color:rgba(255,255,255,0.6);min-height:18px;"></p>
+    </form>
+    <script>
+      document.getElementById('demo-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var btn = document.getElementById('df-btn');
+        var msg = document.getElementById('df-msg');
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        try {
+          var res = await fetch('/request-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name:    document.getElementById('df-name').value,
+              email:   document.getElementById('df-email').value,
+              company: document.getElementById('df-company').value,
+              usecase: document.getElementById('df-usecase').value,
+            })
+          });
+          if (res.ok) {
+            document.getElementById('demo-form').style.display = 'none';
+            msg.style.color = '#a3e6b0';
+            msg.textContent = "You're on the list. We'll be in touch shortly.";
+          } else {
+            throw new Error('server error');
+          }
+        } catch(_) {
+          btn.disabled = false;
+          btn.textContent = 'Request early access →';
+          msg.style.color = '#f87171';
+          msg.textContent = 'Something went wrong — try emailing michael@modologystudios.com';
+        }
+      });
+    </script>
   </div>
 </section>
 
