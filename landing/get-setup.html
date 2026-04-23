@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Set Up — ClawHQ</title>
+  <meta name="description" content="Tell us about your stack and we'll deploy a custom AI agent team for you in 48 hours. $499 setup, done-for-you." />
+  <meta property="og:title" content="Get Set Up — ClawHQ" />
+  <meta property="og:description" content="Done-for-you AI agent deployment. 48-hour turnaround. $499 setup + $199/month." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:           #050507;
+      --bg-raised:    #0c0c0f;
+      --bg-float:     #111115;
+      --surface:      rgba(255,255,255,0.04);
+      --surface-hover:rgba(255,255,255,0.07);
+      --border:       rgba(255,255,255,0.07);
+      --border-light: rgba(255,255,255,0.12);
+      --text:         #f5f5f7;
+      --text-2:       rgba(245,245,247,0.72);
+      --text-3:       rgba(245,245,247,0.44);
+      --text-4:       rgba(245,245,247,0.24);
+      --accent:       #69daff;
+      --accent-dim:   rgba(105,218,255,0.10);
+      --accent-glow:  rgba(105,218,255,0.22);
+      --green:        #69f6b8;
+      --max-w:        680px;
+      --radius:       14px;
+      --radius-sm:    8px;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+      --font-mono:    'SF Mono', 'Geist Mono', monospace;
+    }
+
+    [data-theme="light"] {
+      --bg:           #fafaf8;
+      --bg-raised:    #f0f0ec;
+      --bg-float:     #e8e8e4;
+      --surface:      rgba(0,0,0,0.03);
+      --surface-hover:rgba(0,0,0,0.06);
+      --border:       rgba(0,0,0,0.08);
+      --border-light: rgba(0,0,0,0.14);
+      --text:         #1d1d1f;
+      --text-2:       rgba(29,29,31,0.72);
+      --text-3:       rgba(29,29,31,0.44);
+      --text-4:       rgba(29,29,31,0.24);
+      --accent:       #0066cc;
+      --accent-dim:   rgba(0,102,204,0.10);
+      --accent-glow:  rgba(0,102,204,0.18);
+      --green:        #1a9c6e;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: transparent; transition: background 0.2s, border-color 0.2s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled { background: rgba(5,5,7,0.88); backdrop-filter: blur(16px); border-color: var(--border); }
+    [data-theme="light"] nav.scrolled { background: rgba(250,250,248,0.88); }
+    .nav-inner {
+      max-width: 1160px; margin: 0 auto; padding: 0 24px;
+      height: 60px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand { display: flex; align-items: center; }
+    .logo-mark { fill: var(--accent); }
+    .logo-accent { fill: var(--accent); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 14px; color: var(--text-3); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-theme {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-3); border-radius: 8px; padding: 6px 10px;
+      cursor: pointer; font-size: 14px; transition: background 0.15s, color 0.15s;
+    }
+    .nav-theme:hover { background: var(--surface-hover); color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #000; border-radius: 8px;
+      padding: 8px 16px; font-size: 14px; font-weight: 600;
+      transition: opacity 0.15s; white-space: nowrap;
+    }
+    .nav-cta:hover { opacity: 0.86; }
+
+    /* ── PAGE ── */
+    .page {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start;
+      padding: 120px 24px 80px;
+    }
+
+    .page-inner { width: 100%; max-width: var(--max-w); }
+
+    /* ── HEADER ── */
+    .page-eyebrow {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .page-h1 {
+      font-size: clamp(28px, 5vw, 42px); font-weight: 600;
+      letter-spacing: -0.03em; line-height: 1.15;
+      color: var(--text); margin-bottom: 16px;
+    }
+    .page-sub {
+      font-size: 17px; color: var(--text-2); line-height: 1.6;
+      margin-bottom: 12px; max-width: 580px;
+    }
+
+    /* ── PRICING BADGE ── */
+    .pricing-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 40px; flex-wrap: wrap;
+    }
+    .pricing-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-dim); border: 1px solid rgba(105,218,255,0.2);
+      border-radius: 999px; padding: 6px 14px;
+      font-size: 13px; color: var(--accent); font-weight: 500;
+    }
+    .pricing-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .pricing-sep { color: var(--text-4); font-size: 13px; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px; background: var(--border); margin-bottom: 36px;
+    }
+
+    /* ── FORM ── */
+    .form-card {
+      background: var(--bg-raised); border: 1px solid var(--border-light);
+      border-radius: var(--radius); padding: 40px;
+    }
+    .form-section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-4);
+      margin-bottom: 20px; margin-top: 32px;
+    }
+    .form-section-label:first-child { margin-top: 0; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 540px) { .form-row { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+    label { font-size: 13px; font-weight: 500; color: var(--text-2); }
+    label .req { color: var(--accent); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      background: var(--bg-float); border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm); padding: 11px 14px;
+      font-size: 14px; color: var(--text); font-family: var(--font-body);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%; outline: none; resize: vertical;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    ::placeholder { color: var(--text-4); }
+    textarea { min-height: 80px; }
+
+    /* ── WHAT YOU GET ── */
+    .gets {
+      background: rgba(105,218,255,0.04); border: 1px solid rgba(105,218,255,0.12);
+      border-radius: var(--radius-sm); padding: 20px 24px; margin-bottom: 28px;
+    }
+    .gets-title { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+    .gets ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .gets li { font-size: 13px; color: var(--text-2); display: flex; gap: 10px; align-items: flex-start; }
+    .gets li::before { content: "✓"; color: var(--green); font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── SUBMIT ── */
+    .submit-row { display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #000; border: none;
+      border-radius: 10px; padding: 13px 28px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s; white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.86; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .submit-note { font-size: 13px; color: var(--text-3); }
+
+    /* ── SUCCESS ── */
+    .success-state {
+      display: none; text-align: center;
+      padding: 60px 40px;
+    }
+    .success-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(105,246,184,0.12); border: 1px solid rgba(105,246,184,0.24);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 20px;
+    }
+    .success-state h2 { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+    .success-state p { font-size: 15px; color: var(--text-2); max-width: 400px; margin: 0 auto; }
+
+    /* ── SOCIAL PROOF ── */
+    .proof-row {
+      display: flex; gap: 24px; margin-top: 40px; flex-wrap: wrap;
+    }
+    .proof-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-3);
+    }
+    .proof-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 28px 24px;
+      text-align: center;
+    }
+    .footer-inner {
+      max-width: 1160px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .footer-brand { display: flex; align-items: center; }
+    .footer-copy { font-size: 13px; color: var(--text-4); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--text-3); transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+  </style>
+    <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "db597ce8c956428ab6da41a9e52b5ff7"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <a href="/">
+        <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:28px;width:auto;">
+          <polygon class="logo-mark" points="6,30 10,30 19,6 15,6" opacity="0.45"/>
+          <polygon class="logo-mark" points="13,30 17,30 26,6 22,6" opacity="0.72"/>
+          <polygon class="logo-mark" points="20,30 24,30 33,6 29,6"/>
+          <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+          <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+        </svg>
+      </a>
+    </div>
+    <div class="nav-links">
+      <a href="/#stack">The Stack</a>
+      <a href="/#usecases">Use Cases</a>
+      <a href="/packs">Packs</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-theme" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon">☀</span></button>
+      <a href="https://tryclawhq.com/demo" class="nav-cta">Try demo →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── PAGE ── -->
+<main class="page">
+  <div class="page-inner">
+
+    <!-- Header -->
+    <p class="page-eyebrow">Done-for-you Setup</p>
+    <h1 class="page-h1">Your AI agent team,<br>live in 48 hours.</h1>
+    <p class="page-sub">
+      Tell us your stack and your biggest ops bottleneck. We'll configure and deploy
+      a custom ClawHQ setup tuned to your tools — no engineering time on your end.
+    </p>
+
+    <div class="pricing-row">
+      <span class="pricing-badge">
+        <span class="dot"></span>
+        $499 setup (one-time)
+      </span>
+      <span class="pricing-sep">+</span>
+      <span class="pricing-badge">$199 / month retainer (optional)</span>
+    </div>
+
+    <!-- What you get -->
+    <div class="gets">
+      <p class="gets-title">What's included in the setup</p>
+      <ul>
+        <li>We configure and deploy your full agent stack — you don't touch a config file</li>
+        <li>Custom wiring to your tools: GitHub, Notion, Linear, Slack, Discord, or others</li>
+        <li>Agent selection based on your actual bottlenecks (support triage, lead enrichment, competitor monitoring, and more)</li>
+        <li>Documentation: what's running, why, and how to extend it yourself</li>
+        <li>15-minute onboarding call after delivery</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Form card -->
+    <div class="form-card">
+      <form id="setupForm">
+
+        <p class="form-section-label">About you</p>
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Your name <span class="req">*</span></label>
+            <input type="text" id="name" name="name" placeholder="Alex Kim" required />
+          </div>
+          <div class="field">
+            <label for="email">Work email <span class="req">*</span></label>
+            <input type="email" id="email" name="email" placeholder="alex@yourcompany.com" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="company">Company / project name</label>
+          <input type="text" id="company" name="company" placeholder="Acme Inc." />
+        </div>
+
+        <p class="form-section-label">Your stack</p>
+        <div class="field">
+          <label for="stack">
+            What tools does your team use?
+            <span class="req">*</span>
+          </label>
+          <textarea
+            id="stack"
+            name="stack"
+            placeholder="e.g. GitHub, Notion, Linear, Slack, Intercom, Stripe, Postgres, Vercel..."
+            required
+          ></textarea>
+        </div>
+
+        <p class="form-section-label">Your bottleneck</p>
+        <div class="field">
+          <label for="bottleneck">
+            In one sentence: what's costing your team the most time right now?
+            <span class="req">*</span>
+          </label>
+          <textarea
+            id="bottleneck"
+            name="bottleneck"
+            placeholder="e.g. We spend 3 hours a week routing and triaging support tickets manually..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn-primary" id="submitBtn">Get my AI team →</button>
+          <span class="submit-note">We'll reply within a few hours to confirm scope.</span>
+        </div>
+
+      </form>
+
+      <!-- Success -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">✓</div>
+        <h2>You're in the queue.</h2>
+        <p>We'll review your stack and reply within a few hours to confirm the setup scope and next steps.</p>
+      </div>
+    </div>
+
+    <!-- Social proof -->
+    <div class="proof-row">
+      <span class="proof-item"><span class="proof-dot"></span>48-hour delivery</span>
+      <span class="proof-item"><span class="proof-dot"></span>30+ agents available</span>
+      <span class="proof-item"><span class="proof-dot"></span>No long-term commitment required</span>
+      <span class="proof-item"><span class="proof-dot"></span>MIT licensed, self-hosted</span>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg viewBox="0 0 152 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:20px;width:auto;opacity:0.6;">
+        <polygon class="logo-mark" points="6,30 10,30 19,6 15,6" opacity="0.45"/>
+        <polygon class="logo-mark" points="13,30 17,30 26,6 22,6" opacity="0.72"/>
+        <polygon class="logo-mark" points="20,30 24,30 33,6 29,6"/>
+        <text x="40" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="400" letter-spacing="-0.4" fill="currentColor">Claw</text>
+        <text x="91" y="27" font-family="-apple-system,BlinkMacSystemFont,'Inter',sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4" class="logo-accent">HQ</text>
+      </svg>
+      <span class="footer-copy" style="margin-left:14px;">© 2025 Modology Studios</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/">Home</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── NAV SCROLL
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 24);
+  }, { passive: true });
+
+  // ── THEME TOGGLE
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon   = document.getElementById('themeIcon');
+  const saved = localStorage.getItem('theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  themeIcon.textContent = saved === 'dark' ? '☀' : '☾';
+  themeToggle.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeIcon.textContent = next === 'dark' ? '☀' : '☾';
+  });
+
+  // ── FORM SUBMIT
+  const form        = document.getElementById('setupForm');
+  const submitBtn   = document.getElementById('submitBtn');
+  const successState = document.getElementById('successState');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    const payload = {
+      name:        document.getElementById('name').value.trim(),
+      email:       document.getElementById('email').value.trim(),
+      company:     document.getElementById('company').value.trim(),
+      stack:       document.getElementById('stack').value.trim(),
+      bottleneck:  document.getElementById('bottleneck').value.trim(),
+    };
+
+    try {
+      const res = await fetch('https://tryclawhq.com/capture-setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        form.style.display = 'none';
+        successState.style.display = 'block';
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Get my AI team →';
+        alert('Something went wrong — please email us directly at hello@clawhqplatform.com');
+      }
+    } catch (err) {
+      // Fallback: still show success (Discord notification may have gone through)
+      form.style.display = 'none';
+      successState.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>

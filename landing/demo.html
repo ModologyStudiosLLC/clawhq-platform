@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClawHQ — Live Demo</title>
+  <meta name="description" content="ClawHQ live demo — AI agent control plane for MSPs and ops teams. Pre-seeded with a sample environment." />
+  <style>
+    :root {
+      --bg:            #050507;
+      --bg-raised:     #0c0c0f;
+      --bg-float:      #111115;
+      --surface:       rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.07);
+      --border:        rgba(255,255,255,0.07);
+      --border-light:  rgba(255,255,255,0.12);
+      --text:          #f5f5f7;
+      --text-2:        rgba(245,245,247,0.72);
+      --text-3:        rgba(245,245,247,0.44);
+      --text-4:        rgba(245,245,247,0.24);
+      --accent:        #69daff;
+      --accent-dim:    rgba(105,218,255,0.10);
+      --green:         #69f6b8;
+      --green-dim:     rgba(105,246,184,0.12);
+      --purple:        #ac8aff;
+      --purple-dim:    rgba(172,138,255,0.12);
+      --red:           #f87171;
+      --red-dim:       rgba(248,113,113,0.12);
+      --font:          -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      --font-mono:     'SF Mono', 'Geist Mono', 'Fira Code', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Banner ── */
+    #banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--accent);
+      color: #050507;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    #banner.hidden { display: none; }
+    #banner-left { display: flex; align-items: center; gap: 8px; }
+    #banner-left svg { flex-shrink: 0; }
+    #banner-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    #banner-cta {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.15);
+      color: #050507;
+      font-size: 12px; font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    #banner-cta:hover { opacity: 0.75; }
+    #banner-dismiss {
+      background: none; border: none; cursor: pointer;
+      color: rgba(0,0,0,0.6); display: flex; align-items: center;
+      transition: color 0.15s;
+    }
+    #banner-dismiss:hover { color: #050507; }
+
+    /* ── Shell ── */
+    #shell {
+      display: flex;
+      height: 100dvh;
+      padding-top: 42px; /* banner height */
+    }
+    #shell.no-banner { padding-top: 0; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 16px 12px;
+      background: var(--bg-raised);
+      border-right: 1px solid var(--border);
+    }
+    #logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 8px;
+      margin-bottom: 20px;
+    }
+    #logo-mark {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 14px; color: #050507;
+      flex-shrink: 0;
+    }
+    #logo-text { font-weight: 700; font-size: 14px; color: var(--text); }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      border: none; background: none;
+      text-align: left; width: 100%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-item:hover { background: var(--surface-hover); color: var(--text); }
+    .nav-item.active { background: var(--bg-float); color: var(--text); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+
+    #sidebar-cta {
+      margin-top: auto;
+    }
+    #sidebar-cta a {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #050507;
+      font-size: 13px; font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    #sidebar-cta a:hover { opacity: 0.85; }
+    #sidebar-cta p {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 6px;
+    }
+
+    /* ── Main content ── */
+    #main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px;
+    }
+
+    /* ── Mobile tab bar ── */
+    #mobile-tabs {
+      display: none;
+      gap: 6px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .mobile-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 500;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--text-2);
+      transition: background 0.15s, color 0.15s;
+    }
+    .mobile-tab.active { background: var(--bg-float); color: var(--text); }
+
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #main { padding: 16px; }
+      #mobile-tabs { display: flex; }
+    }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .card-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 900px) {
+      .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .card-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .card-grid-2, .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 10px;
+    }
+
+    .stack { display: flex; flex-direction: column; gap: 8px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Stat card ── */
+    .stat-card { }
+    .stat-card .stat-label {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .stat-card .stat-label span { font-size: 11px; color: var(--text-3); }
+    .stat-card .stat-value { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .stat-card .stat-sub { font-size: 11px; color: var(--text-3); }
+
+    /* ── Agent row ── */
+    .agent-row, .skill-row, .health-row, .activity-row {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .avatar-lg {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+    }
+    .row-body { flex: 1; min-width: 0; }
+    .row-body .row-name {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .row-body .row-sub { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+    .row-meta { text-align: right; flex-shrink: 0; }
+    .row-meta .row-value { font-size: 13px; font-weight: 600; color: var(--text); }
+    .row-meta .row-sub { font-size: 11px; color: var(--text-3); }
+
+    /* ── Status dot ── */
+    .dot-wrap { position: relative; display: inline-flex; width: 8px; height: 8px; flex-shrink: 0; }
+    .dot { position: relative; display: inline-flex; width: 8px; height: 8px; border-radius: 50%; }
+    .dot-ping {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+      opacity: 0.5;
+    }
+    @keyframes ping {
+      75%, 100% { transform: scale(2); opacity: 0; }
+    }
+
+    /* ── Badge ── */
+    .badge {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* ── Icon box ── */
+    .icon-box {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-float);
+      flex-shrink: 0;
+    }
+
+    /* ── Spacing ── */
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .section { margin-bottom: 28px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #run-input:focus { border-color: var(--accent); }
+    #run-btn:hover { opacity: 0.85; }
+    #run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .run-step {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 12px; color: var(--text-2);
+    }
+    .run-step-num {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--accent-dim); color: var(--accent);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .run-chip {
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 500;
+      background: var(--bg-float); color: var(--text-3);
+      border: 1px solid var(--border); cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .run-chip:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-dim); }
+  </style>
+    <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "db597ce8c956428ab6da41a9e52b5ff7"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body>
+
+<!-- Banner -->
+<div id="banner">
+  <div id="banner-left">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+    <span>You're viewing a live demo of ClawHQ — pre-seeded with a sample AI operations environment.</span>
+  </div>
+  <div id="banner-right">
+    <a id="banner-cta" href="https://cal.com/mike-flanigan/clawhq-demo" target="_blank" rel="noopener noreferrer">
+      Book a 15-min call
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <button id="banner-dismiss" aria-label="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Shell -->
+<div id="shell">
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div id="logo">
+      <div id="logo-mark">C</div>
+      <div id="logo-text">ClawHQ</div>
+    </div>
+
+    <button class="nav-item active" data-tab="overview">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Overview
+    </button>
+    <button class="nav-item" data-tab="agents">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+      Agents
+    </button>
+    <button class="nav-item" data-tab="skills">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
+      Skills
+    </button>
+    <button class="nav-item" data-tab="cost">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Cost
+    </button>
+    <button class="nav-item" data-tab="health">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Health
+    </button>
+    <button class="nav-item" data-tab="run" style="margin-top:8px;color:var(--accent);border:1px solid var(--accent-dim)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      Run a Task
+    </button>
+
+    <div id="sidebar-cta">
+      <a href="https://cal.com/mike-flanigan/clawhq-demo" target="_blank" rel="noopener noreferrer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        Book a Demo Call
+      </a>
+      <p>15 min · free</p>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main id="main">
+
+    <!-- Mobile tabs -->
+    <div id="mobile-tabs">
+      <button class="mobile-tab active" data-tab="overview">Overview</button>
+      <button class="mobile-tab" data-tab="agents">Agents</button>
+      <button class="mobile-tab" data-tab="skills">Skills</button>
+      <button class="mobile-tab" data-tab="cost">Cost</button>
+      <button class="mobile-tab" data-tab="health">Health</button>
+      <button class="mobile-tab" data-tab="run" style="color:var(--accent);border-color:var(--accent-dim)">Run a Task</button>
+    </div>
+
+    <!-- ── Overview ── -->
+    <div class="tab-panel active" id="tab-overview">
+      <!-- Stat row -->
+      <div class="card-grid-4 mb-6">
+        <div class="card stat-card">
+          <div class="stat-label">
+            <span>Active Agents</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+          </div>
+          <div class="stat-value">4 / 5</div>
+          <div class="stat-sub">1 idle</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">
+            <span>Tasks Today</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="stat-value">259</div>
+          <div class="stat-sub">+18% vs yesterday</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">
+            <span>LLM Saved MTD</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          </div>
+          <div class="stat-value">$1,076</div>
+          <div class="stat-sub">56% reduction</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">
+            <span>Skills Active</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+          </div>
+          <div class="stat-value">6</div>
+          <div class="stat-sub">2 idle</div>
+        </div>
+      </div>
+
+      <!-- Agents + Activity -->
+      <div class="two-col">
+        <div>
+          <p class="section-label">Agents</p>
+          <div class="stack" id="ov-agents"></div>
+        </div>
+        <div>
+          <p class="section-label">Recent Activity</p>
+          <div class="stack" id="ov-activity"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Agents ── -->
+    <div class="tab-panel" id="tab-agents">
+      <p class="section-label">Deployed Agents</p>
+      <div class="stack" id="agents-list"></div>
+    </div>
+
+    <!-- ── Skills ── -->
+    <div class="tab-panel" id="tab-skills">
+      <p class="section-label">Installed Skills — 6 active</p>
+      <div class="card-grid-2" id="skills-grid"></div>
+    </div>
+
+    <!-- ── Cost ── -->
+    <div class="tab-panel" id="tab-cost">
+      <div class="card-grid-4 mb-4">
+        <div class="card stat-card">
+          <div class="stat-label"><span>Spend This Month</span></div>
+          <div class="stat-value">$847</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label"><span>Without ClawHQ</span></div>
+          <div class="stat-value" style="color:var(--red)">$1,923</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label"><span>Saved MTD</span></div>
+          <div class="stat-value" style="color:var(--green)">$1,076</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label"><span>Reduction</span></div>
+          <div class="stat-value" style="color:var(--purple)">56%</div>
+        </div>
+      </div>
+      <div class="card-grid-3">
+        <div class="card" style="display:flex;gap:12px;align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+          <div>
+            <p style="font-size:11px;color:var(--text-3);margin-bottom:4px">Top model</p>
+            <p style="font-size:13px;font-weight:600;color:var(--text)">claude-sonnet-4-6</p>
+            <p style="font-size:11px;color:var(--text-3)">$312 MTD</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex;gap:12px;align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          <div>
+            <p style="font-size:11px;color:var(--text-3);margin-bottom:4px">Cache hit rate</p>
+            <p style="font-size:13px;font-weight:600;color:var(--text)">68%</p>
+            <p style="font-size:11px;color:var(--text-3)">of requests served from cache</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex;gap:12px;align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <div>
+            <p style="font-size:11px;color:var(--text-3);margin-bottom:4px">Total tokens</p>
+            <p style="font-size:13px;font-weight:600;color:var(--text)">4.2M</p>
+            <p style="font-size:11px;color:var(--text-3)">processed this month</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Health ── -->
+    <div class="tab-panel" id="tab-health">
+      <p class="section-label">Service Health — All systems operational</p>
+      <div class="stack" id="health-list"></div>
+    </div>
+
+    <!-- ── Run a Task ── -->
+    <div class="tab-panel" id="tab-run">
+      <p class="section-label">Live Agent Execution</p>
+      <div class="card mb-4" style="max-width:680px">
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6">
+          Type any task below. ClawHQ will route it to the right agent, run it, and show you the execution trace.
+        </p>
+
+        <!-- Suggestion chips -->
+        <div id="run-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <textarea id="run-input"
+            placeholder="e.g. Draft a follow-up email to a prospect who opened our pricing page twice..."
+            rows="3"
+            style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid var(--border-light);
+                   background:var(--bg-float);color:var(--text);font-size:13px;font-family:var(--font);
+                   resize:vertical;outline:none;line-height:1.5"></textarea>
+          <button id="run-btn"
+            style="padding:10px 18px;border-radius:8px;background:var(--accent);color:#050507;
+                   font-size:13px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;
+                   transition:opacity 0.15s;flex-shrink:0">
+            Run
+          </button>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div id="run-output" style="max-width:680px;display:none">
+
+        <!-- Routing header -->
+        <div class="card mb-3" id="run-routing" style="display:flex;align-items:center;gap:12px">
+          <div id="run-avatar" class="avatar avatar-lg"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
+              <span id="run-agent-name"></span>
+              <span class="badge" style="background:var(--green-dim);color:var(--green)">running</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:2px" id="run-agent-role"></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-3)" id="run-model"></div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="card mb-3">
+          <p class="section-label" style="margin-bottom:10px">Execution trace</p>
+          <div id="run-steps" class="stack"></div>
+        </div>
+
+        <!-- Result -->
+        <div class="card mb-3">
+          <p class="section-label" style="margin-bottom:8px">Result</p>
+          <p id="run-result" style="font-size:13px;color:var(--text-2);line-height:1.6"></p>
+        </div>
+
+        <!-- Metrics -->
+        <div class="card-grid-3">
+          <div class="card stat-card">
+            <div class="stat-label"><span>Tokens used</span></div>
+            <div class="stat-value" id="run-tokens" style="font-size:20px"></div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label"><span>Cost</span></div>
+            <div class="stat-value" id="run-cost" style="font-size:20px;color:var(--green)"></div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label"><span>Duration</span></div>
+            <div class="stat-value" id="run-duration" style="font-size:20px"></div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <a href="https://cal.com/mike-flanigan/clawhq-demo" target="_blank" rel="noopener noreferrer"
+             style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;
+                    background:var(--accent);color:#050507;font-size:13px;font-weight:600;text-decoration:none;
+                    transition:opacity 0.15s">
+            Deploy this on your stack
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="run-loading" style="max-width:680px;display:none">
+        <div class="card" style="display:flex;align-items:center;gap:12px;padding:20px">
+          <div id="run-spinner" style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+          <span style="font-size:13px;color:var(--text-2)" id="run-loading-txt">Routing task to agent...</span>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div id="run-error" style="max-width:680px;display:none">
+        <div class="card" style="border-color:var(--red-dim)">
+          <p style="font-size:13px;color:var(--red)" id="run-error-msg"></p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const AGENTS = [
+  { name:"Felix",         role:"Sales & Comms",    state:"running", provider:"Anthropic", tasks:14,  lastActive:"2m ago",  color:"#69daff" },
+  { name:"Researcher",    role:"Intel & Analysis",  state:"running", provider:"Groq",      tasks:31,  lastActive:"just now",color:"#69f6b8" },
+  { name:"ContentBot",    role:"Content Pipeline",  state:"running", provider:"DeepSeek",  tasks:8,   lastActive:"11m ago", color:"#ac8aff" },
+  { name:"CostOptimizer", role:"LLM Cost Control",  state:"running", provider:"Anthropic", tasks:203, lastActive:"1m ago",  color:"#f87171" },
+  { name:"JobFinder",     role:"Recruitment Intel", state:"idle",    provider:"Groq",      tasks:3,   lastActive:"1h ago",  color:"rgba(245,245,247,0.44)" },
+];
+
+const SKILLS = [
+  { name:"crm-automation",        category:"Sales",       status:"active", calls:847  },
+  { name:"code-review-5pass",     category:"Engineering", status:"active", calls:23   },
+  { name:"client-health-monitor", category:"Operations",  status:"active", calls:214  },
+  { name:"msp-security-sweep",    category:"Security",    status:"active", calls:91   },
+  { name:"video-lens",            category:"Content",     status:"active", calls:156  },
+  { name:"enrich-lead",           category:"Sales",       status:"idle",   calls:412  },
+];
+
+const ACTIVITY = [
+  { time:"2m ago",  agent:"Felix",          event:"Sent Day-3 drip email to evan@kestrel.ai",          status:"success" },
+  { time:"4m ago",  agent:"CostOptimizer",  event:"Routed 3 requests to DeepSeek — saved $0.14",       status:"success" },
+  { time:"11m ago", agent:"ContentBot",     event:"Published daily AI + hardware newsletter draft",      status:"success" },
+  { time:"18m ago", agent:"Researcher",     event:"Scraped 12 new competitor pricing signals",           status:"success" },
+  { time:"1h ago",  agent:"Felix",          event:"Reply from drip prospect — CRM opportunity created",  status:"hot"     },
+];
+
+const HEALTH = [
+  { name:"OpenClaw Gateway",    status:"healthy", latency:"12ms"  },
+  { name:"Hermes Orchestrator", status:"healthy", latency:"8ms"   },
+  { name:"AgentMail",           status:"healthy", latency:"143ms" },
+  { name:"Twenty CRM",          status:"healthy", latency:"34ms"  },
+  { name:"Cloudflare Workers",  status:"healthy", latency:"6ms"   },
+  { name:"Skills Registry",     status:"healthy", latency:"22ms"  },
+];
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function dot(status) {
+  const colors = { running:"#69f6b8", healthy:"#69f6b8", active:"#69f6b8", idle:"rgba(245,245,247,0.44)", hot:"#f87171", success:"#69f6b8" };
+  const c = colors[status] || "rgba(245,245,247,0.44)";
+  const ping = (status === "running" || status === "healthy")
+    ? `<span class="dot-ping" style="background:${c}"></span>` : "";
+  return `<span class="dot-wrap">${ping}<span class="dot" style="background:${c}"></span></span>`;
+}
+
+function badge(text, green) {
+  return `<span class="badge" style="background:${green?"var(--green-dim)":"var(--bg-float)"};color:${green?"var(--green)":"var(--text-3)"}">${text}</span>`;
+}
+
+// ── Render Overview ────────────────────────────────────────────────────────────
+document.getElementById("ov-agents").innerHTML = AGENTS.map(a => `
+  <div class="card agent-row">
+    <div class="avatar" style="background:${a.color}1a;color:${a.color}">${a.name[0]}</div>
+    <div class="row-body">
+      <div class="row-name">${a.name} ${dot(a.state)}</div>
+      <div class="row-sub">${a.role}</div>
+    </div>
+    <div class="row-meta">
+      <div class="row-value">${a.tasks} tasks</div>
+      <div class="row-sub">${a.lastActive}</div>
+    </div>
+  </div>`).join("");
+
+document.getElementById("ov-activity").innerHTML = ACTIVITY.map(ev => `
+  <div class="card activity-row" style="gap:10px;align-items:flex-start">
+    <div style="margin-top:3px">${dot(ev.status)}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;color:var(--text)">${ev.event}</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:2px">${ev.agent} · ${ev.time}</div>
+    </div>
+  </div>`).join("");
+
+// ── Render Agents ──────────────────────────────────────────────────────────────
+document.getElementById("agents-list").innerHTML = AGENTS.map(a => `
+  <div class="card agent-row">
+    <div class="avatar avatar-lg" style="background:${a.color}1f;color:${a.color}">${a.name[0]}</div>
+    <div class="row-body">
+      <div class="row-name">
+        ${a.name}
+        <span class="badge" style="background:${a.state==='running'?"var(--green-dim)":"var(--bg-float)"};color:${a.state==='running'?"var(--green)":"var(--text-3)"}">${a.state}</span>
+      </div>
+      <div class="row-sub">${a.role} · ${a.provider}</div>
+    </div>
+    <div class="row-meta">
+      <div class="row-value">${a.tasks}</div>
+      <div class="row-sub">tasks · ${a.lastActive}</div>
+    </div>
+  </div>`).join("");
+
+// ── Render Skills ──────────────────────────────────────────────────────────────
+document.getElementById("skills-grid").innerHTML = SKILLS.map(s => `
+  <div class="card skill-row">
+    <div class="icon-box">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+    </div>
+    <div class="row-body">
+      <div style="font-size:12px;font-weight:600;color:var(--text);font-family:var(--font-mono)">${s.name}</div>
+      <div class="row-sub">${s.category} · ${s.calls.toLocaleString()} calls</div>
+    </div>
+    <span class="badge" style="background:${s.status==='active'?"var(--green-dim)":"var(--bg-float)"};color:${s.status==='active'?"var(--green)":"var(--text-3)"}">${s.status}</span>
+  </div>`).join("");
+
+// ── Render Health ──────────────────────────────────────────────────────────────
+document.getElementById("health-list").innerHTML = HEALTH.map(h => `
+  <div class="card health-row">
+    ${dot(h.status)}
+    <div style="flex:1;font-size:13px;font-weight:500;color:var(--text)">${h.name}</div>
+    <span style="font-size:11px;font-family:var(--font-mono);color:var(--text-3)">${h.latency}</span>
+    <span class="badge" style="background:var(--green-dim);color:var(--green)">healthy</span>
+  </div>`).join("");
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item, .mobile-tab").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  document.querySelectorAll("[data-tab='" + tab + "']").forEach(b => b.classList.add("active"));
+}
+
+document.querySelectorAll("[data-tab]").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+// ── Banner dismiss ─────────────────────────────────────────────────────────────
+document.getElementById("banner-dismiss").addEventListener("click", () => {
+  document.getElementById("banner").classList.add("hidden");
+  document.getElementById("shell").classList.add("no-banner");
+});
+
+// ── Email capture slide-in (fires after 30s, once per session) ─────────────────
+(function() {
+  if (sessionStorage.getItem("clawhq_captured")) return;
+
+  var slide = document.createElement("div");
+  slide.id = "capture-slide";
+  slide.innerHTML = `
+    <div id="capture-inner">
+      <button id="capture-close" aria-label="Close">&times;</button>
+      <p id="capture-pre">You're exploring ClawHQ</p>
+      <p id="capture-headline">Get early access + pricing</p>
+      <p id="capture-sub">No spam. One email with details on plans, pricing, and how to deploy your own.</p>
+      <form id="capture-form">
+        <input id="capture-email" type="email" placeholder="you@company.com" required autocomplete="email" />
+        <button type="submit" id="capture-submit">Send me details</button>
+      </form>
+      <p id="capture-thanks" style="display:none">You're in. Check your inbox shortly.</p>
+    </div>
+  `;
+  document.body.appendChild(slide);
+
+  // Inject styles
+  var s = document.createElement("style");
+  s.textContent = `
+    #capture-slide {
+      position: fixed; bottom: 24px; right: 24px; z-index: 200;
+      width: 300px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      transform: translateY(120%);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #capture-slide.visible { transform: translateY(0); }
+    #capture-close {
+      position: absolute; top: 12px; right: 14px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-3); font-size: 18px; line-height: 1;
+    }
+    #capture-close:hover { color: var(--text); }
+    #capture-pre { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+    #capture-headline { font-size: 15px; font-weight: 700; color: var(--text); margin: 0 0 6px; }
+    #capture-sub { font-size: 12px; color: var(--text-3); margin: 0 0 14px; line-height: 1.5; }
+    #capture-form { display: flex; flex-direction: column; gap: 8px; }
+    #capture-email {
+      padding: 9px 12px; border-radius: 8px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-float); color: var(--text);
+      font-size: 13px; outline: none;
+    }
+    #capture-email:focus { border-color: var(--accent); }
+    #capture-submit {
+      padding: 9px 12px; border-radius: 8px;
+      background: var(--accent); color: #050507;
+      font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    #capture-submit:hover { opacity: 0.85; }
+    #capture-thanks { font-size: 13px; color: var(--green); margin: 8px 0 0; text-align: center; }
+  `;
+  document.head.appendChild(s);
+
+  // Show after 30s
+  var timer = setTimeout(function() {
+    slide.classList.add("visible");
+  }, 30000);
+
+  document.getElementById("capture-close").addEventListener("click", function() {
+    slide.style.transform = "translateY(120%)";
+    clearTimeout(timer);
+    sessionStorage.setItem("clawhq_captured", "dismissed");
+  });
+
+  document.getElementById("capture-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var email = document.getElementById("capture-email").value.trim();
+    if (!email) return;
+    var btn = document.getElementById("capture-submit");
+    btn.textContent = "Sending...";
+    btn.disabled = true;
+
+    fetch("/capture-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, source: "demo_slide" }),
+    })
+    .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function() {
+      document.getElementById("capture-form").style.display = "none";
+      document.getElementById("capture-thanks").style.display = "block";
+      sessionStorage.setItem("clawhq_captured", "yes");
+      setTimeout(function() { slide.style.transform = "translateY(120%)"; }, 3000);
+    })
+    .catch(function() {
+      btn.textContent = "Send me details";
+      btn.disabled = false;
+    });
+  });
+})();
+
+// ── Run a Task ─────────────────────────────────────────────────────────────────
+(function() {
+  const AGENT_COLORS = {
+    Felix:         "#69daff",
+    Researcher:    "#69f6b8",
+    ContentBot:    "#ac8aff",
+    CostOptimizer: "#f87171",
+  };
+
+  const SUGGESTIONS = [
+    "Draft a follow-up email to a prospect who went quiet after a demo",
+    "Summarize competitor pricing changes this week",
+    "Find the cheapest model to run our nightly data enrichment job",
+    "Write a LinkedIn post about our new AI ops platform launch",
+    "Identify which of our drip emails has the highest open rate and why",
+    "Check if any of our agents are over-spending on tokens this month",
+  ];
+
+  // Render suggestion chips
+  const chipsEl = document.getElementById("run-chips");
+  SUGGESTIONS.forEach(s => {
+    const chip = document.createElement("button");
+    chip.className = "run-chip";
+    chip.textContent = s;
+    chip.addEventListener("click", () => {
+      document.getElementById("run-input").value = s;
+      document.getElementById("run-input").focus();
+    });
+    chipsEl.appendChild(chip);
+  });
+
+  const btn     = document.getElementById("run-btn");
+  const input   = document.getElementById("run-input");
+  const loading = document.getElementById("run-loading");
+  const loadTxt = document.getElementById("run-loading-txt");
+  const output  = document.getElementById("run-output");
+  const errEl   = document.getElementById("run-error");
+  const errMsg  = document.getElementById("run-error-msg");
+
+  const loadingPhrases = [
+    "Routing task to agent...",
+    "Selecting optimal model...",
+    "Executing task...",
+    "Processing result...",
+  ];
+  let loadTimer;
+
+  function showLoading() {
+    output.style.display  = "none";
+    errEl.style.display   = "none";
+    loading.style.display = "block";
+    btn.disabled = true;
+    btn.textContent = "Running...";
+    let i = 0;
+    loadTxt.textContent = loadingPhrases[0];
+    loadTimer = setInterval(() => {
+      i = (i + 1) % loadingPhrases.length;
+      loadTxt.textContent = loadingPhrases[i];
+    }, 1200);
+  }
+
+  function hideLoading() {
+    clearInterval(loadTimer);
+    loading.style.display = "none";
+    btn.disabled = false;
+    btn.textContent = "Run";
+  }
+
+  function showError(msg) {
+    hideLoading();
+    errMsg.textContent = msg;
+    errEl.style.display = "block";
+  }
+
+  function renderResult(data) {
+    hideLoading();
+
+    const agentName = data.agent || "Researcher";
+    const color     = AGENT_COLORS[agentName] || "#69daff";
+
+    // Avatar
+    const av = document.getElementById("run-avatar");
+    av.style.background = color + "1f";
+    av.style.color      = color;
+    av.textContent      = agentName[0];
+
+    document.getElementById("run-agent-name").textContent = agentName;
+    document.getElementById("run-agent-role").textContent  = data.agent_role || "";
+    document.getElementById("run-model").textContent       = data.model || "deepseek-chat";
+
+    // Steps
+    const steps = Array.isArray(data.steps) ? data.steps : [];
+    document.getElementById("run-steps").innerHTML = steps.map((s, i) => `
+      <div class="run-step">
+        <div class="run-step-num">${i + 1}</div>
+        <span>${s}</span>
+      </div>`).join("");
+
+    document.getElementById("run-result").textContent   = data.result || "";
+    document.getElementById("run-tokens").textContent   = (data.tokens_used || 0).toLocaleString();
+    document.getElementById("run-cost").textContent     = "$" + (data.cost_usd || 0).toFixed(4);
+    document.getElementById("run-duration").textContent = (data.duration_ms || 0).toLocaleString() + "ms";
+
+    output.style.display = "block";
+    output.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function runTask() {
+    const task = input.value.trim();
+    if (!task) { input.focus(); return; }
+
+    showLoading();
+
+    try {
+      const resp = await fetch("/api/run-task", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        showError("Agent error: " + (err.error || resp.status));
+        return;
+      }
+
+      const data = await resp.json();
+      if (data.error) { showError(data.error); return; }
+      renderResult(data);
+    } catch (e) {
+      showError("Network error — check your connection.");
+    }
+  }
+
+  btn.addEventListener("click", runTask);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) runTask();
+  });
+})();
+</script>
+</body>
+</html>
