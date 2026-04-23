@@ -140,7 +140,7 @@ export default {
           return new Response(JSON.stringify({ error: "valid email required" }), { status: 400, headers: cors });
         }
 
-        const attioToken = env.ATTIO_API_KEY || "898aae325e8b04f4a66e9bb3fe5c92efdf8522f9072b1ed4d4ebf8ef27f0b91d";
+        const attioToken = env.ATTIO_API_KEY;
 
         // Upsert person in Attio
         const personRes = await fetch("https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses", {
