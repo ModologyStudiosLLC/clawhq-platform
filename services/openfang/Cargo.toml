@@ -102,7 +102,7 @@ json5 = "0.4"
 walkdir = "2"
 
 # Security
-sha2 = "0.10"
+sha2 = "0.11"
 sha1 = "0.10"
 aes = "0.8"
 cbc = "0.1"
