@@ -255,8 +255,8 @@ export function HomeDigest() {
         </span>
         <span className="flex items-center gap-1.5 flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
           <span style={{ color: "var(--color-text-subtle)" }}>gateway</span>
-          <span style={{ color: loading ? "var(--color-text-subtle)" : agents.length > 0 ? "var(--color-secondary)" : "var(--color-error)", fontWeight: 700 }}>
-            {loading ? "—" : agents.length > 0 ? "online" : "offline"}
+          <span style={{ color: loading ? "var(--color-text-subtle)" : agents.some(a => a.state === "Running") ? "var(--color-secondary)" : "var(--color-error)", fontWeight: 700 }}>
+            {loading ? "—" : agents.some(a => a.state === "Running") ? "online" : "offline"}
           </span>
         </span>
         {/* Provider badges */}
