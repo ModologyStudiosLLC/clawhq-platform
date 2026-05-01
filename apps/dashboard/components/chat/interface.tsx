@@ -40,6 +40,7 @@ function agentEmoji(name: string): string {
 export function ChatInterface({ agentId }: { agentId: string }) {
   const [agent, setAgent] = useState<Agent | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -49,19 +50,25 @@ export function ChatInterface({ agentId }: { agentId: string }) {
   // Load agent info + create session
   useEffect(() => {
     fetch("/api/agents")
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : [])
       .then((agents: Agent[]) => {
-        const found = agents.find(a => a.id === agentId);
+        const found = Array.isArray(agents) ? agents.find(a => a.id === agentId) : undefined;
         if (found) setAgent(found);
-      });
+      })
+      .catch(() => {});
 
+    setSessionError(false);
     fetch("/api/chat/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ agentId }),
     })
-      .then(r => r.json())
-      .then(d => setSessionId(d.session_id));
+      .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+      .then(d => {
+        if (d.session_id) setSessionId(d.session_id);
+        else throw new Error("missing session_id");
+      })
+      .catch(() => setSessionError(true));
   }, [agentId]);
 
   // Auto-scroll
@@ -97,7 +104,7 @@ export function ChatInterface({ agentId }: { agentId: string }) {
         body: JSON.stringify({ agentId, sessionId, message: userMsg.content }),
       });
 
-      if (!res.body) throw new Error("No stream");
+      if (!res.ok || !res.body) throw new Error(`Stream error ${res.status}`);
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -164,8 +171,38 @@ export function ChatInterface({ agentId }: { agentId: string }) {
 
   const emoji = agent ? agentEmoji(agent.name) : "🤖";
 
+  if (sessionError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
+        <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
+          Couldn&apos;t connect to agent
+        </p>
+        <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+          The agent service may be offline. Check that your services are running, then try again.
+        </p>
+        <button
+          onClick={() => {
+            setSessionError(false);
+            fetch("/api/chat/session", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ agentId }),
+            })
+              .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+              .then(d => { if (d.session_id) setSessionId(d.session_id); else throw new Error(); })
+              .catch(() => setSessionError(true));
+          }}
+          className="px-4 py-2 rounded-lg text-xs font-medium mt-1 transition-colors"
+          style={{ background: "var(--color-surface-2)", color: "var(--color-text)", border: "1px solid var(--color-border)" }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full" style={{ maxHeight: "calc(100vh - 73px)" }}>
+    <div className="flex flex-col h-full min-h-0">
       {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3 border-b flex-shrink-0"

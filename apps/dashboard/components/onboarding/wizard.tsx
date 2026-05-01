@@ -20,6 +20,44 @@ const GOALS: { id: Goal; emoji: string; label: string; desc: string }[] = [
   { id: "custom",     emoji: "🎯", label: "Something else",   desc: "I'll set it up myself" },
 ];
 
+// Goals → agents that should be auto-selected
+const GOAL_AGENTS: Record<Goal, AgentId[]> = {
+  research:   ["felix", "scout"],
+  leads:      ["felix", "scout", "scribe"],
+  content:    ["felix", "scribe", "pixel"],
+  automation: ["felix", "fixer"],
+  custom:     ["felix"],
+};
+
+// Goals → suggested first tasks shown on the done screen
+const GOAL_TASKS: Record<Goal, { label: string; prompt: string }[]> = {
+  research: [
+    { label: "Competitive landscape",  prompt: "Research the top 5 competitors in my space and summarize their positioning, pricing, and recent moves." },
+    { label: "Market sizing",          prompt: "Help me estimate the market size for [my product/service]. Walk me through a bottom-up calculation." },
+    { label: "Topic deep dive",        prompt: "Give me a deep dive on [topic] — key players, recent developments, and what I should know." },
+  ],
+  leads: [
+    { label: "Find prospects",         prompt: "Find 10 companies that would be a strong fit for [my product]. Include company name, size, and why they're a match." },
+    { label: "Qualify a lead",         prompt: "Research [company name] and tell me if they're a good fit — their tech stack, headcount, funding, and any buying signals." },
+    { label: "Build outreach copy",    prompt: "Write a 3-email cold outreach sequence for [product] targeting [ICP]. Keep it short, specific, no fluff." },
+  ],
+  content: [
+    { label: "LinkedIn post",          prompt: "Write a LinkedIn post about [topic/recent win/lesson learned]. Punchy, first-person, no em-dashes, 150 words max." },
+    { label: "Email newsletter",       prompt: "Draft a short email newsletter for this week. Topic: [topic]. Tone: direct, like a person not a brand." },
+    { label: "Content calendar",       prompt: "Give me a 2-week content calendar for [platform]. Mix of educational, opinion, and product posts." },
+  ],
+  automation: [
+    { label: "Monitor a target",       prompt: "Set up monitoring for [competitor/keyword/topic] and alert me when something significant changes." },
+    { label: "Weekly summary",         prompt: "Every Monday morning, pull together a summary of [news source/topic/market] and send it to me." },
+    { label: "Automate a workflow",    prompt: "I want to automate [task I do repeatedly]. Walk me through how to set that up." },
+  ],
+  custom: [
+    { label: "What can you do?",       prompt: "What are the most useful things you can help me with? Give me 5 concrete examples." },
+    { label: "Start a task",           prompt: "I need help with [describe your task]. Let's work through it together." },
+    { label: "Explore capabilities",   prompt: "Show me what tools and capabilities you have access to." },
+  ],
+};
+
 const AGENTS: {
   id: AgentId;
   name: string;
@@ -98,7 +136,12 @@ export function OnboardingWizard() {
   const progress  = (stepIndex / (STEPS.length - 1)) * 100;
 
   function toggleGoal(g: Goal) {
-    setGoals(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
+    setGoals(prev => {
+      const next = prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g];
+      const recommended = [...new Set(["felix" as AgentId, ...next.flatMap(id => GOAL_AGENTS[id])])];
+      setActiveAgents(recommended);
+      return next;
+    });
   }
 
   function toggleAgent(id: AgentId) {
@@ -115,7 +158,7 @@ export function OnboardingWizard() {
     localStorage.setItem("clawhq_provider", provider);
     localStorage.setItem("clawhq_api_key", apiKey);
     try {
-      await fetch("/api/openfang/api/config/keys", {
+      await fetch("/api/openfang/config/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, key: apiKey }),
@@ -136,7 +179,7 @@ export function OnboardingWizard() {
     const handsToEnable = [...new Set(selectedGoals.flatMap(g => GOAL_HANDS[g]))];
     await Promise.allSettled(
       handsToEnable.map(handId =>
-        fetch(`/api/openfang/api/hands/${handId}/enable`, { method: "POST" })
+        fetch(`/api/openfang/hands/${handId}/enable`, { method: "POST" })
       )
     );
   }
@@ -611,47 +654,82 @@ export function OnboardingWizard() {
       )}
 
       {/* ── Done ── */}
-      {step === "done" && (
-        <div className="text-center">
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-            style={{ background: "var(--color-secondary-dim)" }}
-          >
-            <Check size={28} style={{ color: "var(--color-secondary)" }} />
+      {step === "done" && (() => {
+        // Collect suggested tasks from all selected goals, deduplicated, max 3
+        const suggestedTasks = [...new Map(
+          goals.flatMap(g => GOAL_TASKS[g] ?? []).map(t => [t.label, t])
+        ).values()].slice(0, 3);
+
+        function launch(prompt: string) {
+          document.cookie = "clawhq_setup=1; path=/; max-age=31536000";
+          const encoded = encodeURIComponent(prompt);
+          window.location.href = `/home?q=${encoded}`;
+        }
+
+        function goToDashboard() {
+          document.cookie = "clawhq_setup=1; path=/; max-age=31536000";
+          window.location.href = "/home";
+        }
+
+        return (
+          <div>
+            <div className="text-center mb-6">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ background: "var(--color-secondary-dim)" }}
+              >
+                <Check size={28} style={{ color: "var(--color-secondary)" }} />
+              </div>
+              <h2 className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display)" }}>
+                Your team is ready
+              </h2>
+              <div className="flex justify-center gap-1.5 flex-wrap">
+                {activeAgents.map(id => {
+                  const a = AGENTS.find(x => x.id === id)!;
+                  return (
+                    <span
+                      key={id}
+                      className="text-xs px-2 py-1 rounded-full"
+                      style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}
+                    >
+                      {a.emoji} {a.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {suggestedTasks.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "var(--color-text-subtle)" }}>
+                  Start with one of these
+                </p>
+                <div className="space-y-2">
+                  {suggestedTasks.map(task => (
+                    <button
+                      key={task.label}
+                      onClick={() => launch(task.prompt)}
+                      className="w-full flex items-center justify-between gap-3 p-3.5 rounded-xl text-left transition-all group"
+                      style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
+                    >
+                      <span className="text-sm" style={{ color: "var(--color-text)" }}>{task.label}</span>
+                      <ArrowRight size={14} style={{ color: "var(--color-text-subtle)", flexShrink: 0 }} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={goToDashboard}
+              className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+              style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "var(--color-on-brand)" }}
+            >
+              Go to dashboard <ArrowRight size={14} />
+            </button>
           </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "var(--font-display)" }}>
-            Your team is ready
-          </h2>
-          <p className="text-sm mb-2" style={{ color: "var(--color-text-muted)" }}>
-            {activeAgents.length} agent{activeAgents.length !== 1 ? "s" : ""} activated and standing by.
-            Head to your dashboard to get started.
-          </p>
-          <div className="flex justify-center gap-1.5 mb-8 flex-wrap">
-            {activeAgents.map(id => {
-              const a = AGENTS.find(x => x.id === id)!;
-              return (
-                <span
-                  key={id}
-                  className="text-xs px-2 py-1 rounded-full"
-                  style={{ background: "var(--color-primary-dim)", color: "var(--color-primary)", border: "1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)" }}
-                >
-                  {a.emoji} {a.name}
-                </span>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => {
-              document.cookie = "clawhq_setup=1; path=/; max-age=31536000";
-              window.location.href = "/home";
-            }}
-            className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))", color: "var(--color-on-brand)" }}
-          >
-            Go to dashboard <ArrowRight size={14} />
-          </button>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

@@ -318,6 +318,8 @@ function GeneralTab({ settings, onChange }: { settings: Settings; onChange: (pat
           <button onClick={() => {
             document.cookie = "clawhq_setup=; path=/; max-age=0";
             localStorage.removeItem("clawhq_anthropic_key");
+            localStorage.removeItem("clawhq_api_key");
+            localStorage.removeItem("clawhq_provider");
             window.location.href = "/onboarding";
           }} className="px-4 py-2 rounded-lg text-xs font-semibold flex-shrink-0 ml-4 transition-all"
             style={{ background: "color-mix(in srgb, var(--color-error) 10%, transparent)", color: "var(--color-error)", border: "1px solid color-mix(in srgb, var(--color-error) 35%, transparent)" }}>
@@ -841,9 +843,32 @@ function ProposalBanner({ diff, onAccept, onReject }: {
         <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--color-text)" }}>
           AI proposed changes
         </p>
-        <pre className="text-xs font-mono overflow-x-auto" style={{ color: "var(--color-text-muted)" }}>
-          {JSON.stringify(diff, null, 2)}
-        </pre>
+        <ul className="text-xs mt-1 space-y-0.5" style={{ color: "var(--color-text-muted)" }}>
+          {Object.entries(diff).map(([key, val]) => {
+            const labels: Record<string, string> = {
+              securityLevel: "Security level",
+              timezone: "Timezone",
+              displayName: "Display name",
+              monthlyBudgetCents: "Monthly budget",
+              budgetUnlimited: "Unlimited budget",
+              budgetAlertPercent: "Budget alert threshold",
+            };
+            const label = labels[key] ?? key;
+            let display = "";
+            if (key === "monthlyBudgetCents" && typeof val === "number") {
+              display = `$${(val / 100).toFixed(0)}/mo`;
+            } else if (key === "securityLevel" && typeof val === "number") {
+              display = SECURITY_LEVELS[val]?.label ?? String(val);
+            } else if (typeof val === "boolean") {
+              display = val ? "on" : "off";
+            } else if (typeof val === "object") {
+              display = "(updated)";
+            } else {
+              display = String(val);
+            }
+            return <li key={key}>• {label}: <span style={{ color: "var(--color-text)" }}>{display}</span></li>;
+          })}
+        </ul>
       </div>
       <div className="flex flex-col gap-1.5 flex-shrink-0">
         <button onClick={onAccept}
@@ -1142,6 +1167,9 @@ function IntegrationsTab() {
     Object.fromEntries(INTEGRATION_DEFS.map(d => [d.id, { ...DEFAULT_INTEGRATION_CONFIG }]))
   );
   const [loadError, setLoadError] = useState(false);
+  const credDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   useEffect(() => {
     fetch("/api/integrations")
@@ -1158,20 +1186,26 @@ function IntegrationsTab() {
       .catch(() => setLoadError(true));
   }, []);
 
+  function persistState(next: IntegrationsState) {
+    const payload: Record<string, { enabled: boolean; credential: string }> = {};
+    for (const [integId, cfg] of Object.entries(next)) {
+      payload[integId] = { enabled: cfg.enabled, credential: cfg.credential };
+    }
+    fetch("/api/integrations", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }
+
   function updateConfig(id: string, patch: Partial<IntegrationConfig>) {
     setState(prev => {
       const next = { ...prev, [id]: { ...prev[id]!, ...patch } };
-      // Persist enabled + credential changes (not status/errorMsg)
-      if ("enabled" in patch || "credential" in patch) {
-        const payload: Record<string, { enabled: boolean; credential: string }> = {};
-        for (const [integId, cfg] of Object.entries(next)) {
-          payload[integId] = { enabled: cfg.enabled, credential: cfg.credential };
-        }
-        fetch("/api/integrations", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }).catch(() => { /* graceful */ });
+      if ("enabled" in patch) {
+        persistState(next);
+      } else if ("credential" in patch) {
+        if (credDebounceRef.current) clearTimeout(credDebounceRef.current);
+        credDebounceRef.current = setTimeout(() => persistState(stateRef.current), 600);
       }
       return next;
     });

@@ -47,16 +47,32 @@ export async function GET() {
     const agentList: any[] = config?.agents?.list ?? [];
     const gatewayLive = await isGatewayLive();
 
+    // Try to get live per-agent state from openclaw gateway
+    let liveStates: Record<string, string> = {};
+    if (gatewayLive) {
+      try {
+        const r = await fetch(`${OPENCLAW}/agents`, { signal: AbortSignal.timeout(2000) });
+        if (r.ok) {
+          const liveList: any[] = await r.json();
+          for (const la of liveList) {
+            if (la.id) liveStates[la.id] = la.state ?? "Running";
+          }
+        }
+      } catch { /* use fallback below */ }
+    }
+
     const agents = agentList.map((a: any) => {
       const { name: model_name, provider: model_provider } = resolveModel(a.model);
+      const state = !gatewayLive ? "Offline" : (liveStates[a.id] ?? "Running");
+      const last_active = a.heartbeat ?? a.last_active ?? null;
       return {
         id: a.id,
         name: a.name,
-        state: gatewayLive ? "Running" : "Offline",
+        state,
         model_name,
         model_provider,
         ready: gatewayLive,
-        last_active: new Date().toISOString(),
+        last_active,
         profile: a.profile ?? null,
         workspace: a.workspace ?? null,
       };

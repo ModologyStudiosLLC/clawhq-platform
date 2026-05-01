@@ -18,18 +18,22 @@ export function GeneralChat() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [dropPos, setDropPos] = useState({ top: 0, left: 0 });
+  const [loadError, setLoadError] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
+  function loadAgents() {
+    setLoadError(false);
     fetch("/api/agents")
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
       .then((data: unknown) => {
         const list = Array.isArray(data) ? (data as Agent[]) : [];
         setAgents(list);
         if (list.length > 0) setSelectedId(list[0].id);
       })
-      .catch(() => {});
-  }, []);
+      .catch(() => setLoadError(true));
+  }
+
+  useEffect(() => { loadAgents(); }, []);
 
   const selected = agents.find(a => a.id === selectedId);
 
@@ -115,10 +119,20 @@ export function GeneralChat() {
         {selectedId ? (
           // key forces remount (new session) when agent changes
           <ChatInterface key={selectedId} agentId={selectedId} />
+        ) : loadError ? (
+          <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-6">
+            <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Couldn&apos;t load agents</p>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Check that your agent services are running.</p>
+            <button
+              onClick={loadAgents}
+              className="mt-2 px-4 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              style={{ background: "var(--color-surface-2)", color: "var(--color-text)", border: "1px solid var(--color-border)" }}
+            >Retry</button>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full">
             <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
-              No agents running
+              No agents configured. <a href="/team" style={{ color: "var(--color-primary)" }}>Add one →</a>
             </p>
           </div>
         )}

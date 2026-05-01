@@ -174,7 +174,14 @@ Generate 4 recommendations. If no integrations are enabled, first suggestion sho
   }
 
   const cleaned = responseText.replace(/^```(?:json)?\n?/m, "").replace(/\n?```$/m, "").trim();
-  return JSON.parse(cleaned) as Recommendation[];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error("LLM returned non-JSON response");
+  }
+  if (!Array.isArray(parsed)) throw new Error("LLM response was not an array");
+  return parsed as Recommendation[];
 }
 
 // ── Fallback rules-based recommendations ─────────────────────────────────────

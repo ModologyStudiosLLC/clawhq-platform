@@ -6,6 +6,7 @@ import {
   BarChart, Bar, Cell, Legend,
 } from "recharts";
 import { TrendingUp, Zap, DollarSign, RefreshCw } from "lucide-react";
+import { AgentCostTrendPanel } from "./agent-cost-trend";
 
 interface Snapshot {
   ts: number;
@@ -161,7 +162,7 @@ export function AnalyticsView() {
             <p className="text-sm animate-pulse" style={{ color: "var(--color-text-muted)" }}>Loading snapshots…</p>
           </div>
         </div>
-      ) : snapshots.length < 2 ? (
+      ) : snapshots.length < 2 || totalTokensDelta === 0 ? (
         <div className="card p-8 text-center space-y-3">
           <p className="text-3xl">📊</p>
           <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>No historical data yet</p>
@@ -243,6 +244,11 @@ export function AnalyticsView() {
           )}
         </>
       )}
+
+      {/* ── Per-agent cost trend (from costEvents DB) ── */}
+      <div className="border-t pt-6" style={{ borderColor: "var(--color-border)" }}>
+        <AgentCostTrendPanel />
+      </div>
     </div>
   );
 }

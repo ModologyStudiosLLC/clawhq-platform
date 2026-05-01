@@ -11,7 +11,14 @@ async function isAlreadyConfigured(): Promise<boolean> {
   const cookieStore = await cookies();
   if (cookieStore.get('clawhq_setup')?.value === '1') return true;
 
-  // Fall back to reading openclaw.json — if agents or MCP servers exist, skip onboarding
+  // Check env for API key (server-side only signal available here)
+  const hasApiKey = !!(
+    process.env.ANTHROPIC_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    process.env.HERMES_URL
+  );
+
+  // Fall back to reading openclaw.json — if agents or MCP servers exist AND key is present, skip onboarding
   try {
     const configPath =
       process.env.OPENCLAW_CONFIG_PATH ??
@@ -20,7 +27,7 @@ async function isAlreadyConfigured(): Promise<boolean> {
     const config = JSON.parse(raw) as Record<string, unknown>;
     const agentCount = ((config as any)?.agents?.list ?? []).length;
     const mcpCount = Object.keys((config as any)?.mcp?.servers ?? {}).length;
-    return agentCount > 0 || mcpCount > 0;
+    return (agentCount > 0 || mcpCount > 0) && hasApiKey;
   } catch {
     return false;
   }

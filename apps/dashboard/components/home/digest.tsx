@@ -60,7 +60,7 @@ function normalizeBadge(provider: string): { label: string; color: string; dot: 
   return found ?? { label: provider, color: "rgba(240,240,245,0.08)", dot: "var(--color-text-muted)" };
 }
 
-export function HomeDigest() {
+export function HomeDigest({ userName }: { userName?: string }) {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [hands, setHands] = useState<Hand[]>([]);
@@ -171,7 +171,7 @@ export function HomeDigest() {
           className="text-xs font-semibold uppercase tracking-widest mb-3"
           style={{ color: "var(--color-text-subtle)", fontFamily: "var(--font-mono)" }}
         >
-          {greeting()}, Mike
+          {greeting()}{userName ? `, ${userName}` : ""}
         </p>
         <h1
           className="gradient-text-primary"
