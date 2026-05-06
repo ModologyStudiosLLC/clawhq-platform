@@ -19,7 +19,7 @@ export interface AuditEntry {
   diff?: Record<string, unknown>;
 }
 
-async function readLog(): Promise<AuditEntry[]> {
+export async function readLog(): Promise<AuditEntry[]> {
   try {
     const raw = await fs.readFile(AUDIT_FILE, "utf8");
     return JSON.parse(raw) as AuditEntry[];

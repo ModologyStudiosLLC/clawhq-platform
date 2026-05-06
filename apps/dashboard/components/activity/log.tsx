@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useAgentStream } from "@/hooks/use-agent-stream";
 import { useAgentSocket, type AgentEvent } from "@/lib/use-agent-socket";
 
@@ -62,6 +62,79 @@ function wsEventToActivity(event: AgentEvent): ActivityEvent {
     timestamp: new Date(event.ts).toISOString(),
     status: event.type === "agent.error" ? "Crashed" : event.type === "agent.started" ? "Running" : "info",
   };
+}
+
+function AuditAsk() {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!question.trim() || loading) return;
+    setLoading(true);
+    setAnswer(null);
+    try {
+      const res = await fetch("/api/audit/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+      setAnswer(data.answer ?? data.error ?? "No answer returned.");
+    } catch {
+      setAnswer("Request failed — check console.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mb-5">
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <input
+          ref={inputRef}
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+          placeholder="Ask about audit history — e.g. What changed last night?"
+          disabled={loading}
+          className="flex-1 h-9 rounded-lg border px-3 text-sm bg-transparent focus:outline-none focus:ring-1"
+          style={{
+            borderColor: "var(--color-border)",
+            color: "var(--color-text)",
+            opacity: loading ? 0.6 : 1,
+          }}
+        />
+        <button
+          type="submit"
+          disabled={loading || !question.trim()}
+          className="h-9 px-4 rounded-lg text-sm font-medium transition-opacity"
+          style={{
+            background: "var(--color-primary)",
+            color: "#fff",
+            border: "none",
+            cursor: loading || !question.trim() ? "not-allowed" : "pointer",
+            opacity: loading || !question.trim() ? 0.5 : 1,
+          }}
+        >
+          {loading ? "…" : "Ask"}
+        </button>
+      </form>
+      {answer && (
+        <div
+          className="mt-2 px-3 py-2.5 rounded-lg text-sm"
+          style={{
+            background: "var(--color-surface)",
+            color: "var(--color-text-muted)",
+            borderLeft: "2px solid var(--color-primary)",
+          }}
+        >
+          {answer}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ActivityLog() {
@@ -154,6 +227,7 @@ export function ActivityLog() {
 
   return (
     <div className="space-y-4 animate-fade-in max-w-2xl">
+      <AuditAsk />
       {/* Stats bar + live indicator */}
       <div className="flex items-center justify-between">
         <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
