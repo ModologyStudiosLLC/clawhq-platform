@@ -620,20 +620,38 @@ export default {
     messages.push({ role: 'user', content: `Subject: ${subject}\n\n${body}` });
 
     let reply = '';
-    const providers = [];
-    if (env.GROQ_API_KEY) providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: env.GROQ_API_KEY, model: 'llama-3.3-70b-versatile' });
-    if (env.DEEPSEEK_API_KEY) providers.push({ url: 'https://api.deepseek.com/v1/chat/completions', key: env.DEEPSEEK_API_KEY, model: 'deepseek-chat' });
 
-    for (const p of providers) {
+    // Primary: Claude Haiku — better support quality, ~$0.001/email
+    if (env.ANTHROPIC_API_KEY && !reply) {
       try {
-        const res = await fetch(p.url, {
+        const anthropicMessages = messages.filter(m => m.role !== 'system');
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${p.key}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: p.model, messages, max_tokens: 600, temperature: 0.3 }),
+          headers: {
+            'x-api-key': env.ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 600,
+            system: SUPPORT_SYSTEM,
+            messages: anthropicMessages,
+          }),
         });
-        if (!res.ok) continue;
-        reply = (await res.json()).choices?.[0]?.message?.content?.trim() ?? '';
-        if (reply) break;
+        if (res.ok) reply = (await res.json()).content?.[0]?.text?.trim() ?? '';
+      } catch {}
+    }
+
+    // Fallback: Groq
+    if (env.GROQ_API_KEY && !reply) {
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: 600, temperature: 0.3 }),
+        });
+        if (res.ok) reply = (await res.json()).choices?.[0]?.message?.content?.trim() ?? '';
       } catch {}
     }
 
