@@ -1,13 +1,25 @@
 {
-  "name": "clawhq-platform",
+  "name": "modology-email",
   "compatibility_date": "2026-01-01",
   "main": "_worker.js",
+  "kv_namespaces": [
+    { "binding": "DEMO_LEADS", "id": "bc58a30191e347eeae8bc6ad3151e39f" }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "EMAIL_THREADS", "class_name": "EmailThread" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["EmailThread"] }
+  ],
   "assets": {
     "directory": "landing",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": true
   },
-  "routes": [
-    { "pattern": "clawhqplatform.com/*", "zone_name": "clawhqplatform.com" },
-    { "pattern": "www.clawhqplatform.com/*", "zone_name": "clawhqplatform.com" }
-  ]
+  "triggers": {
+    "crons": ["0 9 * * *"]
+  },
+  "routes": []
 }

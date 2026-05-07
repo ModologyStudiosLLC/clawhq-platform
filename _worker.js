@@ -1,3 +1,36 @@
+const FOLLOW_UPS = [
+  {
+    date: "2026-04-30",
+    to: "support@polymaker.com",
+    subject: "Re: Filament Partnership — Modology Studios",
+    text: "Hi Polymaker team,\n\nJust following up on my note from last week about a filament partnership. Happy to share more details about what I'm building if it helps move things forward.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
+  },
+  {
+    date: "2026-04-30",
+    to: "affiliate@snapmaker.com",
+    subject: "Re: Design Collab Inquiry — Modology Studios + Snapmate",
+    text: "Hi Blayne,\n\nJust checking in on my email from last week about a design collab around Snapmate. I think there's a strong angle here — happy to discuss further whenever works for you.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
+  },
+  {
+    date: "2026-04-30",
+    to: "influencer@creality.com",
+    subject: "Re: Maker Program Application — Modology Studios",
+    text: "Hi Creality team,\n\nFollowing up on my email from last week about the Maker Program and the Spark X i7. Happy to provide more details about Modology Studios if that helps.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
+  },
+  {
+    date: "2026-05-03",
+    to: "info@fibreseek3d.com",
+    subject: "Re: Creator Partnership — Modology Studios × FibreSeeker 3",
+    text: "Hi Ryan,\n\nFollowing up on my email from last week — I'd love to explore a creator partnership around the FibreSeeker 3 while the Kickstarter is still live. Happy to hop on a quick call whenever works.\n\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
+  },
+  {
+    date: "2026-05-07",
+    to: "ruanyuan@shining3d.com",
+    subject: "Re: Creator Partnership Inquiry — Modology Studios × EinScan Rocket",
+    text: "Hi Ms. Yuan,\n\nFollowing up on my email from a couple weeks ago about a creator partnership around the EinScan Rocket. Happy to discuss whether there's a media or creator program I could apply to.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
+  },
+];
+
 const DEEPSEEK_SYSTEM = `You are the ClawHQ agent router. When given a task, you route it to the best agent and simulate execution.
 
 Respond ONLY with valid JSON in this exact shape:
@@ -21,6 +54,70 @@ Rules:
 - result: concrete, specific — mention real outputs, numbers, or actions taken
 - Keep the whole response under 300 tokens`;
 
+const SUPPORT_SYSTEM = `You are the ClawHQ support agent. ClawHQ is a self-hosted B2B AI agent control plane — teams use it to deploy, manage, and orchestrate AI agents on their own infrastructure.
+
+Core components: OpenClaw (AI gateway, model routing), Hermes (task router), OpenFang (agent runtime), Paperclip (dashboard), ClawMart (skill marketplace). Deployment: Docker Compose self-hosted. Docs: https://clawhqplatform.com/docs
+
+Reply professionally in under 200 words. For issues you cannot resolve, say you will escalate to the engineering team who will respond within one business day. Sign off as "— ClawHQ Support".`;
+
+async function readStream(stream, maxBytes = 32768) {
+  const chunks = [];
+  let total = 0;
+  const reader = stream.getReader();
+  try {
+    while (total < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const slice = value.slice(0, maxBytes - total);
+      chunks.push(slice);
+      total += slice.length;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { merged.set(chunk, offset); offset += chunk.length; }
+  return new TextDecoder().decode(merged);
+}
+
+function extractEmailBody(raw) {
+  const ctMatch = raw.match(/Content-Type:\s*multipart\/[^;\r\n]+;\s*boundary="?([^"\r\n]+)"?/i);
+  if (ctMatch) {
+    const boundary = ctMatch[1].trim();
+    for (const part of raw.split('--' + boundary)) {
+      if (/Content-Type:\s*text\/plain/i.test(part)) {
+        const idx = part.indexOf('\r\n\r\n');
+        if (idx !== -1) return part.slice(idx + 4).replace(/\r\n/g, '\n').trim();
+      }
+    }
+  }
+  const idx = raw.indexOf('\r\n\r\n');
+  return (idx !== -1 ? raw.slice(idx + 4) : raw).replace(/\r\n/g, '\n').trim();
+}
+
+export class EmailThread {
+  constructor(state) {
+    this.storage = state.storage;
+  }
+
+  async fetch(request) {
+    const url = new URL(request.url);
+    if (request.method === 'GET' && url.pathname === '/history') {
+      return Response.json(await this.storage.get('history') ?? []);
+    }
+    if (request.method === 'POST' && url.pathname === '/add') {
+      const exchange = await request.json();
+      const history = await this.storage.get('history') ?? [];
+      history.push(exchange);
+      if (history.length > 8) history.splice(0, history.length - 8);
+      await this.storage.put('history', history);
+      return Response.json({ ok: true });
+    }
+    return new Response('not found', { status: 404 });
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -28,6 +125,14 @@ export default {
     // tryclawhq.com root → /demo
     if (url.hostname === "tryclawhq.com" && url.pathname === "/") {
       return Response.redirect("https://tryclawhq.com/demo", 302);
+    }
+
+    // install.clawhqplatform.com → raw install.sh from GitHub
+    if (url.hostname === "install.clawhqplatform.com") {
+      return Response.redirect(
+        "https://raw.githubusercontent.com/ModologyStudiosLLC/clawhq-platform/main/install.sh",
+        302
+      );
     }
 
     // ── Demo lead capture ───────────────────────────────────────────────────────
@@ -58,6 +163,19 @@ export default {
             const list    = JSON.parse(listRaw);
             list.push({ email, source, captured_at: new Date().toISOString() });
             await env.DEMO_LEADS.put("leads:list", JSON.stringify(list));
+
+            if (env.RESEND_API_KEY) {
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  from: "ClawHQ Leads <michael@modologystudios.com>",
+                  to: ["michael@modologystudios.com"],
+                  subject: `New ClawHQ demo lead — ${email}`,
+                  text: `Email: ${email}\nSource: ${source}\nCaptured: ${new Date().toISOString()}`,
+                }),
+              }).catch(() => {});
+            }
           }
         }
 
@@ -102,6 +220,20 @@ export default {
             list.push(lead);
             await env.DEMO_LEADS.put("setup-leads:list", JSON.stringify(list));
           }
+        }
+
+        // Email notification for new setup lead
+        if (env.RESEND_API_KEY) {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "ClawHQ Leads <michael@modologystudios.com>",
+              to: ["michael@modologystudios.com"],
+              subject: `New ClawHQ setup lead — ${name || email}`,
+              text: `Name: ${name || "—"}\nEmail: ${email}\nCompany: ${company || "—"}\nStack: ${stack || "—"}\nBottleneck: ${bottleneck || "—"}`,
+            }),
+          }).catch(() => {});
         }
 
         // Discord notification via webhook if configured
@@ -340,6 +472,83 @@ export default {
       });
     }
 
+    // ── Outbound email via MailChannels (auth-gated) ──────────────────────────
+    if (url.pathname === "/api/send-email" && request.method === "POST") {
+      const cors = { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" };
+      try {
+        const body = await request.json();
+        const secret = (body.secret || "").trim();
+        if (!env.EMAIL_SECRET || secret !== env.EMAIL_SECRET) {
+          return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: cors });
+        }
+        const to      = (body.to      || "").trim();
+        const subject = (body.subject || "").trim();
+        const text    = (body.text    || "").trim();
+        const from    = (body.from    || "michael@modologystudios.com").trim();
+        if (!to || !subject || !text) {
+          return new Response(JSON.stringify({ error: "to, subject, and text are required" }), { status: 400, headers: cors });
+        }
+        const payload = {
+          from: `${(body.from_name || "Michael Flanigan — Modology Studios")} <${from}>`,
+          to: [to],
+          reply_to: "michael@modologystudios.com",
+          subject,
+          text,
+        };
+        const rs = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const rsData = await rs.json();
+        if (rs.ok) {
+          return new Response(JSON.stringify({ ok: true, to, id: rsData.id }), { headers: cors });
+        }
+        return new Response(JSON.stringify({ error: "resend_failed", detail: rsData }), { status: 502, headers: cors });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors });
+      }
+    }
+
+    if (url.pathname === "/api/send-email" && request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+    }
+
+    // ── Modology contact form ─────────────────────────────────────────────────
+    if (url.pathname === "/api/contact" && request.method === "POST") {
+      const cors = { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" };
+      try {
+        const body    = await request.json();
+        const name    = (body.name    || "").trim().slice(0, 100);
+        const email   = (body.email   || "").trim().toLowerCase();
+        const message = (body.message || "").trim().slice(0, 2000);
+        if (!email || !email.includes("@") || !message) {
+          return new Response(JSON.stringify({ error: "email and message required" }), { status: 400, headers: cors });
+        }
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: "Modology Studios Contact <michael@modologystudios.com>",
+            to: ["michael@modologystudios.com"],
+            reply_to: email,
+            subject: `Contact form — ${name || email}`,
+            text: `Name: ${name || "—"}\nEmail: ${email}\n\n${message}`,
+          }),
+        });
+        return new Response(JSON.stringify({ ok: true }), { headers: cors });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors });
+      }
+    }
+
+    if (url.pathname === "/api/contact" && request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+    }
+
     // Redirect bare /guides/* paths to /docs/guides/* (Mintlify handles /docs/*)
     if (url.pathname.startsWith("/guides/")) {
       const dest = new URL(request.url);
@@ -357,5 +566,111 @@ export default {
 
     // Fall through to static assets (index.html, packs.html, etc.)
     return env.ASSETS.fetch(request);
+  },
+
+  async scheduled(event, env) {
+    const today = new Date().toISOString().slice(0, 10);
+    const due = FOLLOW_UPS.filter(f => f.date === today);
+    for (const f of due) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Michael Flanigan — Modology Studios <michael@modologystudios.com>",
+          to: [f.to],
+          reply_to: "michael@modologystudios.com",
+          subject: f.subject,
+          text: f.text,
+        }),
+      });
+    }
+  },
+
+  async email(message, env, ctx) {
+    const from = message.from;
+    const subject = message.headers.get('subject') ?? '(no subject)';
+
+    // Drop emails that originate from our own support address to prevent loops
+    if (from.toLowerCase() === 'agent@clawhqplatform.com') {
+      message.setReject('loop prevention');
+      return;
+    }
+
+    let body = '';
+    try {
+      const raw = await readStream(message.raw);
+      body = extractEmailBody(raw).slice(0, 2000);
+    } catch { body = '(body unavailable)'; }
+
+    // Load thread history from Durable Object keyed by sender
+    let history = [];
+    try {
+      const stub = env.EMAIL_THREADS.get(env.EMAIL_THREADS.idFromName(from.toLowerCase()));
+      history = await (await stub.fetch('http://do/history')).json();
+    } catch {}
+
+    const messages = [{ role: 'system', content: SUPPORT_SYSTEM }];
+    for (const ex of history.slice(-4)) {
+      messages.push({ role: 'user', content: `Subject: ${ex.subject}\n\n${ex.body}` });
+      messages.push({ role: 'assistant', content: ex.reply });
+    }
+    messages.push({ role: 'user', content: `Subject: ${subject}\n\n${body}` });
+
+    let reply = '';
+    const providers = [];
+    if (env.GROQ_API_KEY) providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: env.GROQ_API_KEY, model: 'llama-3.3-70b-versatile' });
+    if (env.DEEPSEEK_API_KEY) providers.push({ url: 'https://api.deepseek.com/v1/chat/completions', key: env.DEEPSEEK_API_KEY, model: 'deepseek-chat' });
+
+    for (const p of providers) {
+      try {
+        const res = await fetch(p.url, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${p.key}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: p.model, messages, max_tokens: 600, temperature: 0.3 }),
+        });
+        if (!res.ok) continue;
+        reply = (await res.json()).choices?.[0]?.message?.content?.trim() ?? '';
+        if (reply) break;
+      } catch {}
+    }
+
+    if (!reply) reply = "Thanks for reaching out to ClawHQ. We've received your message and will respond within one business day.\n\n— ClawHQ Support";
+
+    if (env.RESEND_API_KEY) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'ClawHQ Support <michael@modologystudios.com>',
+          to: [from],
+          reply_to: 'agent@clawhqplatform.com',
+          subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
+          text: reply,
+        }),
+      }).catch(() => {});
+    }
+
+    // Save exchange to Durable Object for thread continuity
+    try {
+      const stub = env.EMAIL_THREADS.get(env.EMAIL_THREADS.idFromName(from.toLowerCase()));
+      await stub.fetch(new Request('http://do/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, subject, body, reply, at: new Date().toISOString() }),
+      }));
+    } catch {}
+
+    if (env.DISCORD_WEBHOOK) {
+      await fetch(env.DISCORD_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `**Support email** from \`${from}\`\n**Subject:** ${subject}\n**Preview:** ${body.slice(0, 200)}\n**AI reply sent.**`,
+        }),
+      }).catch(() => {});
+    }
   },
 };
