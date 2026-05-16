@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No organization" }, { status: 400 });
   }
 
+  if (!stripe) {
+    return NextResponse.json({ error: "Billing not configured" }, { status: 503 });
+  }
+
   const record = await getTenantRecord(organizationId);
   if (!record?.stripeCustomerId) {
     return NextResponse.json({ error: "No billing account found" }, { status: 404 });
