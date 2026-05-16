@@ -1356,6 +1356,46 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
+       PRICING
+    ───────────────────────────────────────────────────────────── */
+    .pricing-section { background: var(--surface-1); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
+    .pricing-card {
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 32px; display: flex; flex-direction: column;
+    }
+    .pricing-card.featured {
+      border-color: var(--accent); background: rgba(34,211,238,0.04);
+    }
+    .pricing-badge {
+      display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--accent); background: rgba(34,211,238,0.12);
+      border: 1px solid rgba(34,211,238,0.25); border-radius: 20px;
+      padding: 3px 10px; margin-bottom: 20px; align-self: flex-start;
+    }
+    .pricing-name { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .pricing-price { font-size: 36px; font-weight: 800; color: var(--text); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .pricing-price span { font-size: 15px; font-weight: 400; color: var(--text-3); margin-left: 4px; }
+    .pricing-desc { font-size: 14px; color: var(--text-3); margin-bottom: 28px; line-height: 1.5; }
+    .pricing-features { list-style: none; padding: 0; margin: 0 0 28px; flex: 1; }
+    .pricing-features li { font-size: 14px; color: var(--text-2); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 10px; }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .pricing-cta {
+      display: block; text-align: center; padding: 13px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .pricing-cta:hover { opacity: 0.85; }
+    .pricing-cta--primary { background: var(--accent); color: #000; }
+    .pricing-cta--secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .pricing-cta--ghost { background: transparent; color: var(--text-3); border: 1px solid var(--border); }
+    .pricing-note { text-align: center; margin-top: 32px; font-size: 13px; color: var(--text-4); }
+    @media (max-width: 768px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
        FOOTER
     ───────────────────────────────────────────────────────────── */
     footer {
@@ -1766,7 +1806,7 @@
     </div>
     <div class="nav-actions">
       <button class="nav-theme" id="themeToggle" aria-label="Toggle theme"><span id="themeIcon">☀</span></button>
-      <a href="mailto:michael@modologystudios.com" class="nav-cta">Get set up →</a>
+      <a href="#demo-form" class="nav-cta">Get early access →</a>
     </div>
   </div>
 </nav>
@@ -1779,7 +1819,7 @@
     <p class="hero-sub">30+ agents pre-installed. Every channel wired. Your team coordinates itself — you just delegate.</p>
     <div class="hero-form reveal reveal-delay-2">
       <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="hero-btn">View on GitHub →</a>
-      <a href="mailto:michael@modologystudios.com" class="hero-btn-secondary">Get early access →</a>
+      <a href="#demo-form" class="hero-btn-secondary">Get early access →</a>
     </div>
     <div class="hero-trust reveal reveal-delay-3">
       <span class="hero-trust-item"><span class="hero-trust-dot"></span>MIT Licensed</span>
@@ -2469,14 +2509,14 @@
         <div class="ent-pain-desc">6-month implementation → 4-week deployment. YAML is versionable, testable, Docker-ready.</div>
       </div>
       <div class="ent-pain-card">
-        <div class="ent-pain-stat">70%</div>
+        <div class="ent-pain-stat">Slack-native</div>
         <div class="ent-pain-title">User Adoption</div>
-        <div class="ent-pain-desc">70% adoption in 90 days vs. 28% baseline. No-code YAML + Slack interface teams already use.</div>
+        <div class="ent-pain-desc">No-code YAML config + Slack interface teams already use. Adoption without retraining.</div>
       </div>
       <div class="ent-pain-card">
-        <div class="ent-pain-stat">90d</div>
-        <div class="ent-pain-title">ROI Timeline</div>
-        <div class="ent-pain-desc">Measurable ROI in 90 days. Pre-built packs generate quick wins. Built-in metrics in Slack.</div>
+        <div class="ent-pain-stat">Fast ROI</div>
+        <div class="ent-pain-title">Quick Wins First</div>
+        <div class="ent-pain-desc">Pre-built packs deploy in hours, not months. Built-in spend metrics from day one.</div>
       </div>
       <div class="ent-pain-card">
         <div class="ent-pain-stat">50%</div>
@@ -2484,9 +2524,9 @@
         <div class="ent-pain-desc">Deterministic YAML workflows. Every run logged with inputs, outputs, model version, timestamp.</div>
       </div>
       <div class="ent-pain-card">
-        <div class="ent-pain-stat">80%</div>
+        <div class="ent-pain-stat">Tool-grounded</div>
         <div class="ent-pain-title">Fewer Hallucinations</div>
-        <div class="ent-pain-desc">Tool-grounded agents fetch facts from live APIs — no guessing. Multi-model strategy per task.</div>
+        <div class="ent-pain-desc">Agents fetch facts from live APIs — no guessing. Multi-model strategy picks the right model per task.</div>
       </div>
       <div class="ent-pain-card">
         <div class="ent-pain-stat">3–5h</div>
@@ -2494,9 +2534,9 @@
         <div class="ent-pain-desc">Hours per person per week saved. One agent handles GitHub + Slack + Discord + email.</div>
       </div>
       <div class="ent-pain-card">
-        <div class="ent-pain-stat">70%</div>
+        <div class="ent-pain-stat">No per-seat</div>
         <div class="ent-pain-title">Cost vs. SaaS</div>
-        <div class="ent-pain-desc">50–70% savings vs. per-user SaaS at scale. Self-hosted Docker. No per-seat fees. Ever.</div>
+        <div class="ent-pain-desc">Self-hosted Docker. One flat deployment vs. $20–100/seat/month SaaS. Costs don't scale with headcount.</div>
       </div>
     </div>
 
@@ -2973,6 +3013,78 @@
       <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="hero-btn">Deploy in 2 minutes →</a>
       <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="hero-btn-secondary">View on GitHub</a>
     </div>
+  </div>
+</section>
+
+<!-- ── PRICING ─────────────────────────────────────────────── -->
+<section id="pricing" class="pricing-section">
+  <div style="max-width:var(--max-w);margin:0 auto;padding:120px 32px;">
+    <div class="section-eyebrow centered reveal">Pricing</div>
+    <h2 class="section-h2 centered reveal reveal-delay-1">Simple, honest pricing</h2>
+    <p class="section-body centered reveal reveal-delay-2" style="margin-bottom:56px;">
+      Self-host for free, forever. Upgrade to Cloud when you need managed infra and team seats.
+    </p>
+
+    <div class="pricing-grid reveal reveal-delay-2">
+
+      <!-- Self-hosted -->
+      <div class="pricing-card">
+        <div class="pricing-name">Self-hosted</div>
+        <div class="pricing-price">Free<span>forever</span></div>
+        <p class="pricing-desc">Full stack, your infra, your keys. MIT licensed. No telemetry.</p>
+        <ul class="pricing-features">
+          <li>Up to 3 agents</li>
+          <li>1 team member</li>
+          <li>All core features</li>
+          <li>Bring your own LLM keys</li>
+          <li>Docker Compose deploy</li>
+          <li>MIT license — use commercially</li>
+        </ul>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="pricing-cta pricing-cta--secondary">
+          Deploy yourself →
+        </a>
+      </div>
+
+      <!-- Cloud (featured) -->
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most popular</div>
+        <div class="pricing-name">Cloud</div>
+        <div class="pricing-price">$49<span>/seat/month</span></div>
+        <p class="pricing-desc">Managed on Cloudflare. We handle the infra — you bring your model keys.</p>
+        <ul class="pricing-features">
+          <li>Up to 20 agents per seat</li>
+          <li>Team management</li>
+          <li>Bring your own LLM keys (BYOK)</li>
+          <li>Audit log</li>
+          <li>Priority support</li>
+          <li>7-day free trial — no card required</li>
+        </ul>
+        <a href="https://app.clawhqplatform.com/sign-in" class="pricing-cta pricing-cta--primary">
+          Start free trial →
+        </a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="pricing-card">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-price">Custom</div>
+        <p class="pricing-desc">SSO, RBAC, audit log, white-label, SLA, and dedicated support.</p>
+        <ul class="pricing-features">
+          <li>Unlimited agents and seats</li>
+          <li>SSO (SAML / OIDC)</li>
+          <li>Role-based access control</li>
+          <li>White-label for MSPs</li>
+          <li>SLA and dedicated support</li>
+          <li>On-premise option</li>
+        </ul>
+        <a href="https://cal.com/modologystudios/clawhq" target="_blank" rel="noopener" class="pricing-cta pricing-cta--ghost">
+          Talk to us →
+        </a>
+      </div>
+
+    </div>
+
+    <p class="pricing-note reveal">Annual plans available at ~$39/seat/month (20% off). All plans include BYOK — we never mark up your AI usage.</p>
   </div>
 </section>
 

@@ -168,7 +168,7 @@ export async function execute(
 
         // Delta text chunk
         const delta = (event.delta as Record<string, unknown>)?.text
-          ?? (event.choices as Array<Record<string, unknown>>)?.[0]?.delta?.content
+          ?? (event.choices as Array<{ delta?: { content?: string } }>)?.[0]?.delta?.content
           ?? null;
 
         if (typeof delta === "string" && delta) {
@@ -223,7 +223,7 @@ export async function execute(
     billingType: "api",
     costUsd: costUsd || null,
     usage: inputTokens || outputTokens
-      ? { inputTokens, outputTokens, cachedTokens: 0 }
+      ? { inputTokens, outputTokens, cachedInputTokens: 0 }
       : undefined,
     summary: fullText.slice(0, 200) || "Run completed via OpenAgents network",
     sessionId,

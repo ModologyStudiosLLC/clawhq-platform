@@ -131,6 +131,8 @@ export function OnboardingWizard() {
   const [apiKey, setApiKey]   = useState("");
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving]   = useState(false);
+  const [seats, setSeats]     = useState(1);
+  const [trialLoading, setTrialLoading] = useState(false);
 
   const stepIndex = STEPS.indexOf(step);
   const progress  = (stepIndex / (STEPS.length - 1)) * 100;
@@ -671,6 +673,24 @@ export function OnboardingWizard() {
           window.location.href = "/home";
         }
 
+        async function startTrial() {
+          setTrialLoading(true);
+          try {
+            const res = await fetch("/api/billing/checkout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ seats }),
+            });
+            const { url } = await res.json();
+            if (url) {
+              document.cookie = "clawhq_setup=1; path=/; max-age=31536000";
+              window.location.href = url;
+            }
+          } finally {
+            setTrialLoading(false);
+          }
+        }
+
         return (
           <div>
             <div className="text-center mb-6">
@@ -727,6 +747,40 @@ export function OnboardingWizard() {
             >
               Go to dashboard <ArrowRight size={14} />
             </button>
+
+            <div
+              className="mt-4 rounded-xl p-4 border"
+              style={{ background: "var(--color-surface)", borderColor: "var(--color-border)" }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: "var(--color-text-subtle)" }}>
+                Want managed hosting?
+              </p>
+              <p className="text-xs mb-3" style={{ color: "var(--color-text-muted)" }}>
+                ClawHQ Cloud — $49/seat/mo. 7-day free trial, no credit card required.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-xs" style={{ color: "var(--color-text-muted)" }}>Seats</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={seats}
+                    onChange={e => setSeats(Math.max(1, Math.min(100, Number(e.target.value))))}
+                    className="w-16 px-2 py-1.5 rounded-lg text-sm text-center outline-none"
+                    style={{ background: "var(--color-surface-2)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+                  />
+                </div>
+                <button
+                  onClick={startTrial}
+                  disabled={trialLoading}
+                  className="flex-1 py-2 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-50"
+                  style={{ background: "var(--color-primary)", color: "var(--color-on-brand)" }}
+                >
+                  {trialLoading ? "Redirecting..." : "Start free trial →"}
+                </button>
+              </div>
+            </div>
           </div>
         );
       })()}

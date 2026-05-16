@@ -55,6 +55,24 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 | `GET` | `/api/sessions` | List recent agent sessions |
 | `GET` | `/api/metrics` | Usage and cost metrics |
 
+### Cost & Billing
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/companies/:companyId/costs/trend` | Daily cost per agent. `?days=30` (1–90) |
+| `GET` | `/api/companies/:companyId/costs/summary` | Total spend vs budget for a date range |
+| `GET` | `/api/companies/:companyId/costs/by-agent` | Spend, tokens, and run count per agent |
+| `GET` | `/api/companies/:companyId/costs/by-agent-model` | Spend broken down by agent + model |
+| `GET` | `/api/companies/:companyId/costs/by-provider` | Spend grouped by provider and model |
+| `GET` | `/api/companies/:companyId/costs/by-project` | Spend grouped by project |
+| `GET` | `/api/companies/:companyId/costs/window-spend` | Spend in 5h, 24h, and 7d rolling windows |
+| `GET` | `/api/companies/:companyId/costs/efficiency` | Per-agent efficiency report (cache hit rate, tokens/run, model suggestions) |
+| `POST` | `/api/companies/:companyId/cost-events` | Record a cost event (used internally by adapters) |
+
+All cost endpoints accept optional `?from=ISO_DATE&to=ISO_DATE` query parameters to filter by date range.
+
+**Dashboard proxy** — the dashboard exposes a convenience proxy at `/api/costs?endpoint=ENDPOINT_NAME` that auto-resolves the companyId. Example: `GET /api/costs?endpoint=trend&days=60`.
+
 <Note>
 Full OpenAPI spec coming soon. In the meantime, all endpoints return JSON and follow REST conventions.
 </Note>

@@ -1,7 +1,12 @@
 ---
 title: Slack
-description: Connect your ClawHQ agents to Slack.
+description: Connect your ClawHQ agents to Slack — receive outbound alerts and trigger agents with @mentions.
 ---
+
+ClawHQ integrates with Slack in two directions:
+
+- **Outbound** — budget alerts and agent health notifications sent to a webhook URL (Settings → Notifications)
+- **Inbound** — @mention your ClawHQ bot in any channel to dispatch a task to an agent and receive the reply in-thread
 
 ## Create a Slack app
 
@@ -9,7 +14,7 @@ description: Connect your ClawHQ agents to Slack.
   <Step title="Create the app">
     Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App → From scratch**.
 
-    Name it (e.g. "Mike") and select your workspace.
+    Name it (e.g. "ClawHQ") and select your workspace.
   </Step>
 
   <Step title="Set OAuth scopes">
@@ -29,43 +34,65 @@ description: Connect your ClawHQ agents to Slack.
   <Step title="Enable Event Subscriptions">
     Go to **Event Subscriptions** and toggle it on.
 
-    Set the Request URL to: `https://your-clawhq-domain.com/api/channels/slack/events`
+    Set the Request URL to:
+
+    ```
+    https://your-clawhq-domain.com/api/slack/events
+    ```
+
+    Slack will send a `url_verification` challenge — ClawHQ handles it automatically once your signing secret is configured (next step).
 
     Subscribe to these bot events:
     - `app_mention`
     - `message.im`
   </Step>
 
-  <Step title="Install to workspace">
-    Go to **OAuth & Permissions** and click **Install to Workspace**.
+  <Step title="Copy your credentials">
+    **Bot Token** — go to **OAuth & Permissions** and click **Install to Workspace**, then copy the **Bot User OAuth Token** (`xoxb-...`).
 
-    Copy the **Bot User OAuth Token** (starts with `xoxb-`).
+    **Signing Secret** — go to **Basic Information → App Credentials** and copy the **Signing Secret**.
   </Step>
 
-  <Step title="Add the token to ClawHQ">
-    In the ClawHQ dashboard, go to **Settings → Channels → Slack**.
+  <Step title="Add credentials to ClawHQ">
+    In the ClawHQ dashboard:
 
-    Paste your Bot Token and click **Save**.
+    1. Go to **Settings → Integrations → Slack** and paste your **Bot Token**, then save.
+    2. Go to **Settings → Notifications** and paste your **Signing Secret** into the **Slack Signing Secret** field.
+    3. Toggle **Enable inbound @mentions** on.
   </Step>
 </Steps>
 
-## Talk to your agent
+## Trigger agents with @mentions
 
-Mention your bot in any channel:
+Mention your bot in any channel to dispatch a task:
 
 ```
-@Mike summarize the last 20 messages in #engineering
-@Scout research our top competitor's pricing page
+@ClawHQ summarize the last 20 messages in this thread
+@ClawHQ [Scout] research our top competitor's pricing page
+@ClawHQ [Hermes] draft a reply to this customer complaint
 ```
 
-Or DM the bot directly for private tasks.
+The `[AgentName]` prefix is optional. If omitted, the task goes to the first running agent. The reply posts in the same thread within seconds.
+
+## Outbound notifications
+
+To receive budget alerts and health notifications in Slack without setting up a full app, you only need a webhook URL:
+
+1. Create an [Incoming Webhook](https://api.slack.com/messaging/webhooks) for your workspace.
+2. Paste the URL into **Settings → Notifications → Slack Webhook URL**.
+
+The webhook is separate from the bot token — you can use either or both.
 
 ## Troubleshooting
 
 **Events not arriving**
-- Verify your ClawHQ URL is publicly accessible (not localhost)
+- Verify your ClawHQ URL is publicly accessible (not `localhost`)
 - Check the Event Subscriptions page for delivery errors
-- Ensure all required scopes are added and the app is reinstalled
+- Ensure all required scopes are added and the app is reinstalled after adding scopes
 
-**"not_authed" errors**
-- Your token may have expired — reinstall the app to get a fresh token
+**Requests rejected with 403**
+- Confirm the Signing Secret in Settings matches the one in **Basic Information → App Credentials**
+- Check that your server clock is accurate — requests older than 5 minutes are rejected to prevent replay attacks
+
+**"not_authed" errors in replies**
+- Your Bot Token may have expired — reinstall the app to get a fresh token

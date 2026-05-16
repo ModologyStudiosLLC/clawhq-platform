@@ -26,13 +26,8 @@ token = "${CLAWHIP_DISCORD_TOKEN}"
 default_channel = "${CLAWHIP_DISCORD_CHANNEL_ID:-}"
 
 TOML
-elif [ -n "${CLAWHIP_DISCORD_WEBHOOK:-}" ]; then
-  cat >> "$CONFIG_FILE" <<TOML
-[providers.discord_webhook]
-url = "${CLAWHIP_DISCORD_WEBHOOK}"
-
-TOML
 fi
+# Note: webhook-only mode uses per-route webhook fields (no provider block needed)
 
 # Slack provider (webhook)
 if [ -n "${CLAWHIP_SLACK_WEBHOOK:-}" ]; then
@@ -56,32 +51,66 @@ fi
 # Routes — send every session/agent lifecycle event to the default Discord channel
 if [ -n "${CLAWHIP_DISCORD_TOKEN:-}" ] || [ -n "${CLAWHIP_DISCORD_WEBHOOK:-}" ]; then
   SINK="discord"
-  [ -n "${CLAWHIP_DISCORD_WEBHOOK:-}" ] && SINK="discord_webhook"
 
-  cat >> "$CONFIG_FILE" <<TOML
+  if [ -n "${CLAWHIP_DISCORD_TOKEN:-}" ]; then
+    cat >> "$CONFIG_FILE" <<TOML
 [[routes]]
-event  = "session.*"
-sink   = "${SINK}"
+event   = "session.*"
+sink    = "discord"
 channel = "${CLAWHIP_DISCORD_CHANNEL_ID:-}"
 
 [[routes]]
-event  = "git.commit"
-sink   = "${SINK}"
+event   = "git.commit"
+sink    = "discord"
 channel = "${CLAWHIP_DISCORD_CHANNEL_ID:-}"
 
 [[routes]]
-event  = "github.*"
-sink   = "${SINK}"
+event   = "github.*"
+sink    = "discord"
 channel = "${CLAWHIP_DISCORD_CHANNEL_ID:-}"
 
 [[routes]]
-event  = "tmux.keyword"
-sink   = "${SINK}"
+event   = "tmux.keyword"
+sink    = "discord"
 channel = "${CLAWHIP_DISCORD_CHANNEL_ID:-}"
 
 TOML
+  else
+    cat >> "$CONFIG_FILE" <<TOML
+[[routes]]
+event   = "session.*"
+sink    = "discord"
+webhook = "${CLAWHIP_DISCORD_WEBHOOK}"
+
+[[routes]]
+event   = "git.commit"
+sink    = "discord"
+webhook = "${CLAWHIP_DISCORD_WEBHOOK}"
+
+[[routes]]
+event   = "github.*"
+sink    = "discord"
+webhook = "${CLAWHIP_DISCORD_WEBHOOK}"
+
+[[routes]]
+event   = "tmux.keyword"
+sink    = "discord"
+webhook = "${CLAWHIP_DISCORD_WEBHOOK}"
+
+TOML
+  fi
 fi
 
 echo "[clawhip] Config written to $CONFIG_FILE"
 
-exec clawhip daemon --config "$CONFIG_FILE"
+# Clawhip requires at least one delivery provider. If none are configured,
+# start a minimal sleep-loop health stub so the container stays up without
+# crashing (tokens can be added later via .env without a rebuild).
+if [ -z "${CLAWHIP_DISCORD_TOKEN:-}" ] && [ -z "${CLAWHIP_DISCORD_WEBHOOK:-}" ] && [ -z "${CLAWHIP_SLACK_WEBHOOK:-}" ]; then
+  echo "[clawhip] No delivery providers configured — running in stub mode. Set CLAWHIP_DISCORD_TOKEN, CLAWHIP_DISCORD_WEBHOOK, or CLAWHIP_SLACK_WEBHOOK to enable."
+  # Sleep forever — the health check curl on port 25294 will fail (unhealthy)
+  # but the container stays up. Configure CLAWHIP_DISCORD_TOKEN to activate.
+  exec sleep infinity
+fi
+
+exec clawhip start --config "$CONFIG_FILE"

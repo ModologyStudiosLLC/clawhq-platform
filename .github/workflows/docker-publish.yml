@@ -1,0 +1,112 @@
+name: Publish Docker Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/openfang/**'
+      - 'services/openclaw/**'
+      - 'services/paperclip/**'
+      - 'apps/dashboard/**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  ORG: modologystudiosllc
+
+jobs:
+  openfang:
+    name: Build OpenFang (Rust)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push OpenFang
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/openfang
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openfang:latest
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openfang:${{ github.sha }}
+          build-args: |
+            LTO=true
+            CODEGEN_UNITS=1
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openfang:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openfang:buildcache,mode=max
+
+  openclaw:
+    name: Build OpenClaw (Node)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push OpenClaw
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/openclaw
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openclaw:latest
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openclaw:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openclaw:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-openclaw:buildcache,mode=max
+
+  paperclip:
+    name: Build Paperclip (Node)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Paperclip
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/paperclip
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-paperclip:latest
+            ${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-paperclip:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-paperclip:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.ORG }}/clawhq-paperclip:buildcache,mode=max

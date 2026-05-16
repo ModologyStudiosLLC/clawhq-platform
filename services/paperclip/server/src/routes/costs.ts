@@ -239,6 +239,15 @@ export function costRoutes(db: Db) {
     },
   );
 
+  router.get("/companies/:companyId/costs/trend", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const daysRaw = req.query.days as string | undefined;
+    const days = daysRaw ? Math.min(Math.max(parseInt(daysRaw, 10) || 30, 1), 90) : 30;
+    const rows = await costs.trend(companyId, days);
+    res.json(rows);
+  });
+
   router.get("/companies/:companyId/costs/efficiency", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);

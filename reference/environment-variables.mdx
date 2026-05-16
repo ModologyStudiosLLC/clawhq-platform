@@ -32,7 +32,8 @@ Copy `.env.example` to `.env` and fill in the required values. The `install.sh` 
 | Variable | Description |
 |----------|-------------|
 | `DISCORD_BOT_TOKEN` | Discord bot token |
-| `SLACK_BOT_TOKEN` | Slack bot user OAuth token (`xoxb-...`) |
+| `SLACK_BOT_TOKEN` | Slack bot user OAuth token (`xoxb-...`) — used for sending replies and MCP |
+| `SLACK_SIGNING_SECRET` | Slack app signing secret — required to verify inbound @mention events |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token from @BotFather |
 | `WHATSAPP_TOKEN` | WhatsApp Business API token |
 

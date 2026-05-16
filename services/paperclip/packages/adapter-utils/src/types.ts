@@ -353,4 +353,7 @@ export interface CreateConfigValues {
   maxTurnsPerRun: number;
   heartbeatEnabled: boolean;
   intervalSec: number;
+  apiKey?: string;
+  agentHandle?: string;
+  networkUrl?: string;
 }

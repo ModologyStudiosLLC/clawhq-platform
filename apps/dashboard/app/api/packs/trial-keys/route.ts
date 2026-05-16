@@ -152,10 +152,10 @@ export async function checkTrialKey(
   // 2. Check key store
   const keys = await readKeys();
   const found = keys.find(k => k.key === keyValue);
-  if (!found) return { valid: false, reason: "not found" };
+  if (!found) return { valid: false, packs: [], reason: "not found" };
 
   const { valid, reason } = isKeyValid(found);
-  if (!valid) return { valid: false, reason };
+  if (!valid) return { valid: false, packs: [], reason };
 
   return { valid: true, packs: found.packs };
 }

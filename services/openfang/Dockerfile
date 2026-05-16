@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM rust:1-slim-bookworm AS builder
 WORKDIR /build
-RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y pkg-config libssl-dev perl && rm -rf /var/lib/apt/lists/*
 COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
 COPY xtask ./xtask
@@ -12,7 +12,8 @@ COPY packages ./packages
 ARG LTO=true
 ARG CODEGEN_UNITS=1
 ENV CARGO_PROFILE_RELEASE_LTO=${LTO} \
-    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=${CODEGEN_UNITS}
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=${CODEGEN_UNITS} \
+    OPENSSL_NO_VENDOR=1
 RUN cargo build --release --bin openfang
 
 FROM rust:1-slim-bookworm

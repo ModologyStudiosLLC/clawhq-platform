@@ -435,6 +435,25 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
       };
     },
 
+    trend: async (companyId: string, days: number = 30) => {
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      return db
+        .select({
+          day: sql<string>`date_trunc('day', ${costEvents.occurredAt})::date::text`,
+          agentId: costEvents.agentId,
+          agentName: agents.name,
+          costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          inputTokens: sql<number>`coalesce(sum(${costEvents.inputTokens}), 0)::int`,
+          outputTokens: sql<number>`coalesce(sum(${costEvents.outputTokens}), 0)::int`,
+          runCount: sql<number>`count(distinct ${costEvents.heartbeatRunId})::int`,
+        })
+        .from(costEvents)
+        .leftJoin(agents, eq(costEvents.agentId, agents.id))
+        .where(and(eq(costEvents.companyId, companyId), gte(costEvents.occurredAt, since)))
+        .groupBy(sql`date_trunc('day', ${costEvents.occurredAt})::date::text`, costEvents.agentId, agents.name)
+        .orderBy(sql`date_trunc('day', ${costEvents.occurredAt})::date::text`, costEvents.agentId);
+    },
+
     byProject: async (companyId: string, range?: CostDateRange) => {
       const issueIdAsText = sql<string>`${issues.id}::text`;
       const runProjectLinks = db

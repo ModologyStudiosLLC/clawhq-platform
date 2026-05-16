@@ -34,7 +34,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             className="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold"
             style={{
               background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
-              color: "#0e0e10",
+              color: "var(--color-on-brand)",
               fontFamily: "var(--font-display)",
             }}
           >

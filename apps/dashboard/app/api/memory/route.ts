@@ -46,10 +46,10 @@ async function callMem0Tool(toolName: string, args: Record<string, unknown>): Pr
     input: stdin,
     timeout: 30_000,
     env: { ...process.env, PATH: `${os.homedir()}/miniforge3/bin:${process.env.PATH}` },
-  });
+  } as any);
 
   // Parse last non-empty line with id=1
-  const lines = stdout.trim().split("\n").filter(Boolean);
+  const lines = stdout.toString().trim().split("\n").filter(Boolean);
   for (const line of lines.reverse()) {
     try {
       const parsed = JSON.parse(line);

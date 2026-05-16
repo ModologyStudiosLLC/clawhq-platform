@@ -580,3 +580,23 @@ export {
   type SecretsLocalEncryptedConfig,
   type ConfigMeta,
 } from "./config-schema.js";
+export {
+  EXPERIMENT_SESSION_STATUSES,
+  EXPERIMENT_EVAL_KINDS,
+  type ExperimentSessionStatus,
+  type ExperimentEvalKind,
+} from "./constants.js";
+export type {
+  ExperimentSession,
+  ExperimentRun,
+  ExperimentSessionDetail,
+  ExperimentSessionListItem,
+  RecordExperimentRunResult,
+  ExperimentConvergencePolicy,
+} from "./types/experiment.js";
+export {
+  createExperimentSessionSchema,
+  recordExperimentRunSchema,
+  type CreateExperimentSession,
+  type RecordExperimentRun,
+} from "./validators/experiment.js";

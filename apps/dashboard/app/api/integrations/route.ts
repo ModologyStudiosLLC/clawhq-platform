@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import os from "os";
-import { encrypt, decrypt } from "../../../lib/encrypt.js";
+import { encrypt, decrypt } from "../../../lib/encrypt";
 
 const INTEGRATIONS_FILE =
   process.env.CLAWHQ_INTEGRATIONS_FILE ??
@@ -165,7 +165,7 @@ async function syncMcpServers(integrations: IntegrationsData): Promise<void> {
 // use (MCP sync, test handlers). The GET handler masks them before sending
 // to the browser — the plaintext is never sent over the wire after initial save.
 
-async function readIntegrations(): Promise<IntegrationsData> {
+export async function readIntegrations(): Promise<IntegrationsData> {
   try {
     const raw = await fs.readFile(INTEGRATIONS_FILE, "utf8");
     const stored = JSON.parse(raw) as IntegrationsData;

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { logAudit } from "../audit/route.js";
-import { notifyBudgetAlert } from "../../../lib/notify.js";
+import { logAudit } from "../audit/route";
+import { notifyBudgetAlert } from "../../../lib/notify";
 
 // Settings are persisted to a JSON file inside the dashboard's data volume.
 // In Docker: /data/settings.json (mounted via paperclip-data or dashboard volume)
@@ -44,6 +44,8 @@ export const defaultSettings = {
   // Notifications
   notifications: {
     slackWebhookUrl: "",
+    slackSigningSecret: "",
+    slackInboundEnabled: false,
     emailTo: "",
     budgetAlertEnabled: true,
     healthAlertEnabled: true,
@@ -67,7 +69,7 @@ export const defaultSettings = {
 
 type Settings = typeof defaultSettings;
 
-async function readSettings(): Promise<Settings> {
+export async function readSettings(): Promise<Settings> {
   try {
     const raw = await fs.readFile(SETTINGS_FILE, "utf8");
     return { ...defaultSettings, ...JSON.parse(raw) };

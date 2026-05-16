@@ -317,6 +317,7 @@ export const LIVE_EVENT_TYPES = [
   "plugin.ui.updated",
   "plugin.worker.crashed",
   "plugin.worker.restarted",
+  "experiment.session_updated",
 ] as const;
 export type LiveEventType = (typeof LIVE_EVENT_TYPES)[number];
 
@@ -671,6 +672,7 @@ export const PLUGIN_EVENT_TYPES = [
   "approval.decided",
   "cost_event.created",
   "activity.logged",
+  "experiment.session_updated",
 ] as const;
 export type PluginEventType = (typeof PLUGIN_EVENT_TYPES)[number];
 
@@ -687,3 +689,15 @@ export const PLUGIN_BRIDGE_ERROR_CODES = [
   "UNKNOWN",
 ] as const;
 export type PluginBridgeErrorCode = (typeof PLUGIN_BRIDGE_ERROR_CODES)[number];
+
+export const EXPERIMENT_SESSION_STATUSES = [
+  "pending",
+  "running",
+  "completed",
+  "failed",
+  "cancelled",
+] as const;
+export type ExperimentSessionStatus = (typeof EXPERIMENT_SESSION_STATUSES)[number];
+
+export const EXPERIMENT_EVAL_KINDS = ["shell", "llm", "http", "js"] as const;
+export type ExperimentEvalKind = (typeof EXPERIMENT_EVAL_KINDS)[number];

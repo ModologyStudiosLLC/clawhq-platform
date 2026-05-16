@@ -23,9 +23,9 @@ RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git .
 
 # ── Install Python deps ─────────────────────────────────────────────────────
 RUN uv venv /opt/venv && \
-    /opt/venv/bin/pip install --upgrade pip && \
-    /opt/venv/bin/pip install -e ".[telegram,discord,slack]" || \
-    /opt/venv/bin/pip install -e "."
+    uv pip install --python /opt/venv/bin/python -e ".[telegram,discord,slack]" 2>/dev/null || \
+    uv pip install --python /opt/venv/bin/python -e "." && \
+    uv pip install --python /opt/venv/bin/python "discord.py>=2.0" "python-telegram-bot>=20.0"
 
 ENV PATH="/opt/venv/bin:$PATH"
 ENV HERMES_HOME=/opt/data
@@ -33,7 +33,7 @@ ENV HERMES_HOME=/opt/data
 # ── Health server ────────────────────────────────────────────────────────────
 COPY health_server.py /opt/health_server.py
 COPY sentinel/ /opt/sentinel/
-RUN /opt/venv/bin/pip install fastapi uvicorn[standard] pyyaml
+RUN uv pip install --python /opt/venv/bin/python fastapi uvicorn[standard] pyyaml
 
 # ── Coordination skills ──────────────────────────────────────────────────────
 # These skills let Hermes delegate tasks to OpenFang agents and trigger

@@ -141,8 +141,7 @@ info ".env written"
 # ─── Build & start ─────────────────────────────────────────────────────────
 
 header "Building ClawHQ"
-echo -e "  ${YELLOW}First build takes 5-10 minutes (compiling Rust for OpenFang).${RESET}"
-echo -e "  Grab a coffee — this only happens once.\n"
+echo -e "  ${YELLOW}First run pulls pre-built images and builds the dashboard (~2-3 min).${RESET}\n"
 
 docker compose build --parallel 2>&1 | grep -E "(Successfully|error|ERROR|=>)" | head -40 || true
 

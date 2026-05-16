@@ -12,5 +12,7 @@ export async function GET() {
     .replace(/^http:\/\//, "ws://")
     .replace(/\/$/, "") + "/ws";
 
-  return NextResponse.json({ wsUrl });
+  const gatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN ?? "";
+
+  return NextResponse.json({ wsUrl, gatewayToken });
 }

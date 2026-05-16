@@ -1,0 +1,117 @@
+---
+title: Agent Workspaces
+description: A single-page view bundling everything an agent needs — config, logs, billing, memory, tools, and deployment targets.
+---
+
+Agent Workspaces give you a unified control plane for each agent. Instead of jumping between config files, log viewers, billing dashboards, and memory stores, everything lives in one dense, keyboard-driven view.
+
+<Note>
+Workspaces are available in ClawHQ v2026.4+ and require the dashboard service running.
+</Note>
+
+## What's in a workspace
+
+Each workspace bundles the agent's full operational context:
+
+| Section | What it shows |
+|---------|---------------|
+| **Overview** | Agent config, version, status, connected channels, deployment targets |
+| **Logs** | Live runtime logs with filtering by level, time range, and search |
+| **Memory** | Linked Mem0 store — search, browse, add, and delete memories |
+| **Tools** | Connected integrations with health status and permission audit |
+| **Billing** | Token usage (ClawCost), daily cost breakdown, budget alerts |
+
+## Creating a workspace
+
+### Via CLI
+
+```bash
+clawhq workspace create --agent my-agent --name "My Agent Workspace"
+```
+
+### Via dashboard
+
+Go to **Agents → [Agent Name] → Workspace** in the ClawHQ dashboard.
+
+### Via YAML
+
+```yaml
+apiVersion: clawhq.io/v1
+kind: Workspace
+metadata:
+  name: customer-support
+  agent: clawhq://customer-support-agent
+spec:
+  memory:
+    provider: mem0
+    user_id: agent-customer-support
+  billing:
+    provider: clawcost
+    budget_limit: 50.00
+    alert_threshold: 0.8
+  logs:
+    retention_days: 30
+    max_entries: 10000
+  deployment:
+    targets:
+      - channel: discord
+      - channel: telegram
+      - channel: slack
+```
+
+## Memory integration
+
+Workspaces connect directly to the Mem0 memory store scoped to the agent. From the Memory tab you can:
+
+- **Search** — semantic search across all stored memories
+- **Browse** — paginated list with relevance scores
+- **Add** — manually store context the agent should remember
+- **Delete** — remove stale or incorrect memories
+
+Memories are scoped by `user_id` (defaults to `agent-<name>` for workspace-scoped memory).
+
+## Token billing
+
+The Billing tab pulls data from ClawCost to show:
+
+- **Daily usage chart** — 30-day bar chart of token consumption
+- **Cost breakdown** — per-model cost split (input vs output tokens)
+- **Budget alerts** — configurable threshold warnings (default: 80% of limit)
+- **Trend analysis** — week-over-week cost change with projection
+
+```yaml
+billing:
+  provider: clawcost
+  budget_limit: 50.00        # USD per month
+  alert_threshold: 0.8       # Alert at 80%
+  hard_limit: true           # Stop agent at 100%
+```
+
+## Permissions and RBAC
+
+Workspaces respect the platform's role-based access control:
+
+| Role | Workspace access |
+|------|-----------------|
+| **Admin** | Full access — config, logs, memory, billing, deployment |
+| **Developer** | Config, logs, memory (read), tools |
+| **Viewer** | Overview and logs (read-only) |
+
+Permissions are inherited from the agent's RBAC configuration.
+
+## Deployment targets
+
+The Overview tab shows all channels the agent is deployed to with connection status:
+
+- **Discord** — guild name, channel count, bot health
+- **Telegram** — bot username, webhook status
+- **Slack** — workspace name, app status
+- **API** — endpoint URL, rate limits, key rotation date
+
+Each target can be toggled on/off directly from the workspace.
+
+## Next steps
+
+- [Orchestration (DAG)](/guides/orchestration-dag) — chain agents into pipelines
+- [Memory](/guides/memory) — deep dive on Mem0 integration
+- [Budget](/guides/budget) — configure cost controls

@@ -32,6 +32,7 @@ DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
 SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
 SLACK_APP_TOKEN=${SLACK_APP_TOKEN:-}
 HERMES_MODEL=${HERMES_MODEL:-anthropic/claude-sonnet-4-6}
+GATEWAY_ALLOW_ALL_USERS=${GATEWAY_ALLOW_ALL_USERS:-true}
 # Bridge URLs — used by the delegation and Paperclip skills
 OPENFANG_INTERNAL_URL=${OPENFANG_URL}
 PAPERCLIP_INTERNAL_URL=${PAPERCLIP_URL}
@@ -66,10 +67,13 @@ cd /opt/hermes
 export HERMES_HOME
 export OPENFANG_INTERNAL_URL="${OPENFANG_URL}"
 export PAPERCLIP_INTERNAL_URL="${PAPERCLIP_URL}"
-hermes gateway start 2>&1 | tee "${HERMES_HOME}/logs/gateway.log" &
+hermes gateway run 2>&1 | tee "${HERMES_HOME}/logs/gateway.log" &
 GATEWAY_PID=$!
 
-# ── Wait for either process to exit ─────────────────────────────────────────
-wait -n $HEALTH_PID $GATEWAY_PID 2>/dev/null || true
-echo "[hermes] A process exited. Shutting down."
-kill $HEALTH_PID $GATEWAY_PID 2>/dev/null || true
+# ── Wait: keep health server alive even if gateway exits (no tokens configured) ─
+# The gateway exits when no messaging platform tokens are configured — that is
+# expected in a fresh deployment. The health server must stay up so the dashboard
+# health check passes. Only exit if the health server itself dies.
+wait $HEALTH_PID 2>/dev/null || true
+echo "[hermes] Health server exited. Shutting down."
+kill $GATEWAY_PID 2>/dev/null || true

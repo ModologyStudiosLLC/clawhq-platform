@@ -4,7 +4,10 @@ The unified AI agent control plane. OpenClaw + OpenFang + Paperclip + Hermes, un
 
 ![ClawHQ Demo](assets/clawhq-preview.gif)
 
+[![ClawHQ — The Open-Source AI Agent Control Platform](https://img.youtube.com/vi/FHfJ7873cHE/maxresdefault.jpg)](https://www.youtube.com/watch?v=FHfJ7873cHE)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/live%20demo-clawhqplatform.com-69f6b8)](https://clawhqplatform.com)
 [![Docs](https://img.shields.io/badge/docs-clawhqplatform.com-69daff)](https://clawhqplatform.com/docs/introduction)
 
 ## What's inside
@@ -17,7 +20,7 @@ The unified AI agent control plane. OpenClaw + OpenFang + Paperclip + Hermes, un
 | **Hermes** | Conversational AI — persistent memory, skills, and long-term context |
 | **Dashboard** | ClawHQ UI — unified control plane for all services |
 
-## Self-host in 2 minutes
+## Self-host in one command
 
 **Requirements:** Docker 24+, Docker Compose v2, 4 GB RAM
 
@@ -29,7 +32,7 @@ cd clawhq-platform
 
 Opens at `http://localhost:3500`.
 
-> First build compiles OpenFang from Rust source — takes 5–10 minutes once, then cached.
+> **First run:** pulls pre-built images and builds the dashboard (~2–3 min). Restarts are instant.
 
 Full setup guide: [clawhqplatform.com/docs/quickstart](https://clawhqplatform.com/docs/quickstart)
 

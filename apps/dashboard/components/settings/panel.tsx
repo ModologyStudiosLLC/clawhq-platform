@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Check, RefreshCw, Eye, EyeOff, Zap, Shield, Bot, Wallet, Sliders,
-  ChevronDown, AlertTriangle, Sparkles, X, Save, Plug, Package, Download, Trash2, KeyRound
+  ChevronDown, AlertTriangle, Sparkles, X, Save, Plug, Package, Download, Trash2, KeyRound, CreditCard
 } from "lucide-react";
 import { ChannelWizard, type ChannelId } from "@/components/channels/wizard";
 import { SSOPanel } from "@/components/sso/panel";
@@ -2060,6 +2060,7 @@ const TABS = [
   { id: "packs", label: "Packs", icon: Package },
   { id: "notifications", label: "Notifications", icon: AlertTriangle },
   { id: "keys", label: "API Keys", icon: KeyRound },
+  { id: "billing", label: "Billing", icon: CreditCard, href: "/settings/billing" },
 ];
 
 export function SettingsPanel() {
@@ -2136,6 +2137,16 @@ export function SettingsPanel() {
           {tabs.map(t => {
             const Icon = t.icon;
             const active = activeTab === t.id;
+            if ("href" in t && t.href) {
+              return (
+                <a key={t.id} href={t.href}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  style={{ background: "transparent", color: "var(--color-text-muted)" }}>
+                  <Icon size={14} />
+                  {t.label}
+                </a>
+              );
+            }
             return (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
