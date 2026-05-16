@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running 30 AI Agents on a $5/mo VPS — ClawHQ</title>
+<meta name="description" content="ClawHQ's full Docker Compose stack — OpenClaw, OpenFang, Paperclip, Hermes, and the dashboard — runs comfortably on a $5/mo VPS. Here's the actual resource breakdown.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/self-hosted-ai-agents-vps/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="Running 30 AI Agents on a $5/mo VPS">
+<meta property="og:description" content="ClawHQ's full stack runs on a $5/mo VPS. Here's the actual resource breakdown and why BYOK changes the economics completely.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/self-hosted-ai-agents-vps/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Running 30 AI Agents on a $5/mo VPS">
+<meta name="twitter:description" content="ClawHQ's full stack runs on a $5/mo VPS. Here's the actual resource breakdown.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Running 30 AI Agents on a $5/mo VPS",
+  "description": "ClawHQ's full Docker Compose stack runs comfortably on a $5/mo VPS. Here's the actual resource breakdown and how BYOK removes AI costs from the equation.",
+  "datePublished": "2026-05-06",
+  "dateModified": "2026-05-06",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-meta { font-size: 13px; color: var(--text3); margin-top: 20px; }
+.article-title { font-size: clamp(32px, 5vw, 52px); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+.article-title em { font-style: italic; color: var(--accent); }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin: 48px 0 16px; }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 32px 0 12px; color: var(--text2); }
+.article-body p { font-size: 16px; color: var(--text2); margin-bottom: 20px; line-height: 1.75; }
+.article-body ul, .article-body ol { margin: 0 0 20px 24px; }
+.article-body li { font-size: 16px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body code { font-family: 'Geist Mono', monospace; font-size: 13px; background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.article-body pre { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; overflow-x: auto; margin: 24px 0; }
+.article-body pre code { background: none; border: none; padding: 0; font-size: 13px; color: var(--text2); }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+.callout { background: var(--accent-dim); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius-sm); padding: 24px 28px; margin: 32px 0; }
+.callout-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; }
+.callout p { margin: 0; font-size: 15px; }
+.resource-table { width: 100%; border-collapse: collapse; margin: 32px 0; font-size: 14px; }
+.resource-table th { text-align: left; padding: 10px 14px; background: var(--surface2); color: var(--text3); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border2); }
+.resource-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: top; }
+.resource-table tr:last-child td { border-bottom: none; }
+.resource-table td:first-child { color: var(--text); font-family: 'Geist Mono', monospace; font-size: 13px; }
+.resource-table .total td { color: var(--accent); font-weight: 600; background: var(--accent-dim); }
+.article-cta { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 40px; margin-top: 64px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
+.article-cta p { font-size: 15px; color: var(--text2); margin-bottom: 24px; }
+.btn-cta { display: inline-block; background: var(--accent); color: #050507; font-weight: 600; font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; margin-right: 12px; transition: opacity 0.15s; }
+.btn-cta:hover { opacity: 0.85; }
+.btn-outline { display: inline-block; border: 1px solid var(--border2); color: var(--text2); font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: border-color 0.15s; }
+.btn-outline:hover { border-color: var(--text3); }
+footer { border-top: 1px solid var(--border); padding: 32px 0; position: relative; z-index: 1; }
+.footer-inner { display: flex; align-items: center; gap: 32px; }
+.footer-brand { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; margin-right: auto; }
+.footer-links { display: flex; gap: 24px; }
+.footer-link { font-size: 13px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { font-size: 13px; color: var(--text3); }
+@media (max-width: 640px) {
+  .article-header, .article-body { padding: 0 4px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a href="/#demo-form" class="nav-cta">Get early access →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <header class="article-header">
+      <nav class="article-breadcrumb">
+        <a href="/">ClawHQ</a>
+        <span>›</span>
+        <a href="/blog/">Blog</a>
+        <span>›</span>
+        <span>Self-hosted AI agents</span>
+      </nav>
+      <h1 class="article-title">Running <em>30 AI agents</em><br>on a $5/mo VPS</h1>
+      <p class="article-subtitle">
+        ClawHQ's full Docker Compose stack runs on a 1 vCPU / 1 GB RAM instance.
+        The secret: the VPS only runs the orchestration layer — all LLM inference goes through your own API keys.
+      </p>
+      <p class="article-meta">May 6, 2026 · 7 min read</p>
+    </header>
+
+    <article class="article-body">
+
+      <p>When people hear "30 AI agents," they assume you need a beefy server, a GPU, or a managed platform charging $300/month. None of those are true for ClawHQ.</p>
+
+      <p>ClawHQ separates the <em>orchestration layer</em> (routing, memory, security, channels) from the <em>inference layer</em> (the LLM calls that actually generate text). The orchestration layer is lightweight — it's routing logic, SQLite, and a Next.js dashboard. The inference layer runs at Anthropic, OpenAI, or wherever your API key points. Your VPS never touches a GPU.</p>
+
+      <h2>The actual resource footprint</h2>
+
+      <p>Here's what ClawHQ's five services use at idle on a standard Linux VPS:</p>
+
+      <table class="resource-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Role</th>
+            <th>RAM (idle)</th>
+            <th>RAM (peak)</th>
+            <th>CPU (idle)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>openclaw</td>
+            <td>API gateway + LLM router</td>
+            <td>60 MB</td>
+            <td>120 MB</td>
+            <td>&lt;1%</td>
+          </tr>
+          <tr>
+            <td>openfang</td>
+            <td>Agent OS (Rust binary)</td>
+            <td>28 MB</td>
+            <td>80 MB</td>
+            <td>&lt;1%</td>
+          </tr>
+          <tr>
+            <td>paperclip</td>
+            <td>Orchestration + pack registry</td>
+            <td>90 MB</td>
+            <td>180 MB</td>
+            <td>&lt;1%</td>
+          </tr>
+          <tr>
+            <td>hermes</td>
+            <td>Conversational AI (chat)</td>
+            <td>55 MB</td>
+            <td>140 MB</td>
+            <td>&lt;1%</td>
+          </tr>
+          <tr>
+            <td>dashboard</td>
+            <td>Next.js UI (SSR)</td>
+            <td>110 MB</td>
+            <td>220 MB</td>
+            <td>&lt;2%</td>
+          </tr>
+          <tr class="total">
+            <td>Total</td>
+            <td></td>
+            <td>~343 MB</td>
+            <td>~740 MB</td>
+            <td>&lt;5%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>A 1 GB RAM instance (Hetzner CX11: €3.79/mo, DigitalOcean Droplet: $4/mo, Linode Nanode: $5/mo) runs the full stack with 250+ MB headroom. The OS and Docker daemon add another ~200 MB, which still leaves room.</p>
+
+      <p>A 2 GB instance ($8–10/mo) is more comfortable if you're running 10+ agents concurrently or have multiple channels active. It's not required — but it gives you breathing room under load.</p>
+
+      <h2>Why BYOK changes everything</h2>
+
+      <p>Most "AI agent platforms" bundle LLM inference with their platform cost. You pay $100/month and get X credits — and you're on their infrastructure, their rate limits, their model selection.</p>
+
+      <p>ClawHQ is BYOK: bring your own keys. Your Anthropic key, your OpenAI key, your OpenRouter account. The inference calls go directly from ClawHQ to the provider. The VPS is just the traffic cop — it routes the request, applies security rules, logs the cost, and passes the response back to the right channel.</p>
+
+      <p>The math for a small team:</p>
+
+      <ul>
+        <li><strong>VPS cost:</strong> $5–10/month</li>
+        <li><strong>ClawHQ:</strong> free (MIT license, self-hosted)</li>
+        <li><strong>LLM costs:</strong> whatever you actually use — Anthropic Claude Sonnet 4.6 runs ~$3/MTok input, ~$15/MTok output. At moderate usage (1M tokens/month), that's $3–15/month</li>
+        <li><strong>Total for a team of 3:</strong> ~$20–30/month</li>
+      </ul>
+
+      <p>Compare that to a SaaS agent platform charging $50–100/seat/month with bundled — and metered — AI credits. The self-hosted math wins at almost any usage level.</p>
+
+      <h2>What "30 agents" actually means</h2>
+
+      <p>An agent in ClawHQ is a configured process definition — a name, a model, a system prompt, channel assignments, and tool access. At idle, an agent is just a row in SQLite. It consumes no RAM, no CPU.</p>
+
+      <p>Agents only use resources when they're actively processing a request. Concurrent agent load is what matters, not the total agent count. On a 1 GB VPS, you can comfortably handle 5–8 concurrent agent invocations before you'd notice latency.</p>
+
+      <p>For most small teams (3–10 people), concurrent load never exceeds 3–4 agents at once. 30 configured agents running serially is no different than 3.</p>
+
+      <h2>The one exception: local model inference</h2>
+
+      <p>If you want to run Ollama locally alongside ClawHQ — pulling a 7B or 13B model onto the same machine — then yes, you need real hardware. A 7B model at 4-bit quantization needs ~4 GB RAM just for the weights, plus overhead. You're looking at a machine with 16+ GB RAM and a decent CPU (or a GPU node).</p>
+
+      <p>But that's a deliberate choice, not a requirement. Most ClawHQ deployments route to hosted APIs. Local inference is an option for air-gapped environments, ITAR compliance, or edge cases where latency to a remote API is unacceptable.</p>
+
+      <div class="callout">
+        <div class="callout-title">ClawHQ + Ollama setup</div>
+        <p>Set <code>OPENCLAW_LOCAL_MODEL=ollama/llama3.2</code> and <code>OLLAMA_BASE_URL=http://localhost:11434</code> in your .env to route specific agent tasks to a local model. All other agents continue using your cloud API keys. You can mix local and remote per-agent.</p>
+      </div>
+
+      <h2>Deploying to a VPS</h2>
+
+      <p>The full setup from a fresh Ubuntu 24.04 VPS:</p>
+
+      <pre><code># Install Docker
+curl -fsSL https://get.docker.com | sh
+usermod -aG docker $USER && newgrp docker
+
+# Clone and deploy ClawHQ
+curl -fsSL https://install.clawhqplatform.com | bash</code></pre>
+
+      <p>The install script pulls pre-built Docker images from GitHub Container Registry and starts all five services. No Rust compilation, no Node.js setup, no Python environment. The dashboard is available at <code>http://your-ip:3500</code> within 2–3 minutes of the first pull completing.</p>
+
+      <p>For production, you'll want nginx in front for TLS:</p>
+
+      <pre><code>server {
+    listen 443 ssl;
+    server_name yourdomain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3500;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}</code></pre>
+
+      <p>Let's Encrypt handles the certificate. The entire setup — VPS + DNS + nginx + ClawHQ — takes under 30 minutes.</p>
+
+      <h2>VPS recommendations by use case</h2>
+
+      <ul>
+        <li><strong>Solo / personal:</strong> 1 GB RAM, 1 vCPU — Hetzner CX11 at €3.79/mo is the minimum viable server</li>
+        <li><strong>Small team (2–5 people):</strong> 2 GB RAM, 2 vCPU — $8–12/mo from any major provider</li>
+        <li><strong>Team (5–20 people) with active channels:</strong> 4 GB RAM, 2–4 vCPU — $20–40/mo</li>
+        <li><strong>Enterprise / high-concurrency:</strong> 8+ GB RAM — consider Kubernetes or Docker Swarm across multiple nodes</li>
+      </ul>
+
+      <p>At every tier, the AI inference cost scales with usage, not server size. Your VPS cost is nearly flat as your team grows — it's the API usage that scales linearly.</p>
+
+      <hr>
+
+      <p>The point of ClawHQ isn't to be cheap. It's to give you control. You know exactly what you're spending, you own the data, and you can move the whole stack to different hardware in 10 minutes with a single command.</p>
+
+      <p>The $5/mo VPS story is the proof that the architecture is right — not that you should try to run everything on the smallest possible machine.</p>
+
+      <div class="article-cta">
+        <h3>Deploy your own agent stack</h3>
+        <p>One command. No credit card. MIT license.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="btn-cta">View on GitHub →</a>
+        <a href="/#demo-form" class="btn-outline">Get early access</a>
+      </div>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+        <a href="/#pricing" class="footer-link">Pricing</a>
+      </div>
+      <span class="footer-right">© 2026 Modology Studios LLC</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

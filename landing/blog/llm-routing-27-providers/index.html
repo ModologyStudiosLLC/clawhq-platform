@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How ClawHQ Routes Tasks Across 27 LLM Providers — ClawHQ</title>
+<meta name="description" content="Not every task needs GPT-4o. Not every task can use Llama. Here's how ClawHQ's model router decides which provider runs each agent call — and what we learned building it.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/llm-routing-27-providers/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="How ClawHQ Routes Tasks Across 27 LLM Providers">
+<meta property="og:description" content="Not every task needs GPT-4o. Not every task can use Llama. Here's how ClawHQ's model router decides which provider runs each agent call.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/llm-routing-27-providers/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How ClawHQ Routes Tasks Across 27 LLM Providers">
+<meta name="twitter:description" content="Not every task needs GPT-4o. Not every task can use Llama. Here's how ClawHQ's model router decides which provider runs each agent call.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How ClawHQ Routes Tasks Across 27 LLM Providers",
+  "description": "Not every task needs GPT-4o. Not every task can use Llama. Here's how ClawHQ's model router decides which provider runs each agent call — and what we learned building it.",
+  "datePublished": "2026-05-06",
+  "dateModified": "2026-05-06",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-meta { font-size: 13px; color: var(--text3); margin-top: 20px; }
+.article-title { font-size: clamp(32px, 5vw, 52px); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+.article-title em { font-style: italic; color: var(--accent); }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin: 48px 0 16px; }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 32px 0 12px; color: var(--text2); }
+.article-body p { font-size: 16px; color: var(--text2); margin-bottom: 20px; line-height: 1.75; }
+.article-body ul, .article-body ol { margin: 0 0 20px 24px; }
+.article-body li { font-size: 16px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body code { font-family: 'Geist Mono', monospace; font-size: 13px; background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.article-body pre { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; overflow-x: auto; margin: 24px 0; }
+.article-body pre code { background: none; border: none; padding: 0; font-size: 13px; color: var(--text2); }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+.callout { background: var(--accent-dim); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius-sm); padding: 24px 28px; margin: 32px 0; }
+.callout-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; }
+.callout p { margin: 0; font-size: 15px; }
+.routing-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin: 32px 0; }
+.routing-table th { padding: 12px 16px; font-size: 12px; font-weight: 600; text-align: left; background: var(--surface); border-bottom: 1px solid var(--border); color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.routing-table td { padding: 12px 16px; font-size: 13.5px; color: var(--text2); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.routing-table tr:last-child td { border-bottom: none; }
+.routing-table td:first-child { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--accent); }
+.article-cta { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 40px; margin-top: 64px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
+.article-cta p { font-size: 15px; color: var(--text2); margin-bottom: 24px; }
+.btn-cta { display: inline-block; background: var(--accent); color: #050507; font-weight: 600; font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; margin-right: 12px; transition: opacity 0.15s; }
+.btn-cta:hover { opacity: 0.85; }
+.btn-outline { display: inline-block; border: 1px solid var(--border2); color: var(--text2); font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: border-color 0.15s; }
+.btn-outline:hover { border-color: var(--text3); }
+footer { border-top: 1px solid var(--border); padding: 32px 0; position: relative; z-index: 1; }
+.footer-inner { display: flex; align-items: center; gap: 32px; }
+.footer-brand { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; margin-right: auto; }
+.footer-links { display: flex; gap: 24px; }
+.footer-link { font-size: 13px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { font-size: 13px; color: var(--text3); }
+@media (max-width: 640px) {
+  .article-header, .article-body { padding: 0 4px; }
+  .routing-table { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a href="/#demo-form" class="nav-cta">Get early access →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a>
+        <span>›</span>
+        <a href="/blog/">Blog</a>
+        <span>›</span>
+        <span>LLM routing</span>
+      </div>
+      <h1 class="article-title">How ClawHQ Routes Tasks Across <em>27 LLM Providers</em></h1>
+      <p class="article-subtitle">Not every task needs GPT-4o. Not every task can use a local model. Here's how the model router decides which provider runs each agent call — and what we learned building it.</p>
+      <p class="article-meta">May 6, 2026 · ClawHQ</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>The most common question we get after "how do I install it" is "how does it decide which model to use." The answer is less magical than people expect — and more useful.</p>
+
+      <p>ClawHQ's model router is a layer that sits between every agent and the LLM it calls. It makes a routing decision on each request based on four things: the task type, the budget state, a learned success table, and a fallback chain. Here's how each works.</p>
+
+      <h2>Why routing matters at all</h2>
+
+      <p>If you're running 30 agents handling different kinds of work — code review, customer support, research, summarization, image analysis — you're paying frontier model prices for tasks that don't need frontier model quality. A support agent answering FAQ questions doesn't need the same model as a security auditor analyzing a potential vulnerability.</p>
+
+      <p>The cost difference is significant. At current pricing, a well-classified task that routes to Groq Llama 3 instead of Claude Opus costs roughly 40× less per token. If half your agent calls are classification, summarization, or structured extraction tasks that an 8B model handles just as well — your monthly bill is meaningfully different.</p>
+
+      <p>More importantly: local models (via Ollama) cost zero per token. If a task can run locally without quality regression, it should.</p>
+
+      <h2>Layer 1: Task type detection</h2>
+
+      <p>Before the router decides on a model, it classifies the incoming task. The classification is done by a small, fast model (currently Groq Llama 3.1 8B — fast enough that the classification overhead is negligible). The classifier assigns one of several task types:</p>
+
+      <table class="routing-table">
+        <thead>
+          <tr><th>Task type</th><th>Examples</th><th>Default tier</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>classification</td><td>Intent detection, routing decisions, tag assignment</td><td>Fast (Groq / local)</td></tr>
+          <tr><td>extraction</td><td>Structured data from unstructured text, JSON parsing</td><td>Fast (Groq / local)</td></tr>
+          <tr><td>summarization</td><td>Document compression, digest generation, meeting notes</td><td>Balanced (Gemini Flash)</td></tr>
+          <tr><td>generation</td><td>Drafting, writing, creative output</td><td>Balanced (Gemini Flash / GPT-4o-mini)</td></tr>
+          <tr><td>reasoning</td><td>Multi-step problems, code generation, analysis</td><td>Frontier (Claude / GPT-4o)</td></tr>
+          <tr><td>multimodal</td><td>Image analysis, screenshot reading, document OCR</td><td>Frontier (Claude / GPT-4V)</td></tr>
+          <tr><td>code</td><td>Code review, debugging, refactoring, test generation</td><td>Frontier (Claude / GPT-4o)</td></tr>
+        </tbody>
+      </table>
+
+      <p>The task type is the primary signal. A classification task will never be sent to a frontier model by default, regardless of which agent initiated it.</p>
+
+      <h2>Layer 2: Budget state</h2>
+
+      <p>If you've configured a monthly budget cap (in the Budget page), the router reads current spend before every call. As you approach the cap, the router progressively downgrades:</p>
+
+      <ul>
+        <li><strong>Under 80% of budget:</strong> use the default model for the task type</li>
+        <li><strong>80–95% of budget:</strong> step down one tier (frontier → balanced, balanced → fast)</li>
+        <li><strong>Over 95% of budget:</strong> route all non-critical tasks to local Ollama if available; block frontier calls</li>
+      </ul>
+
+      <p>This is configurable — you can set different thresholds per agent, or exempt specific agents from budget fallback entirely. A security auditor agent probably shouldn't be downgraded when you're 95% through budget; a weekly briefing agent probably should.</p>
+
+      <h2>Layer 3: The success rate table</h2>
+
+      <p>This is the part that improves over time. Every model call is logged with its outcome: did the response parse correctly, did the agent complete its task, did the user approve the output (where applicable). The router maintains a per-(task type, provider) success rate table.</p>
+
+      <p>If Groq starts returning malformed JSON on extraction tasks at a higher rate than Gemini Flash, the router shifts weight toward Gemini Flash for extraction automatically. No config change needed.</p>
+
+      <div class="callout">
+        <div class="callout-title">What "success" means</div>
+        <p>For structured output tasks (extraction, classification), success is clean JSON that passes schema validation. For generation tasks, success is a non-empty, non-truncated response. For tool-calling tasks, success is a valid tool call the agent can execute. The router doesn't try to judge quality — only parseable completeness. Quality evaluation is a harder problem we haven't solved.</p>
+      </div>
+
+      <p>The success table resets weekly by default. A provider having a bad Tuesday shouldn't permanently hurt its routing weight.</p>
+
+      <h2>Layer 4: The fallback chain</h2>
+
+      <p>If the selected provider returns an error — rate limit, timeout, API outage — the router doesn't surface that error to the agent. It falls back immediately to the next provider in the chain for that task type. The chain looks like this by default:</p>
+
+      <pre><code>reasoning: [claude-sonnet, gpt-4o, gemini-pro, groq-llama3-70b]
+generation: [gemini-flash, gpt-4o-mini, groq-llama3-70b, ollama-llama3]
+fast:       [groq-llama3-8b, ollama-llama3, gemini-flash]</code></pre>
+
+      <p>You configure the chains in <code>settings/model-router</code> in the dashboard. The defaults are opinionated — Groq first for speed-sensitive tasks because their inference is consistently the fastest — but you can reorder based on your provider relationships and pricing agreements.</p>
+
+      <p>If all providers in a chain fail, the router fires a webhook (if configured) and returns a structured error to the agent. The agent can handle it gracefully — most are configured to retry once before reporting failure to the channel.</p>
+
+      <h2>Provider-specific handling</h2>
+
+      <p>A few providers have idiosyncrasies the router handles transparently:</p>
+
+      <p><strong>Ollama (local):</strong> The router pings <code>localhost:11434/api/tags</code> before adding Ollama to any chain. If it's not running, Ollama is excluded from routing decisions silently. No error, no config change needed.</p>
+
+      <p><strong>Groq:</strong> Aggressive rate limits at the free tier (30 req/min). The router tracks Groq request timestamps and holds calls to stay under the limit rather than hitting 429s and burning fallback cycles.</p>
+
+      <p><strong>Azure OpenAI:</strong> Endpoint URLs and deployment names vary by customer. Azure-hosted models are configured separately from OpenAI proper, with their own chain position. A team using Azure for compliance reasons can point all "OpenAI" calls at their Azure endpoint with one config change.</p>
+
+      <p><strong>Anthropic tool use:</strong> Claude's tool use implementation is different from OpenAI's function calling schema. The router normalizes tool definitions before sending to each provider so agents don't need to know which model they're talking to.</p>
+
+      <h2>What we got wrong initially</h2>
+
+      <p>The first version of the router classified at the agent level — each agent was assigned one model. The code review agent used Claude, the support agent used GPT-4o-mini. Simple, predictable, wrong.</p>
+
+      <p>The problem is that agents handle heterogeneous tasks. The support agent answering "what's your refund policy" is a lookup task — fast model is fine. The same agent handling "why is my OAuth integration failing" is a debugging task that benefits from a stronger model. Agent-level routing throws away that signal.</p>
+
+      <p>Task-level routing is more complex to implement but the right abstraction. The classification step adds ~200ms of latency on the first call, cached for repeated similar requests in the same session.</p>
+
+      <h2>Configuring it</h2>
+
+      <p>The router is configured in <code>.env</code> (API keys) and the dashboard's Model Router settings page (chain order, budget thresholds, per-agent overrides). The default config works out of the box with any combination of keys you provide — if you only have an Anthropic key, every task routes to Claude. Add a Groq key and fast tasks shift automatically.</p>
+
+      <p>There's no required configuration. Zero keys = no routing, agents won't run. One key = everything routes there. Multiple keys = the router does its job.</p>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/docker-over-saas/">Why we chose Docker over SaaS for a 30-agent AI stack</a></p>
+
+      <div class="article-cta">
+        <h3>27 providers. One config file.</h3>
+        <p>MIT licensed. Docker Compose. The model router is included — no extra setup, no separate service.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="btn-cta" target="_blank">Get ClawHQ free →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

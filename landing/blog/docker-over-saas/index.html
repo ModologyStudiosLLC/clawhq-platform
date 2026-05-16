@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why We Chose Docker Over SaaS for a 30-Agent AI Stack — ClawHQ</title>
+<meta name="description" content="We could have built a managed cloud platform. We chose Docker Compose instead. Here's the reasoning — and what it forced us to get right.">
+<link rel="canonical" href="https://clawhqplatform.com/blog/docker-over-saas/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta property="og:title" content="Why We Chose Docker Over SaaS for a 30-Agent AI Stack">
+<meta property="og:description" content="We could have built a managed cloud platform. We chose Docker Compose instead. Here's the reasoning.">
+<meta property="og:image" content="https://clawhqplatform.com/og.png">
+<meta property="og:url" content="https://clawhqplatform.com/blog/docker-over-saas/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why We Chose Docker Over SaaS for a 30-Agent AI Stack">
+<meta name="twitter:description" content="We could have built a managed cloud platform. We chose Docker Compose instead. Here's the reasoning.">
+<meta name="twitter:image" content="https://clawhqplatform.com/og.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Why We Chose Docker Over SaaS for a 30-Agent AI Stack",
+  "description": "We could have built a managed cloud platform. We chose Docker Compose instead. Here's the reasoning — and what it forced us to get right.",
+  "datePublished": "2026-05-06",
+  "dateModified": "2026-05-06",
+  "author": { "@type": "Organization", "name": "ClawHQ" },
+  "publisher": { "@type": "Organization", "name": "ClawHQ", "url": "https://clawhqplatform.com" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #050507; --surface: rgba(255,255,255,0.04); --surface2: #0c0c0f;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f7; --text2: rgba(245,245,247,0.72); --text3: rgba(245,245,247,0.44);
+  --accent: #69daff; --accent-dim: rgba(105,218,255,0.10);
+  --radius: 18px; --radius-sm: 10px;
+}
+body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3 { font-family: 'Newsreader', Georgia, serif; }
+.bg-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(105,218,255,0.025) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); -webkit-mask-image: radial-gradient(ellipse 100% 60% at 50% 0%, black 20%, transparent 80%); }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 56px; display: flex; align-items: center; padding: 0 32px; background: rgba(5,5,7,0.82); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1160px; margin: 0 auto; width: 100%; display: flex; align-items: center; }
+.nav-brand { display: flex; align-items: center; gap: 9px; margin-right: auto; color: var(--text); text-decoration: none; }
+.nav-wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.nav-links { display: flex; align-items: center; gap: 28px; margin-right: 28px; }
+.nav-links a { font-size: 14px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-cta { background: var(--accent); color: #050507; font-weight: 600; font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+.nav-cta:hover { opacity: 0.85; }
+.article-wrap { position: relative; z-index: 1; padding-top: 96px; padding-bottom: 96px; }
+.article-header { max-width: 740px; margin: 0 auto 52px; }
+.article-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.article-breadcrumb a { color: var(--text2); text-decoration: none; }
+.article-meta { font-size: 13px; color: var(--text3); margin-top: 20px; }
+.article-title { font-size: clamp(32px, 5vw, 52px); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+.article-title em { font-style: italic; color: var(--accent); }
+.article-subtitle { font-size: 18px; color: var(--text2); line-height: 1.6; }
+.article-body { max-width: 740px; margin: 0 auto; }
+.article-body h2 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin: 48px 0 16px; }
+.article-body h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 32px 0 12px; color: var(--text2); }
+.article-body p { font-size: 16px; color: var(--text2); margin-bottom: 20px; line-height: 1.75; }
+.article-body ul, .article-body ol { margin: 0 0 20px 24px; }
+.article-body li { font-size: 16px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+.article-body a { color: var(--accent); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+.article-body code { font-family: 'Geist Mono', monospace; font-size: 13px; background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+.article-body pre { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px 24px; overflow-x: auto; margin: 24px 0; }
+.article-body pre code { background: none; border: none; padding: 0; font-size: 13px; color: var(--text2); }
+.article-body hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+.callout { background: var(--accent-dim); border: 1px solid rgba(105,218,255,0.2); border-radius: var(--radius-sm); padding: 24px 28px; margin: 32px 0; }
+.callout-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 10px; }
+.callout p { margin: 0; font-size: 15px; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; }
+.compare-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px; }
+.compare-box.good { border-color: rgba(105,218,255,0.2); }
+.compare-box h4 { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 14px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.compare-box ul { margin-left: 18px; }
+.compare-box li { font-size: 14px; margin-bottom: 6px; }
+.article-cta { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 40px; margin-top: 64px; text-align: center; }
+.article-cta h3 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
+.article-cta p { font-size: 15px; color: var(--text2); margin-bottom: 24px; }
+.btn-cta { display: inline-block; background: var(--accent); color: #050507; font-weight: 600; font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; margin-right: 12px; transition: opacity 0.15s; }
+.btn-cta:hover { opacity: 0.85; }
+.btn-outline { display: inline-block; border: 1px solid var(--border2); color: var(--text2); font-size: 14px; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: border-color 0.15s; }
+.btn-outline:hover { border-color: var(--text3); }
+footer { border-top: 1px solid var(--border); padding: 32px 0; position: relative; z-index: 1; }
+.footer-inner { display: flex; align-items: center; gap: 32px; }
+.footer-brand { font-family: 'Newsreader', Georgia, serif; font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; margin-right: auto; }
+.footer-links { display: flex; gap: 24px; }
+.footer-link { font-size: 13px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+.footer-link:hover { color: var(--text2); }
+.footer-right { font-size: 13px; color: var(--text3); }
+@media (max-width: 640px) {
+  .compare-grid { grid-template-columns: 1fr; }
+  .article-header, .article-body { padding: 0 4px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand"><span class="nav-wordmark">ClawHQ</span></a>
+    <div class="nav-links">
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <a href="/#demo-form" class="nav-cta">Get early access →</a>
+  </div>
+</nav>
+
+<main class="article-wrap">
+  <div class="container">
+    <div class="article-header">
+      <div class="article-breadcrumb">
+        <a href="/">ClawHQ</a>
+        <span>›</span>
+        <a href="/blog/">Blog</a>
+        <span>›</span>
+        <span>Docker over SaaS</span>
+      </div>
+      <h1 class="article-title">Why We Chose <em>Docker</em> Over SaaS for a 30-Agent AI Stack</h1>
+      <p class="article-subtitle">We could have built a managed cloud platform. We chose Docker Compose instead. Here's the reasoning — and what that decision forced us to get right.</p>
+      <p class="article-meta">May 6, 2026 · ClawHQ</p>
+    </div>
+
+    <div class="article-body">
+
+      <p>When we started building ClawHQ, the obvious move was a managed SaaS. Hosted infrastructure, usage-based billing, no ops burden for the user. That's what every AI tooling company was shipping in 2025.</p>
+
+      <p>We went the other direction: a single <code>docker compose up</code> that runs everything on your hardware. Here's why — and why we think more AI infrastructure will follow.</p>
+
+      <h2>The data residency problem nobody talks about</h2>
+
+      <p>AI agents are different from other SaaS tools because of what they touch. A Slack integration reads messages. A GitHub integration reads code. A support agent reads customer tickets. A research agent reads internal documents.</p>
+
+      <p>That's not a narrow data footprint — that's everything. And every piece of that data flowing through a third-party cloud means you're making a trust decision you can't audit.</p>
+
+      <p>For enterprise teams, this isn't abstract. It's GDPR, HIPAA, CMMC, or simply "our security team will never approve it." We talked to teams who wanted to run AI agents on internal data and couldn't find a platform that didn't require sending that data somewhere. So they were handwriting agent scripts instead.</p>
+
+      <p>Self-hosted Docker solves this cleanly. The agents run on your infrastructure. The data never leaves. There's no policy exception to write, no DPA to negotiate, no audit finding to remediate.</p>
+
+      <h2>What you actually pay for with SaaS AI platforms</h2>
+
+      <p>The typical AI agent SaaS charges per seat, per message, or per execution — and then separately for the underlying model calls. At scale, you're paying two margins: theirs and the model provider's.</p>
+
+      <p>Consider a 20-person engineering team using an AI agent platform at $50/seat/month. That's $1,000/month before a single model call. If each team member generates 500 agent interactions per month, and each interaction costs $0.01 in model tokens, that's another $100. But the platform has already priced in their margin on that too — you're actually paying closer to $300 in effective token costs, bundled.</p>
+
+      <p>With self-hosted Docker and BYOK (bring your own API key), the math is different:</p>
+
+      <div class="compare-grid">
+        <div class="compare-box">
+          <h4>Managed SaaS (20 seats)</h4>
+          <ul>
+            <li>$50/seat × 20 = $1,000/mo</li>
+            <li>Bundled model costs (~$300/mo effective)</li>
+            <li>Data leaves your infrastructure</li>
+            <li>Vendor controls uptime and pricing</li>
+            <li>Total: ~$1,300/mo</li>
+          </ul>
+        </div>
+        <div class="compare-box good">
+          <h4>ClawHQ self-hosted</h4>
+          <ul>
+            <li>$0 for the platform (MIT)</li>
+            <li>Direct model costs: ~$100/mo</li>
+            <li>VPS/server: ~$20–40/mo</li>
+            <li>Data stays on your infrastructure</li>
+            <li>Total: ~$120–140/mo</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>The cost argument alone isn't why we made the decision — but it's a real forcing function for teams who are already paying per-seat for five other tools.</p>
+
+      <h2>The architecture problem with cloud-native agent platforms</h2>
+
+      <p>When you build for SaaS, you design your agent system around shared infrastructure: multi-tenant databases, shared message queues, rate-limited API gateways. The platform has to work for everyone, which means it's optimized for no one.</p>
+
+      <p>The most common complaints we heard about existing platforms were about configuration limits — you couldn't change the system prompt past a certain length, couldn't add custom tools without an enterprise tier, couldn't control how agents communicated with each other. These weren't bugs. They were the inevitable consequence of building on shared infrastructure that has to be protected from abuse.</p>
+
+      <p>Docker changes that constraint entirely. When you self-host, you own the stack. You can:</p>
+
+      <ul>
+        <li>Mount a custom <code>agents/</code> directory and override any default behavior</li>
+        <li>Add tools via YAML without touching the platform code</li>
+        <li>Run any model provider — not just the ones the platform decided to support</li>
+        <li>Adjust resource limits per agent based on actual workload</li>
+        <li>Integrate with internal services that are never on the public internet</li>
+      </ul>
+
+      <p>That last one matters more than it looks. Most enterprise teams have internal APIs, databases, and services that don't have public URLs. A cloud-hosted agent can't reach them. A self-hosted agent running inside your network can.</p>
+
+      <h2>What Docker-first forced us to get right</h2>
+
+      <p>The honest version of this story is that self-hosted is harder to build well than SaaS. You lose observability (you can't see into customer deployments), you can't push hot fixes (customers control their update cycle), and you have to make the setup experience so good that someone running it for the first time doesn't give up.</p>
+
+      <p>That constraint was useful. It meant we couldn't paper over configuration complexity with a nice UI — we had to eliminate the complexity. It meant we couldn't rely on "contact support" when something broke — we had to build the health monitoring and debugging tools that let users diagnose issues themselves.</p>
+
+      <div class="callout">
+        <div class="callout-title">What we shipped to make self-hosting actually work</div>
+        <p>A real-time health dashboard with per-service sparklines. An update checker that compares your deployed commit SHA against main and shows the diff. An install script that handles environment setup, validates dependencies, and gives you a working stack. A structured error format that tells you which service failed and what to check. These aren't features — they're the cost of shipping a self-hosted product you'd actually want to use.</p>
+      </div>
+
+      <h2>The model provider question</h2>
+
+      <p>SaaS AI platforms have a business reason to limit your model choices: they're often reselling API access, and locking you to specific providers protects that margin. That's fine for them; it's a real constraint for you.</p>
+
+      <p>We support 27 providers natively — Anthropic, OpenAI, Groq, Gemini, DeepSeek, Mistral, Ollama (local), and 20+ more. Adding a new provider is a YAML entry. You use your own keys, your own pricing tiers, your own rate limits.</p>
+
+      <p>For teams that have negotiated enterprise contracts with a specific model provider, or that want to run a local model for certain agents and a frontier model for others, this flexibility isn't a nice-to-have. It's a requirement.</p>
+
+      <h2>When self-hosted is the wrong answer</h2>
+
+      <p>This isn't a universal argument for self-hosting everything. If you have no infrastructure team, no Docker experience, and your primary goal is getting something working in the next hour — a managed SaaS will serve you better initially.</p>
+
+      <p>Our own hosted offering (ClawHQ Cloud) exists for exactly that case. But even there, we've designed it so that migrating to self-hosted is a single <code>docker compose up</code> — your data is yours, the schema is open, and there's no lock-in to escape.</p>
+
+      <p>The default choice for any serious team handling internal data should be self-hosted. Not because cloud is bad — because the trust model of sending your internal context to a third party's servers is harder to justify the more agents you're running and the deeper they reach into your systems.</p>
+
+      <hr>
+
+      <p><strong>Related reading:</strong> <a href="/blog/llm-routing-27-providers/">How ClawHQ routes tasks across 27 LLM providers</a></p>
+
+      <div class="article-cta">
+        <h3>Run it on your infrastructure.</h3>
+        <p>MIT licensed. Docker Compose. 30+ pre-wired agents. Your keys, your data, your hardware.</p>
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="btn-cta" target="_blank">Get ClawHQ free →</a>
+        <a href="/blog/" class="btn-outline">Read more posts</a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="/" class="footer-brand">ClawHQ</a>
+      <div class="footer-links">
+        <a href="https://github.com/ModologyStudiosLLC/clawhq-platform" class="footer-link" target="_blank">GitHub</a>
+        <a href="/blog/" class="footer-link">Blog</a>
+        <a href="/packs.html" class="footer-link">Packs</a>
+        <a href="/faq/" class="footer-link">FAQ</a>
+      </div>
+      <div class="footer-right">Built by Modology Studios</div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
