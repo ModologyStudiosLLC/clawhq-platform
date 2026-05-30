@@ -23,12 +23,13 @@ RUN git clone --depth 1 https://github.com/NousResearch/hermes-agent.git .
 
 # ── Install Python deps ─────────────────────────────────────────────────────
 RUN uv venv /opt/venv && \
-    uv pip install --python /opt/venv/bin/python -e ".[telegram,discord,slack]" 2>/dev/null || \
     uv pip install --python /opt/venv/bin/python -e "." && \
-    uv pip install --python /opt/venv/bin/python "discord.py>=2.0" "python-telegram-bot>=20.0"
+    uv pip install --python /opt/venv/bin/python \
+      "discord.py>=2.0" "python-telegram-bot>=20.0" "slack-sdk>=3.0"
 
 ENV PATH="/opt/venv/bin:$PATH"
 ENV HERMES_HOME=/opt/data
+ENV HERMES_ALLOW_ROOT_GATEWAY=1
 
 # ── Health server ────────────────────────────────────────────────────────────
 COPY health_server.py /opt/health_server.py
