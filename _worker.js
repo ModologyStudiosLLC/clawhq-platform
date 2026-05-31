@@ -1,35 +1,3 @@
-const FOLLOW_UPS = [
-  {
-    date: "2026-04-30",
-    to: "support@polymaker.com",
-    subject: "Re: Filament Partnership — Modology Studios",
-    text: "Hi Polymaker team,\n\nJust following up on my note from last week about a filament partnership. Happy to share more details about what I'm building if it helps move things forward.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
-  },
-  {
-    date: "2026-04-30",
-    to: "affiliate@snapmaker.com",
-    subject: "Re: Design Collab Inquiry — Modology Studios + Snapmate",
-    text: "Hi Blayne,\n\nJust checking in on my email from last week about a design collab around Snapmate. I think there's a strong angle here — happy to discuss further whenever works for you.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
-  },
-  {
-    date: "2026-04-30",
-    to: "influencer@creality.com",
-    subject: "Re: Maker Program Application — Modology Studios",
-    text: "Hi Creality team,\n\nFollowing up on my email from last week about the Maker Program and the Spark X i7. Happy to provide more details about Modology Studios if that helps.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
-  },
-  {
-    date: "2026-05-03",
-    to: "info@fibreseek3d.com",
-    subject: "Re: Creator Partnership — Modology Studios × FibreSeeker 3",
-    text: "Hi Ryan,\n\nFollowing up on my email from last week — I'd love to explore a creator partnership around the FibreSeeker 3 while the Kickstarter is still live. Happy to hop on a quick call whenever works.\n\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
-  },
-  {
-    date: "2026-05-07",
-    to: "ruanyuan@shining3d.com",
-    subject: "Re: Creator Partnership Inquiry — Modology Studios × EinScan Rocket",
-    text: "Hi Ms. Yuan,\n\nFollowing up on my email from a couple weeks ago about a creator partnership around the EinScan Rocket. Happy to discuss whether there's a media or creator program I could apply to.\n\nThanks,\nMichael Flanigan\nModology Studios\nmichael@modologystudios.com",
-  },
-];
 
 const DEEPSEEK_SYSTEM = `You are the ClawHQ agent router. When given a task, you route it to the best agent and simulate execution.
 
@@ -158,12 +126,6 @@ export default {
               captured_at: new Date().toISOString(),
             }));
 
-            // Also append to lead list for easy polling
-            const listRaw = await env.DEMO_LEADS.get("leads:list") || "[]";
-            const list    = JSON.parse(listRaw);
-            list.push({ email, source, captured_at: new Date().toISOString() });
-            await env.DEMO_LEADS.put("leads:list", JSON.stringify(list));
-
             if (env.RESEND_API_KEY) {
               await fetch("https://api.resend.com/emails", {
                 method: "POST",
@@ -214,11 +176,6 @@ export default {
           const existing = await env.DEMO_LEADS.get(key);
           if (!existing) {
             await env.DEMO_LEADS.put(key, JSON.stringify(lead));
-            // Append to setup leads list
-            const listRaw = await env.DEMO_LEADS.get("setup-leads:list") || "[]";
-            const list = JSON.parse(listRaw);
-            list.push(lead);
-            await env.DEMO_LEADS.put("setup-leads:list", JSON.stringify(list));
           }
         }
 
@@ -289,7 +246,7 @@ export default {
         if (parts.length > 0) {
           personPayload.data.values.name = [{
             first_name: parts[0],
-            last_name: parts.slice(1).join(" ") || parts[0],
+            last_name: parts.slice(1).join(" "),
             full_name: name,
           }];
         }
@@ -310,10 +267,22 @@ export default {
         const personId = person?.data?.id?.record_id;
 
         if (personId) {
+          const attioHeaders = { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" };
+          const logAttioErr = async (label, res) => {
+            if (!res.ok && env.DISCORD_WEBHOOK) {
+              const detail = await res.json().catch(() => ({}));
+              await fetch(env.DISCORD_WEBHOOK, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: `**Attio ${label} failed** (${res.status}): ${JSON.stringify(detail).slice(0, 200)}` }),
+              }).catch(() => {});
+            }
+          };
+
           // Add note to person
-          await fetch("https://api.attio.com/v2/notes", {
+          const noteRes = await fetch("https://api.attio.com/v2/notes", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
+            headers: attioHeaders,
             body: JSON.stringify({
               data: {
                 parent_object: "people",
@@ -323,6 +292,7 @@ export default {
               }
             }),
           });
+          await logAttioErr("note", noteRes);
 
           // Create a Deal linked to the person
           const dealName = company ? `${company} — ClawHQ Demo` : `${name || email} — ClawHQ Demo`;
@@ -331,27 +301,27 @@ export default {
               values: {
                 name: [{ value: dealName }],
                 stage: [{ status: "Lead" }],
-                owner: [{ referenced_actor_type: "workspace-member", referenced_actor_id: "663a07ba-fae7-4c70-a264-8d36eed81a9b" }],
+                owner: [{ referenced_actor_type: "workspace-member", referenced_actor_id: env.ATTIO_OWNER_ID || "663a07ba-fae7-4c70-a264-8d36eed81a9b" }],
                 associated_people: [{ target_object: "people", target_record_id: personId }],
               }
             }
           };
           if (company) {
-            // Upsert company and link it
             const coRes = await fetch("https://api.attio.com/v2/objects/companies/records?matching_attribute=name", {
               method: "PUT",
-              headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
+              headers: attioHeaders,
               body: JSON.stringify({ data: { values: { name: [{ value: company }] } } }),
             });
             const coData = await coRes.json();
             const coId = coData?.data?.id?.record_id;
             if (coId) dealBody.data.values.associated_company = [{ target_object: "companies", target_record_id: coId }];
           }
-          await fetch("https://api.attio.com/v2/objects/deals/records", {
+          const dealRes = await fetch("https://api.attio.com/v2/objects/deals/records", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${attioToken}`, "Content-Type": "application/json" },
+            headers: attioHeaders,
             body: JSON.stringify(dealBody),
           });
+          await logAttioErr("deal", dealRes);
         }
 
         return new Response(JSON.stringify({ ok: true }), { headers: cors });
@@ -370,8 +340,10 @@ export default {
       if (!env.ADMIN_TOKEN || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
         return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
       }
-      const listRaw = env.DEMO_LEADS ? await env.DEMO_LEADS.get("setup-leads:list") || "[]" : "[]";
-      return new Response(listRaw, { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } });
+      if (!env.DEMO_LEADS) return new Response("[]", { headers: { "Content-Type": "application/json" } });
+      const listed = await env.DEMO_LEADS.list({ prefix: "setup-lead:" });
+      const items = await Promise.all(listed.keys.map(k => env.DEMO_LEADS.get(k.name, "json")));
+      return new Response(JSON.stringify(items.filter(Boolean)), { headers: { "Content-Type": "application/json" } });
     }
 
     // ── Live task runner (DeepSeek-backed) ────────────────────────────────────────
@@ -383,6 +355,16 @@ export default {
       };
 
       try {
+        if (env.DEMO_LEADS) {
+          const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+          const rlKey = `ratelimit:runtask:${ip}`;
+          const count = parseInt(await env.DEMO_LEADS.get(rlKey) || "0");
+          if (count >= 10) {
+            return new Response(JSON.stringify({ error: "rate limited" }), { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } });
+          }
+          await env.DEMO_LEADS.put(rlKey, String(count + 1), { expirationTtl: 60 });
+        }
+
         const body = await request.json();
         const task = (body.task || "").slice(0, 300).trim();
         if (!task) {
@@ -462,12 +444,14 @@ export default {
 
     // ── Lead list endpoint (auth-gated for internal polling) ───────────────────
     if (url.pathname === "/leads" && request.method === "GET") {
-      const key = url.searchParams.get("key");
-      if (key !== "clawhq_leads_k7m3p9") {
-        return new Response("Forbidden", { status: 403 });
+      const auth = request.headers.get("Authorization") || "";
+      if (!env.ADMIN_TOKEN || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
+        return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
       }
-      const listRaw = env.DEMO_LEADS ? await env.DEMO_LEADS.get("leads:list") || "[]" : "[]";
-      return new Response(listRaw, {
+      if (!env.DEMO_LEADS) return new Response("[]", { headers: { "Content-Type": "application/json" } });
+      const listed = await env.DEMO_LEADS.list({ prefix: "lead:" });
+      const items = await Promise.all(listed.keys.map(k => env.DEMO_LEADS.get(k.name, "json")));
+      return new Response(JSON.stringify(items.filter(Boolean)), {
         headers: { "Content-Type": "application/json" },
       });
     }
@@ -476,12 +460,12 @@ export default {
     if (url.pathname === "/api/send-email" && request.method === "POST") {
       const cors = { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" };
       try {
-        const body = await request.json();
-        const secret = (body.secret || "").trim();
-        if (!env.EMAIL_SECRET || secret !== env.EMAIL_SECRET) {
+        const auth = request.headers.get("Authorization") || "";
+        if (!env.EMAIL_SECRET || auth !== `Bearer ${env.EMAIL_SECRET}`) {
           return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: cors });
         }
-        const to      = (body.to      || "").trim();
+        const body = await request.json();
+        const to   = (body.to      || "").trim();
         const subject = (body.subject || "").trim();
         const text    = (body.text    || "").trim();
         const from    = (body.from    || "michael@modologystudios.com").trim();
@@ -514,7 +498,7 @@ export default {
     }
 
     if (url.pathname === "/api/send-email" && request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization" } });
     }
 
     // ── Modology contact form ─────────────────────────────────────────────────
@@ -528,7 +512,7 @@ export default {
         if (!email || !email.includes("@") || !message) {
           return new Response(JSON.stringify({ error: "email and message required" }), { status: 400, headers: cors });
         }
-        await fetch("https://api.resend.com/emails", {
+        const rs = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -539,6 +523,10 @@ export default {
             text: `Name: ${name || "—"}\nEmail: ${email}\n\n${message}`,
           }),
         });
+        if (!rs.ok) {
+          const rsData = await rs.json().catch(() => ({}));
+          return new Response(JSON.stringify({ error: "email_failed", detail: rsData }), { status: 502, headers: cors });
+        }
         return new Response(JSON.stringify({ ok: true }), { headers: cors });
       } catch (e) {
         return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: cors });
@@ -569,24 +557,7 @@ export default {
   },
 
   async scheduled(event, env) {
-    const today = new Date().toISOString().slice(0, 10);
-    const due = FOLLOW_UPS.filter(f => f.date === today);
-    for (const f of due) {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${env.RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "Michael Flanigan — Modology Studios <michael@modologystudios.com>",
-          to: [f.to],
-          reply_to: "michael@modologystudios.com",
-          subject: f.subject,
-          text: f.text,
-        }),
-      });
-    }
+    // Reserved for future scheduled tasks
   },
 
   async email(message, env, ctx) {
