@@ -1276,6 +1276,13 @@
       "basic-ftp@=5.2.0": ">=5.2.1",
       "drizzle-orm": ">=0.45.2",
       "vite": ">=8.0.5",
+      "axios": ">=1.8.2",
+      "simple-git": ">=3.16.0",
+      "ws": ">=8.18.1",
+      "fast-uri": ">=3.0.6",
+      "dompurify": ">=3.2.6",
+      "follow-redirects": ">=1.15.9",
+      "brace-expansion": ">=1.1.12",
       "cli": ">=1.0.0"
     },
     "onlyBuiltDependencies": [
