@@ -3,7 +3,7 @@
 #
 # To pin a specific version:
 #   docker build --build-arg OPENCLAW_VERSION=2026.4.9 .
-ARG OPENCLAW_VERSION=latest
+ARG OPENCLAW_VERSION=2026.6.6
 
 FROM node:24-bookworm-slim
 
