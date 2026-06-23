@@ -49,10 +49,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
+  if (!path.every(s => SEGMENT_RE.test(s))) return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   return proxy(req, `/tasks/${path.join("/")}`, "PATCH");
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
+  if (!path.every(s => SEGMENT_RE.test(s))) return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   return proxy(req, `/tasks/${path.join("/")}`, "DELETE");
 }

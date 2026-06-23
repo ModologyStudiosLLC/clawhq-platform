@@ -3,6 +3,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 
+const WORKOS_ENABLED = !!process.env.WORKOS_API_KEY;
+
 let _auditMutex: Promise<void> = Promise.resolve();
 function withAuditMutex<T>(fn: () => Promise<T>): Promise<T> {
   const next = _auditMutex.then(fn);
@@ -54,12 +56,16 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { user } = await withAuth({ ensureSignedIn: true });
+  let actor = "system";
+  if (WORKOS_ENABLED) {
+    const { user } = await withAuth({ ensureSignedIn: true });
+    actor = user.email ?? user.id;
+  }
   const body = (await req.json()) as Omit<AuditEntry, "id" | "ts" | "actor">;
   const entry: AuditEntry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     ts: Date.now(),
-    actor: user.email ?? user.id,
+    actor,
     action: body.action,
     detail: body.detail,
     diff: body.diff,

@@ -23,6 +23,13 @@ const execFileAsync = promisify(execFile);
 const MEM0_SCRIPT = path.join(os.homedir(), ".hermes", "servers", "mem0_mcp_server.py");
 const PYTHON = process.env.MEM0_PYTHON ?? path.join(os.homedir(), "miniforge3", "bin", "python3");
 const DEFAULT_USER_ID = process.env.MEM0_DEFAULT_USER_ID ?? "clawhq";
+const WORKOS_ENABLED = !!process.env.WORKOS_API_KEY;
+
+async function getAuthUserId(): Promise<string> {
+  if (!WORKOS_ENABLED) return DEFAULT_USER_ID;
+  const { user } = await withAuth({ ensureSignedIn: true });
+  return user?.id ?? DEFAULT_USER_ID;
+}
 
 /** Run a single MCP tool call against the mem0 server via stdin/stdout */
 async function callMem0Tool(toolName: string, args: Record<string, unknown>): Promise<unknown> {
@@ -69,9 +76,8 @@ async function callMem0Tool(toolName: string, args: Record<string, unknown>): Pr
 // ── GET /api/memory?q=search+query ───────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  const { user } = await withAuth({ ensureSignedIn: true });
+  const userId = await getAuthUserId();
   const q = req.nextUrl.searchParams.get("q");
-  const userId = user?.id ?? DEFAULT_USER_ID;
   const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "10");
 
   if (!q) {
@@ -95,7 +101,7 @@ export async function GET(req: NextRequest) {
 // ── POST /api/memory ──────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const { user } = await withAuth({ ensureSignedIn: true });
+  const userId = await getAuthUserId();
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -104,7 +110,6 @@ export async function POST(req: NextRequest) {
   }
 
   const action = (body.action as string) ?? "add";
-  const userId = user?.id ?? DEFAULT_USER_ID;
 
   const toolMap: Record<string, string> = {
     add:     "mem0_add",
