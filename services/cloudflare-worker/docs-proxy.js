@@ -22,10 +22,7 @@ async function handleRequest(request) {
       proxyRequest.headers.set("Host", DOCS_URL);
       proxyRequest.headers.set("X-Forwarded-Host", CUSTOM_URL);
       proxyRequest.headers.set("X-Forwarded-Proto", "https");
-      proxyRequest.headers.set(
-        "CF-Connecting-IP",
-        request.headers.get("CF-Connecting-IP")
-      );
+      proxyRequest.headers.delete("CF-Connecting-IP");
 
       return await fetch(proxyRequest);
     }

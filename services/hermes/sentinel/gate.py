@@ -7,9 +7,13 @@ and TLS requirements before requests reach ClawHQ.
 
 import time
 import json
+import os
+import logging
 from collections import defaultdict
 from typing import Optional
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -38,10 +42,46 @@ class GateLayer:
         self._load_blocklists()
     
     def _load_blocklists(self):
-        """Load IP blocklists from configured sources."""
-        # TODO: Fetch from blocklist URLs on startup and periodically
-        # Sources configured in gate.yaml -> ip_reputation.blocklists
-        pass
+        """Load IP blocklists from configured sources.
+
+        Reads from two places (both optional):
+          1. gate.yaml -> ip_reputation.blocklist_file  — local file, one IP/CIDR per line
+          2. gate.yaml -> ip_reputation.persist_file    — runtime-blocked IPs written by block_ip()
+
+        Lines starting with '#' are treated as comments and skipped.
+        """
+        ip_cfg = self.config.get("ip_reputation", {})
+
+        for key in ("blocklist_file", "persist_file"):
+            filepath = ip_cfg.get(key)
+            if not filepath:
+                continue
+            filepath = os.path.expanduser(filepath)
+            if not os.path.isfile(filepath):
+                continue
+            try:
+                with open(filepath, "r") as f:
+                    for line in f:
+                        entry = line.strip()
+                        if entry and not entry.startswith("#"):
+                            self._blocklist.add(entry)
+                logger.info("Loaded blocklist from %s (%d entries)", filepath, len(self._blocklist))
+            except OSError as exc:
+                logger.warning("Could not read blocklist file %s: %s", filepath, exc)
+
+    def _persist_blocklist(self):
+        """Persist the runtime blocklist to disk so it survives restarts."""
+        persist_file = self.config.get("ip_reputation", {}).get("persist_file")
+        if not persist_file:
+            return
+        persist_file = os.path.expanduser(persist_file)
+        try:
+            os.makedirs(os.path.dirname(persist_file), exist_ok=True)
+            with open(persist_file, "w") as f:
+                for ip in sorted(self._blocklist):
+                    f.write(ip + "\n")
+        except OSError as exc:
+            logger.warning("Could not persist blocklist to %s: %s", persist_file, exc)
     
     async def check(self, scope: dict) -> bool:
         """
@@ -144,13 +184,14 @@ class GateLayer:
             return False
     
     def block_ip(self, ip: str, duration_seconds: int = 3600):
-        """Manually block an IP address."""
+        """Manually block an IP address and persist to disk."""
         self._blocklist.add(ip)
-        # TODO: Persist to disk, sync with reverse proxy
-    
+        self._persist_blocklist()
+
     def unblock_ip(self, ip: str):
-        """Remove an IP from the blocklist."""
+        """Remove an IP from the blocklist and persist to disk."""
         self._blocklist.discard(ip)
+        self._persist_blocklist()
     
     def get_stats(self) -> dict:
         """Return gate statistics for monitoring."""

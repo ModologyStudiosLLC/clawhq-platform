@@ -289,8 +289,11 @@ export async function POST(
     case "sequential-thinking":  result = await testSequentialThinking(credential); break;
     case "obsidian":             result = await testObsidian(credential);         break;
     case "cloudflare":           result = await testCloudflare(credential);       break;
-    default:
-      result = { ok: false, message: `Unknown integration: ${id}` };
+    default: {
+      // Sanitize id before reflecting to prevent log injection via control chars
+      const safeId = id.replace(/[^\w-]/g, "").slice(0, 64);
+      result = { ok: false, message: `Unknown integration: ${safeId}` };
+    }
   }
 
   return NextResponse.json(result, { status: result.ok ? 200 : 422 });
