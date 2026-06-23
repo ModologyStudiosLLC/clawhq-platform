@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { withAuth } from "@workos-inc/authkit-nextjs";
 import { execFile } from "child_process";
 import { promisify } from "util";
 import path from "path";
@@ -68,8 +69,9 @@ async function callMem0Tool(toolName: string, args: Record<string, unknown>): Pr
 // ── GET /api/memory?q=search+query ───────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const { user } = await withAuth({ ensureSignedIn: true });
   const q = req.nextUrl.searchParams.get("q");
-  const userId = req.nextUrl.searchParams.get("user_id") ?? DEFAULT_USER_ID;
+  const userId = user?.id ?? DEFAULT_USER_ID;
   const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "10");
 
   if (!q) {
@@ -93,6 +95,7 @@ export async function GET(req: NextRequest) {
 // ── POST /api/memory ──────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const { user } = await withAuth({ ensureSignedIn: true });
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -101,7 +104,7 @@ export async function POST(req: NextRequest) {
   }
 
   const action = (body.action as string) ?? "add";
-  const userId = (body.user_id as string) ?? DEFAULT_USER_ID;
+  const userId = user?.id ?? DEFAULT_USER_ID;
 
   const toolMap: Record<string, string> = {
     add:     "mem0_add",

@@ -48,7 +48,7 @@ export async function provisionTenant(opts: {
   const d1Data = await d1Res.json() as { result: { uuid: string } };
   const d1DatabaseId = d1Data.result.uuid;
 
-  // 2. Register in KV TENANT_REGISTRY
+  // 2. Register in KV TENANT_REGISTRY — if this fails, delete the D1 db to avoid orphan
   const record: TenantRecord = {
     orgId,
     d1DatabaseId,
@@ -58,9 +58,17 @@ export async function provisionTenant(opts: {
     provisionedAt: new Date().toISOString(),
   };
 
-  await writeKV(orgId, JSON.stringify(record));
+  try {
+    await writeKV(orgId, JSON.stringify(record));
+  } catch (err) {
+    await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/d1/database/${d1DatabaseId}`,
+      { method: "DELETE", headers: { Authorization: `Bearer ${CF_API_TOKEN}` } }
+    ).catch(() => {});
+    throw err;
+  }
 
-  // 3. Set WorkOS org metadata
+  // 3. Set WorkOS org metadata (best-effort — non-fatal)
   await setWorkOSOrgMetadata(orgId, { tier, seats, d1DatabaseId });
 
   return record;

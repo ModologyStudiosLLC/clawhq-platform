@@ -3,6 +3,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { randomBytes, createHash } from "crypto";
 
+// File-level mutex — prevents concurrent read-modify-write races.
+let _keysMutex: Promise<void> = Promise.resolve();
+function withKeysMutex<T>(fn: () => Promise<T>): Promise<T> {
+  const next = _keysMutex.then(fn);
+  _keysMutex = next.then(() => undefined, () => undefined);
+  return next;
+}
+
 const KEYS_FILE =
   process.env.CLAWHQ_KEYS_FILE ??
   (process.env.NODE_ENV === "production"
@@ -63,10 +71,11 @@ export async function POST(req: Request) {
     createdAt: Date.now(),
   };
 
-  const keys = await readKeys();
-  keys.push(record);
-  await writeKeys(keys);
-
-  // Return the full key only this once
-  return NextResponse.json({ ...publicKey(record), key: raw }, { status: 201 });
+  return withKeysMutex(async () => {
+    const keys = await readKeys();
+    keys.push(record);
+    await writeKeys(keys);
+    // Return the full key only this once
+    return NextResponse.json({ ...publicKey(record), key: raw }, { status: 201 });
+  });
 }

@@ -46,7 +46,7 @@ function listFiles(dir: string, root: string, depth = 0): WorkspaceFile[] {
       // Recurse into output dirs; skip node_modules and chroma_db
       if (["node_modules", "chroma_db", "legal-compliance-platform"].includes(entry)) continue;
       results = results.concat(listFiles(full, root, depth + 1));
-    } else if (stat.isFile() && entry.endsWith(".md") || entry.endsWith(".json") || entry.endsWith(".txt")) {
+    } else if (stat.isFile() && (entry.endsWith(".md") || entry.endsWith(".json") || entry.endsWith(".txt"))) {
       if (depth === 0 && CONFIG_FILES.has(entry)) continue;
       results.push({
         name: entry,

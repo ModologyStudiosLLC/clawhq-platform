@@ -58,11 +58,14 @@ function pruneRateBuckets(): void {
 }
 
 function getIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown"
-  );
+  // Use the LAST entry in X-Forwarded-For — the one appended by our trusted
+  // proxy (Caddy). The first entry is client-controlled and can be spoofed.
+  const xff = request.headers.get("x-forwarded-for");
+  if (xff) {
+    const parts = xff.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length > 0) return parts[parts.length - 1];
+  }
+  return request.headers.get("x-real-ip") ?? "unknown";
 }
 
 // ── Body size guard ───────────────────────────────────────────────────────────

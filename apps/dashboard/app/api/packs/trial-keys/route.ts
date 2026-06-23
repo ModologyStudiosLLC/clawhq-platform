@@ -39,6 +39,14 @@ export interface TrialKey {
   last_used_at: string | null;
 }
 
+// File-level mutex — prevents concurrent read-modify-write races.
+let _mutex: Promise<void> = Promise.resolve();
+function withMutex<T>(fn: () => Promise<T>): Promise<T> {
+  const next = _mutex.then(fn);
+  _mutex = next.then(() => undefined, () => undefined);
+  return next;
+}
+
 async function readKeys(): Promise<TrialKey[]> {
   try {
     const raw = await fs.readFile(KEYS_FILE, "utf8");
@@ -69,12 +77,12 @@ function isKeyValid(k: TrialKey): { valid: boolean; reason?: string } {
   return { valid: true };
 }
 
-// ── GET — list keys (masks the actual key value after creation) ───────────────
+// ── GET — list keys (masks secret key value) ──────────────────────────────────
 export async function GET() {
   const keys = await readKeys();
-  // Return keys with status computed, full key visible for management UI
   const enriched = keys.map(k => ({
     ...k,
+    key: `${k.key.slice(0, 10)}${"*".repeat(Math.max(0, k.key.length - 10))}`,
     status: isKeyValid(k).valid ? "active" : (isKeyValid(k).reason ?? "inactive"),
   }));
   return NextResponse.json({ keys: enriched });
@@ -108,17 +116,15 @@ export async function POST(req: NextRequest) {
     last_used_at: null,
   };
 
-  const keys = await readKeys();
-
-  // Prevent duplicate key values
-  if (keys.some(k => k.key === newKey.key)) {
-    return NextResponse.json({ error: "Key already exists" }, { status: 409 });
-  }
-
-  keys.push(newKey);
-  await writeKeys(keys);
-
-  return NextResponse.json({ key: newKey }, { status: 201 });
+  return withMutex(async () => {
+    const keys = await readKeys();
+    if (keys.some(k => k.key === newKey.key)) {
+      return NextResponse.json({ error: "Key already exists" }, { status: 409 });
+    }
+    keys.push(newKey);
+    await writeKeys(keys);
+    return NextResponse.json({ key: newKey }, { status: 201 });
+  });
 }
 
 // ── DELETE — revoke a key ─────────────────────────────────────────────────────
@@ -127,14 +133,14 @@ export async function DELETE(req: NextRequest) {
   const keyValue = searchParams.get("key")?.trim().toUpperCase();
   if (!keyValue) return NextResponse.json({ error: "key param required" }, { status: 400 });
 
-  const keys = await readKeys();
-  const idx = keys.findIndex(k => k.key === keyValue);
-  if (idx === -1) return NextResponse.json({ error: "Key not found" }, { status: 404 });
-
-  keys[idx].revoked = true;
-  await writeKeys(keys);
-
-  return NextResponse.json({ ok: true, revoked: keyValue });
+  return withMutex(async () => {
+    const keys = await readKeys();
+    const idx = keys.findIndex(k => k.key === keyValue);
+    if (idx === -1) return NextResponse.json({ error: "Key not found" }, { status: 404 });
+    keys[idx].revoked = true;
+    await writeKeys(keys);
+    return NextResponse.json({ ok: true, revoked: keyValue });
+  });
 }
 
 // ── Exported helpers for install/validate routes ──────────────────────────────

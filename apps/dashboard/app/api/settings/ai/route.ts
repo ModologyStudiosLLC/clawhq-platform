@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 
 // Natural language → proposed settings change
 // Calls Hermes internal API or falls back to direct Anthropic call
+const MAX_PROMPT_LENGTH = 500;
+
 export async function POST(req: Request) {
   const { prompt, currentSettings } = await req.json();
+  if (!prompt || typeof prompt !== "string" || prompt.length > MAX_PROMPT_LENGTH) {
+    return NextResponse.json({ error: `prompt must be a string of ${MAX_PROMPT_LENGTH} characters or fewer` }, { status: 400 });
+  }
 
   const hermesUrl = process.env.HERMES_INTERNAL_URL;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;

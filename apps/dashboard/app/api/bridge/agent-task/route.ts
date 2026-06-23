@@ -26,7 +26,7 @@ const BRIDGE_SECRET = process.env.CLAWHQ_BRIDGE_SECRET ?? "";
 // If the secret is not set the check is skipped (open/dev mode).
 
 function verifySignature(body: string, header: string | null): boolean {
-  if (!BRIDGE_SECRET) return true; // secret not configured — open mode
+  if (!BRIDGE_SECRET) return false; // secret not configured — deny all (set CLAWHQ_BRIDGE_SECRET)
   if (!header) return false;
 
   const expected = `sha256=${createHmac("sha256", BRIDGE_SECRET).update(body).digest("hex")}`;

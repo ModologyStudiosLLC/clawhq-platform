@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Billing not configured" }, { status: 503 });
   }
 
-  const origin = req.headers.get("origin") ?? "https://clawhqplatform.com";
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://clawhqplatform.com";
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
       clawhq_org_id: organizationId ?? "",
       clawhq_user_id: user.id,
     },
-    success_url: `${origin}/dashboard?billing=success`,
-    cancel_url: `${origin}/onboarding?billing=cancelled`,
+    success_url: `${APP_URL}/dashboard?billing=success`,
+    cancel_url: `${APP_URL}/onboarding?billing=cancelled`,
     allow_promotion_codes: true,
   });
 

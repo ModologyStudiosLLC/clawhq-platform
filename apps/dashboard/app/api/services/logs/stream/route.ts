@@ -8,7 +8,8 @@ const DOCKER_PROXY = process.env.DOCKER_PROXY_URL || "";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const serviceName = url.searchParams.get("service") || "";
-  const tail = parseInt(url.searchParams.get("tail") || "150", 10);
+  const tailRaw = parseInt(url.searchParams.get("tail") || "150", 10);
+  const tail = Number.isFinite(tailRaw) ? Math.min(Math.max(tailRaw, 1), 2000) : 150;
 
   if (!DOCKER_PROXY) {
     return NextResponse.json({ error: "Docker proxy not configured" }, { status: 503 });

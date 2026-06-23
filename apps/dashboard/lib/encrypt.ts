@@ -21,8 +21,7 @@ const ENCRYPTED_MARKER = /^[0-9a-f]{24}:[0-9a-f]{32}:/i;
 function deriveKey(): Buffer {
   const secret = process.env.BETTER_AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
   if (!secret) {
-    // No key configured — encryption is a no-op (open/dev mode).
-    return Buffer.alloc(32, 0);
+    throw new Error("BETTER_AUTH_SECRET is not set — credential encryption is disabled. Set this env var before storing integrations.");
   }
   // SHA-256 of the secret → exactly 32 bytes for AES-256.
   return createHash("sha256").update(secret).digest();
@@ -31,8 +30,6 @@ function deriveKey(): Buffer {
 export function encrypt(plaintext: string): string {
   if (!plaintext) return plaintext;
   const key = deriveKey();
-  // If key is all-zeroes (no secret configured) store plaintext.
-  if (key.every((b) => b === 0)) return plaintext;
 
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv(ALGO, key, iv);
@@ -46,7 +43,6 @@ export function decrypt(stored: string): string {
   if (!ENCRYPTED_MARKER.test(stored)) return stored; // plaintext — migrate on next write
 
   const key = deriveKey();
-  if (key.every((b) => b === 0)) return stored;
 
   try {
     const parts = stored.split(":");

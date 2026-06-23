@@ -12,10 +12,15 @@ function formatEntryForContext(e: AuditEntry): string {
   return `[${time}] ${e.actor} · ${e.action} · ${e.detail}${diff}`;
 }
 
+const MAX_QUESTION_LENGTH = 500;
+
 export async function POST(req: Request) {
   const { question } = (await req.json()) as { question: string };
   if (!question?.trim()) {
     return NextResponse.json({ error: "question is required" }, { status: 400 });
+  }
+  if (question.length > MAX_QUESTION_LENGTH) {
+    return NextResponse.json({ error: `question must be ${MAX_QUESTION_LENGTH} characters or fewer` }, { status: 400 });
   }
 
   const entries = await readLog();

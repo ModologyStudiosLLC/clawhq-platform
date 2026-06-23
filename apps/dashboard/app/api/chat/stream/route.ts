@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 
 const OPENFANG = process.env.OPENFANG_INTERNAL_URL || process.env.NEXT_PUBLIC_OPENFANG_URL || "http://localhost:4200";
+const AGENT_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
 
 function errorEvent(msg: string): Response {
   const body = `data: ${JSON.stringify({ error: msg, done: true })}\n\n`;
@@ -16,6 +17,10 @@ function errorEvent(msg: string): Response {
 
 export async function POST(req: NextRequest) {
   const { agentId, sessionId, message } = await req.json();
+
+  if (!agentId || !AGENT_ID_RE.test(agentId)) {
+    return errorEvent("Invalid agentId");
+  }
 
   let upstream: Response;
   try {

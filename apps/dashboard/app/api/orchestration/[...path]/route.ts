@@ -29,18 +29,22 @@ async function proxy(req: NextRequest, upstreamPath: string, method?: string): P
   }
 }
 
+const SEGMENT_RE = /^[a-zA-Z0-9_-]+$/;
+
 function upstreamPath(segments: string[]): string {
+  // Validate each segment to prevent path traversal (e.g. ".." or URL-encoded variants)
+  if (!segments.every(s => SEGMENT_RE.test(s))) return "";
   const joined = segments.join("/");
-  // Named sub-paths map to orchestration server routes
   if (joined === "health") return "/health/full";
   if (joined === "stats")  return "/stats";
-  // Everything else is a task ID
   return `/tasks/${joined}`;
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
-  return proxy(req, upstreamPath(path));
+  const up = upstreamPath(path);
+  if (!up) return NextResponse.json({ error: "Invalid path" }, { status: 400 });
+  return proxy(req, up);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {

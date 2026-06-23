@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import { withAuth } from "@workos-inc/authkit-nextjs";
+
+let _auditMutex: Promise<void> = Promise.resolve();
+function withAuditMutex<T>(fn: () => Promise<T>): Promise<T> {
+  const next = _auditMutex.then(fn);
+  _auditMutex = next.then(() => undefined, () => undefined);
+  return next;
+}
 
 const AUDIT_FILE =
   process.env.CLAWHQ_AUDIT_FILE ??
@@ -29,11 +37,13 @@ export async function readLog(): Promise<AuditEntry[]> {
 }
 
 async function appendEntry(entry: AuditEntry): Promise<void> {
-  const log = await readLog();
-  log.push(entry);
-  const trimmed = log.slice(-MAX_ENTRIES);
-  await fs.mkdir(path.dirname(AUDIT_FILE), { recursive: true });
-  await fs.writeFile(AUDIT_FILE, JSON.stringify(trimmed, null, 2), "utf8");
+  return withAuditMutex(async () => {
+    const log = await readLog();
+    log.push(entry);
+    const trimmed = log.slice(-MAX_ENTRIES);
+    await fs.mkdir(path.dirname(AUDIT_FILE), { recursive: true });
+    await fs.writeFile(AUDIT_FILE, JSON.stringify(trimmed, null, 2), "utf8");
+  });
 }
 
 export async function GET(req: Request) {
@@ -44,11 +54,12 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as Omit<AuditEntry, "id" | "ts">;
+  const { user } = await withAuth({ ensureSignedIn: true });
+  const body = (await req.json()) as Omit<AuditEntry, "id" | "ts" | "actor">;
   const entry: AuditEntry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     ts: Date.now(),
-    actor: body.actor ?? "system",
+    actor: user.email ?? user.id,
     action: body.action,
     detail: body.detail,
     diff: body.diff,
