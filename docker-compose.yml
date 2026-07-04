@@ -18,6 +18,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - clawhq
+    restart: unless-stopped
 
   # ─── OpenClaw — agent gateway & dashboard sessions ────────────────────────
   openclaw:
