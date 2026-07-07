@@ -156,6 +156,9 @@ services:
       PAPERCLIP_INTERNAL_URL: http://paperclip:3100
       # Clawhip — fire events (session.started, session.finished, etc.)
       CLAWHIP_INTERNAL_URL: http://clawhip:25294
+      # Use bulk sync to atomically replace all global slash commands.
+      # Avoids Discord's 100-command limit error on incremental safe sync.
+      DISCORD_COMMAND_SYNC_POLICY: ${DISCORD_COMMAND_SYNC_POLICY:-bulk}
     volumes:
       - hermes-data:/opt/data
     # Not exposed publicly — dashboard queries via internal URL

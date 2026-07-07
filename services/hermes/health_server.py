@@ -80,15 +80,19 @@ START_TIME = datetime.utcnow().isoformat()
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 def get_gateway_status() -> dict:
-    """Check if hermes gateway process is alive."""
+    """Check if hermes gateway process is alive via /proc (pgrep not available)."""
     try:
-        result = subprocess.run(
-            ["pgrep", "-f", "hermes gateway"],
-            capture_output=True, text=True, timeout=3
-        )
-        running = result.returncode == 0
-        pids = result.stdout.strip().split("\n") if running else []
-        return {"running": running, "pids": [p for p in pids if p]}
+        pids = []
+        for entry in os.listdir("/proc"):
+            if not entry.isdigit():
+                continue
+            try:
+                cmdline = Path(f"/proc/{entry}/cmdline").read_bytes().replace(b"\x00", b" ").decode(errors="replace")
+                if "hermes" in cmdline and "gateway" in cmdline:
+                    pids.append(entry)
+            except OSError:
+                continue
+        return {"running": bool(pids), "pids": pids}
     except Exception:
         return {"running": False, "pids": []}
 

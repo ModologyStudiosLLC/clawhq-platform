@@ -14,14 +14,14 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
-            "name": "Nemotron Ultra 253B",
+            "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+            "name": "Nemotron Super 49B",
             "api": "openai-completions",
             "reasoning": true,
             "input": ["text"],
-            "cost": {"input": 0.4, "output": 1.2, "cacheRead": 0, "cacheWrite": 0},
+            "cost": {"input": 0.13, "output": 0.4, "cacheRead": 0, "cacheWrite": 0},
             "contextWindow": 131072,
-            "maxTokens": 32768
+            "maxTokens": 8192
           },
           {
             "id": "meta/llama-4-maverick-17b-128e-instruct",
@@ -30,16 +30,6 @@
             "reasoning": false,
             "input": ["text"],
             "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
-            "contextWindow": 131072,
-            "maxTokens": 8192
-          },
-          {
-            "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
-            "name": "Nemotron Super 49B",
-            "api": "openai-completions",
-            "reasoning": true,
-            "input": ["text"],
-            "cost": {"input": 0.13, "output": 0.4, "cacheRead": 0, "cacheWrite": 0},
             "contextWindow": 131072,
             "maxTokens": 8192
           }
@@ -77,9 +67,8 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "nvidia-nim/nvidia/llama-3.1-nemotron-ultra-253b-v1",
+        "primary": "nvidia-nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
         "fallbacks": [
-          "nvidia-nim/nvidia/llama-3.3-nemotron-super-49b-v1.5",
           "nvidia-nim/meta/llama-4-maverick-17b-128e-instruct",
           "zai/glm-5"
         ]
