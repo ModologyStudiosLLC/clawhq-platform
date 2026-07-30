@@ -382,7 +382,9 @@ vi.mock("../agents/pi-model-discovery.js", async () => {
           };
         }
         const value = Reflect.get(target, prop, receiver);
-        return typeof value === "function" ? value.bind(target) : value;
+        // Bind to `receiver` (the Proxy), not `target`, so any internal method that
+        // calls `this.getAll()` on itself still routes through the mock above.
+        return typeof value === "function" ? value.bind(receiver) : value;
       },
     });
   }

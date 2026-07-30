@@ -125,7 +125,12 @@ function createOpenClawModelRegistry(
         return overrides[prop as keyof PiModelRegistry];
       }
       const value = Reflect.get(target, prop, receiver);
-      return typeof value === "function" ? value.bind(target) : value;
+      // Bind to `receiver` (the Proxy), not `target` (the raw instance): if any of
+      // ModelRegistry's own internal methods call `this.getAll()`/`this.find()` on
+      // themselves, that call must also route through this trap so normalization
+      // still applies. Binding to `target` would silently bypass the overrides above
+      // for any internally-chained call.
+      return typeof value === "function" ? value.bind(receiver) : value;
     },
   });
 }
