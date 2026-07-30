@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createSyntheticSourceInfo, type Skill } from "@mariozechner/pi-coding-agent";
+import { createSyntheticSourceInfo, type Skill } from "@earendil-works/pi-coding-agent";
 
 export async function writeSkill(params: {
   dir: string;

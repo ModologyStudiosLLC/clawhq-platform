@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Type, type Static } from "@sinclair/typebox";
 import {
   definePluginEntry,
   type GatewayRequestHandlerOptions,
@@ -403,7 +403,8 @@ export default definePluginEntry({
       label: "Voice Call",
       description: "Make phone calls and have voice conversations via the voice-call plugin.",
       parameters: VoiceCallToolSchema,
-      async execute(_toolCallId, params) {
+      async execute(_toolCallId, rawParams) {
+        const params = rawParams as Static<typeof VoiceCallToolSchema>;
         const json = (payload: unknown) => ({
           content: [{ type: "text" as const, text: JSON.stringify(payload, null, 2) }],
           details: payload,
@@ -412,7 +413,7 @@ export default definePluginEntry({
         try {
           const rt = await ensureRuntime();
 
-          if (typeof params?.action === "string") {
+          if (params && "action" in params && typeof params.action === "string") {
             switch (params.action) {
               case "initiate_call": {
                 const message = String(params.message || "").trim();

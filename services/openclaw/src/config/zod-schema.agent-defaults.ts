@@ -194,6 +194,13 @@ export const AgentDefaultsSchema = z
       .strict()
       .optional(),
     sandbox: AgentSandboxSchema,
+    /** Monthly spend cap tracking (see src/utils/model-router.ts readBudgetUsedPercent). */
+    budget: z
+      .object({
+        monthlyCap: z.number().positive().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .optional();

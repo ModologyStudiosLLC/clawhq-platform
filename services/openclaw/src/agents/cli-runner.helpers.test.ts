@@ -1,4 +1,4 @@
-import type { ImageContent } from "@mariozechner/pi-ai";
+import type { ImageContent } from "@earendil-works/pi-ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MAX_IMAGE_BYTES } from "../media/constants.js";
 import { buildCliArgs, loadPromptRefImages } from "./cli-runner/helpers.js";

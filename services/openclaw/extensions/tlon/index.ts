@@ -143,8 +143,9 @@ export default defineChannelPluginEntry({
         },
         required: ["command"],
       },
-      async execute(_id: string, params: { command: string }) {
+      async execute(_id: string, rawParams: unknown) {
         try {
+          const params = rawParams as { command: string };
           const args = shellSplit(params.command);
           const subcommand = args[0];
           if (!ALLOWED_TLON_COMMANDS.has(subcommand)) {

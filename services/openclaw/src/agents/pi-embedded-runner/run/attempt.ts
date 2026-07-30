@@ -1,12 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
-import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
-import { streamSimple } from "@mariozechner/pi-ai";
+import type { AgentMessage, StreamFn } from "@earendil-works/pi-agent-core";
+import type { ModelCompatConfig } from "../../../config/types.models.js";
+import { streamSimple } from "@earendil-works/pi-ai";
 import {
   createAgentSession,
   DefaultResourceLoader,
   SessionManager,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
 import { resolveChannelCapabilities } from "../../../config/channel-capabilities.js";
 import { getMachineDisplayName } from "../../../infra/machine-name.js";
@@ -458,7 +459,7 @@ export async function runEmbeddedAttempt(
           abortSignal: runAbortController.signal,
           modelProvider: params.model.provider,
           modelId: params.modelId,
-          modelCompat: params.model.compat,
+          modelCompat: params.model.compat as ModelCompatConfig | undefined,
           modelContextWindowTokens: params.model.contextWindow,
           modelAuthMode: resolveModelAuthMode(params.model.provider, params.config),
           currentChannelId: params.currentChannelId,
@@ -522,7 +523,12 @@ export async function runEmbeddedAttempt(
       tools: effectiveTools,
       clientTools,
     });
-    logToolSchemasForGoogle({ tools: effectiveTools, provider: params.provider });
+    // effectiveTools mixes tools from multiple runtimes (bundle MCP/LSP) whose TSchema
+    // generics don't structurally unify; this is a diagnostic log call only.
+    logToolSchemasForGoogle({
+      tools: effectiveTools as unknown as Parameters<typeof logToolSchemasForGoogle>[0]["tools"],
+      provider: params.provider,
+    });
 
     const machineName = await getMachineDisplayName();
     const runtimeChannel = normalizeMessageChannel(params.messageChannel ?? params.messageProvider);
@@ -946,7 +952,7 @@ export async function runEmbeddedAttempt(
           `embedded agent transport override: ${activeSession.agent.transport} -> ${agentTransportOverride} ` +
             `(${params.provider}/${params.modelId})`,
         );
-        activeSession.agent.setTransport(agentTransportOverride);
+        activeSession.agent.transport = agentTransportOverride;
       }
 
       if (cacheTrace) {
@@ -1116,7 +1122,7 @@ export async function runEmbeddedAttempt(
           : truncated;
         cacheTrace?.recordStage("session:limited", { messages: limited });
         if (limited.length > 0) {
-          activeSession.agent.replaceMessages(limited);
+          activeSession.agent.state.messages = limited;
         }
 
         if (params.contextEngine) {
@@ -1134,7 +1140,7 @@ export async function runEmbeddedAttempt(
               throw new Error("context engine assemble returned no result");
             }
             if (assembled.messages !== activeSession.messages) {
-              activeSession.agent.replaceMessages(assembled.messages);
+              activeSession.agent.state.messages = assembled.messages;
             }
             if (assembled.systemPromptAddition) {
               systemPromptText = prependSystemPromptAddition({
@@ -1449,7 +1455,7 @@ export async function runEmbeddedAttempt(
             sessionManager.resetLeaf();
           }
           const sessionContext = sessionManager.buildSessionContext();
-          activeSession.agent.replaceMessages(sessionContext.messages);
+          activeSession.agent.state.messages = sessionContext.messages;
           log.warn(
             `Removed orphaned user message to prevent consecutive user turns. ` +
               `runId=${params.runId} sessionId=${params.sessionId}`,
@@ -1463,7 +1469,7 @@ export async function runEmbeddedAttempt(
           // Called each run; only mutates already-answered user turns that still carry image blocks.
           const didPruneImages = pruneProcessedHistoryImages(activeSession.messages);
           if (didPruneImages) {
-            activeSession.agent.replaceMessages(activeSession.messages);
+            activeSession.agent.state.messages = activeSession.messages;
           }
 
           // Detect and load images referenced in the prompt for vision-capable models.

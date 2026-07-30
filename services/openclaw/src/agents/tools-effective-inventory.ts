@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../config/config.js";
+import type { ModelCompatConfig } from "../config/types.models.js";
 import { getPluginToolMeta } from "../plugins/tools.js";
 import { resolveAgentDir, resolveAgentWorkspaceDir, resolveSessionAgentId } from "./agent-scope.js";
 import { getChannelAgentToolMeta } from "./channel-tools.js";
@@ -133,7 +134,9 @@ function resolveEffectiveModelCompat(params: {
     return undefined;
   }
   try {
-    return resolveModel(provider, modelId, params.agentDir, params.cfg).model?.compat;
+    return resolveModel(provider, modelId, params.agentDir, params.cfg).model?.compat as
+      | ModelCompatConfig
+      | undefined;
   } catch {
     return undefined;
   }

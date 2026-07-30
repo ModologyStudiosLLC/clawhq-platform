@@ -1,4 +1,4 @@
-import type { OpenAICompletionsCompat } from "@mariozechner/pi-ai";
+import type { OpenAICompletionsCompat } from "@earendil-works/pi-ai";
 import type { SecretInput } from "./types.secrets.js";
 
 export const MODEL_APIS = [

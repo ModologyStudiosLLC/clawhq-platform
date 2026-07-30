@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { getModel } from "@mariozechner/pi-ai";
-import { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+import { getModel } from "@earendil-works/pi-ai";
+import { AuthStorage, ModelRegistry } from "@earendil-works/pi-coding-agent";
 import OpenAI from "openai";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
 import { loadConfig } from "openclaw/plugin-sdk/config-runtime";
@@ -26,7 +26,7 @@ vi.mock("openclaw/plugin-sdk/runtime-env", () => ({
   ensureGlobalUndiciEnvProxyDispatcher: runtimeMocks.ensureGlobalUndiciEnvProxyDispatcher,
 }));
 
-vi.mock("@mariozechner/pi-ai/oauth", () => ({
+vi.mock("@earendil-works/pi-ai/oauth", () => ({
   refreshOpenAICodexToken: runtimeMocks.refreshOpenAICodexToken,
 }));
 
@@ -54,7 +54,7 @@ function resolveTemplateModelId(modelId: string) {
 }
 
 function createTemplateModelRegistry(modelId: string): ModelRegistry {
-  const registry = new ModelRegistry(AuthStorage.inMemory());
+  const registry = ModelRegistry.inMemory(AuthStorage.inMemory());
   const template = getModel("openai", resolveTemplateModelId(modelId));
   registry.registerProvider("openai", {
     apiKey: "test",

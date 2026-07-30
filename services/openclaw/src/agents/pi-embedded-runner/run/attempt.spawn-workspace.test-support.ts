@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { Api, Model } from "@mariozechner/pi-ai";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
+import type { Api, Model } from "@earendil-works/pi-ai";
 import { expect, vi } from "vitest";
 import type {
   AssembleResult,
@@ -59,7 +59,7 @@ export function getHoisted() {
   return hoisted;
 }
 
-vi.mock("@mariozechner/pi-coding-agent", () => {
+vi.mock("@earendil-works/pi-coding-agent", () => {
   class AuthStorage {}
   class DefaultResourceLoader {
     async reload() {}

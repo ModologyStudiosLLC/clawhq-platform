@@ -1,10 +1,10 @@
-import type { Model } from "@mariozechner/pi-ai";
+import type { Model } from "@earendil-works/pi-ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { __testing as extraParamsTesting } from "./extra-params.js";
 import { runExtraParamsCase } from "./extra-params.test-support.js";
 
-vi.mock("@mariozechner/pi-ai", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+vi.mock("@earendil-works/pi-ai", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@earendil-works/pi-ai")>();
   return {
     ...original,
     streamSimple: vi.fn(() => ({

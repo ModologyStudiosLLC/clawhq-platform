@@ -1,9 +1,9 @@
-import type { Context, Tool } from "@mariozechner/pi-ai";
+import type { Context, Tool } from "@earendil-works/pi-ai";
 import { describe, expect, it } from "vitest";
 import {
   convertMessages,
   convertTools,
-} from "../../node_modules/@mariozechner/pi-ai/dist/providers/google-shared.js";
+} from "../../node_modules/@earendil-works/pi-ai/dist/providers/google-shared.js";
 import {
   asRecord,
   expectConvertedRoles,
@@ -345,6 +345,12 @@ describe("google-shared convertMessages", () => {
       ],
     } as unknown as Context;
 
+    // pi-ai@0.78.1's own internal GoogleApiType is "google-generative-ai" | "google-vertex"
+    // only -- "google-gemini-cli" support in pi-ai's *own* convertMessages was added in a
+    // later release. This still runs and passes at runtime (pi-ai's convertMessages doesn't
+    // actually branch on the type-level union); this repo's real Gemini CLI support lives
+    // independently in extensions/google/gemini-cli-provider.ts and doesn't touch this path.
+    // @ts-expect-error -- see comment above; remove once pi-ai is bumped past this pin.
     const contents = convertMessages(model, context);
     const parts = contents.flatMap((content) => content.parts ?? []);
     const toolCallPart = parts.find(

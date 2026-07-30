@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
-import type { AgentMessage, AgentTool } from "@mariozechner/pi-agent-core";
-import type { SessionManager } from "@mariozechner/pi-coding-agent";
+import type { AgentMessage, AgentTool } from "@earendil-works/pi-agent-core";
+import type { SessionManager } from "@earendil-works/pi-coding-agent";
 import type { TSchema } from "@sinclair/typebox";
 import type { OpenClawConfig } from "../../config/config.js";
 import { registerUnhandledRejectionHandler } from "../../infra/unhandled-rejections.js";
@@ -433,7 +433,12 @@ export function logToolSchemasForGoogle(params: { tools: AgentTool[]; provider: 
     return;
   }
   const toolNames = params.tools.map((tool, index) => `${index}:${tool.name}`);
-  const tools = sanitizeToolsForGoogle(params);
+  // pi-agent-core's AgentTool now sources TSchema from the bare `typebox` package rather
+  // than `@sinclair/typebox` (which this file uses); the two are structurally identical
+  // but nominally distinct, so bridge the boundary explicitly.
+  const tools = sanitizeToolsForGoogle(
+    params as unknown as Parameters<typeof sanitizeToolsForGoogle>[0],
+  );
   log.info("google tool schema snapshot", {
     provider: params.provider,
     toolCount: tools.length,

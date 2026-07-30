@@ -6,7 +6,7 @@ import {
   type Model,
   type OpenAICompletionsOptions,
   type Tool,
-} from "@mariozechner/pi-ai";
+} from "@earendil-works/pi-ai";
 import { Type } from "@sinclair/typebox";
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
 import { normalizeProviderId } from "./provider-id.js";

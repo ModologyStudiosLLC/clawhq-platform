@@ -1,4 +1,4 @@
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { AnyMessageContent, makeWASocket } from "@whiskeysockets/baileys";
 import type { NormalizedLocation } from "../../channels/location.js";
 import type { ChannelAgentTool } from "../../channels/plugins/types.core.js";

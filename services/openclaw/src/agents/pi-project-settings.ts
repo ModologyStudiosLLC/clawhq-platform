@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { SettingsManager } from "@mariozechner/pi-coding-agent";
+import { SettingsManager } from "@earendil-works/pi-coding-agent";
 import type { OpenClawConfig } from "../config/config.js";
 import { applyMergePatch } from "../config/merge-patch.js";
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";

@@ -1,5 +1,5 @@
-import type { StreamFn } from "@mariozechner/pi-agent-core";
-import { createAssistantMessageEventStream, streamSimple } from "@mariozechner/pi-ai";
+import type { StreamFn } from "@earendil-works/pi-agent-core";
+import { createAssistantMessageEventStream, streamSimple } from "@earendil-works/pi-ai";
 import { buildStreamErrorAssistantMessage } from "../../stream-message-shared.js";
 
 const UNHANDLED_STOP_REASON_RE = /^Unhandled stop reason:\s*(.+)$/i;

@@ -1,4 +1,4 @@
-import { AuthStorage, ModelRegistry } from "@mariozechner/pi-coding-agent";
+import { AuthStorage, ModelRegistry } from "@earendil-works/pi-coding-agent";
 import OpenAI from "openai";
 import { describe, expect, it } from "vitest";
 import {
@@ -41,7 +41,7 @@ describeLive("openrouter plugin live", () => {
     const resolved = provider.resolveDynamicModel?.({
       provider: "openrouter",
       modelId: LIVE_MODEL_ID,
-      modelRegistry: new ModelRegistry(AuthStorage.inMemory()),
+      modelRegistry: ModelRegistry.inMemory(AuthStorage.inMemory()),
     });
     if (!resolved) {
       throw new Error(`openrouter provider did not resolve ${LIVE_MODEL_ID}`);

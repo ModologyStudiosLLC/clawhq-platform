@@ -3,7 +3,7 @@ import {
   createSyntheticSourceInfo,
   formatSkillsForPrompt,
   type Skill,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SkillEntry } from "./types.js";

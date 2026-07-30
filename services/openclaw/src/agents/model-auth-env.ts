@@ -1,4 +1,4 @@
-import { getEnvApiKey } from "@mariozechner/pi-ai";
+import { getEnvApiKey } from "@earendil-works/pi-ai";
 import { getShellEnvAppliedKeys } from "../infra/shell-env.js";
 import { hasAnthropicVertexAvailableAuth } from "../plugin-sdk/anthropic-vertex.js";
 import { normalizeOptionalSecretInput } from "../utils/normalize-secret-input.js";

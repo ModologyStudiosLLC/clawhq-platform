@@ -21,14 +21,14 @@
  * @see src/agents/openai-ws-connection.ts for the connection manager
  */
 
-import type { StreamFn } from "@mariozechner/pi-agent-core";
-import * as piAi from "@mariozechner/pi-ai";
+import type { StreamFn } from "@earendil-works/pi-agent-core";
+import * as piAi from "@earendil-works/pi-ai";
 import type {
   AssistantMessage,
   AssistantMessageEvent,
   AssistantMessageEventStream,
   StopReason,
-} from "@mariozechner/pi-ai";
+} from "@earendil-works/pi-ai";
 import {
   OpenAIWebSocketManager,
   type FunctionToolDefinition,

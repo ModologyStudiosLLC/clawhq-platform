@@ -4,8 +4,8 @@ import {
   type AssistantMessageEvent,
   type Message,
   type Model,
-} from "@mariozechner/pi-ai";
-import { SessionManager } from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-ai";
+import { SessionManager } from "@earendil-works/pi-coding-agent";
 import type { ReasoningLevel, ThinkLevel } from "../auto-reply/thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../auto-reply/types.js";
 import type { OpenClawConfig } from "../config/config.js";

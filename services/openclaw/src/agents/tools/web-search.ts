@@ -30,7 +30,8 @@ export function createWebSearchTool(options?: {
     name: "web_search",
     description: resolved.definition.description,
     parameters: resolved.definition.parameters,
-    execute: async (_toolCallId, args) => jsonResult(await resolved.definition.execute(args)),
+    execute: async (_toolCallId, args) =>
+      jsonResult(await resolved.definition.execute(args as Record<string, unknown>)),
   };
 }
 

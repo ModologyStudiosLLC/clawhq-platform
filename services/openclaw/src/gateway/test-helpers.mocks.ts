@@ -366,16 +366,38 @@ vi.mock("../agents/pi-model-discovery.js", async () => {
     "../agents/pi-model-discovery.js",
   );
 
-  class MockModelRegistry extends actual.ModelRegistry {
-    override getAll(): ReturnType<typeof actual.ModelRegistry.prototype.getAll> {
-      if (!piSdkMock.enabled) {
-        return super.getAll();
-      }
-      piSdkMock.discoverCalls += 1;
-      // Cast to expected type for testing purposes
-      return piSdkMock.models as ReturnType<typeof actual.ModelRegistry.prototype.getAll>;
-    }
+  // ModelRegistry's constructor is private (use .create/.inMemory), so this can no longer
+  // subclass it. Proxy the class instead: static factories return instances whose getAll()
+  // is intercepted, everything else passes through untouched.
+  function wrapWithMockedGetAll<T extends object>(instance: T): T {
+    return new Proxy(instance, {
+      get(target, prop, receiver) {
+        if (prop === "getAll") {
+          return (): unknown => {
+            if (!piSdkMock.enabled) {
+              return (target as { getAll(): unknown }).getAll();
+            }
+            piSdkMock.discoverCalls += 1;
+            return piSdkMock.models;
+          };
+        }
+        const value = Reflect.get(target, prop, receiver);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
   }
+
+  const MockModelRegistry = new Proxy(actual.ModelRegistry, {
+    get(target, prop, receiver) {
+      if (prop === "create" || prop === "inMemory") {
+        const factory = Reflect.get(target, prop, receiver) as (
+          ...args: unknown[]
+        ) => object;
+        return (...args: unknown[]) => wrapWithMockedGetAll(factory.apply(target, args));
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
 
   return {
     ...actual,

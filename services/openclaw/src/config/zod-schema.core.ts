@@ -196,9 +196,13 @@ export const ModelCompatSchema = z
       .union([
         z.literal("openai"),
         z.literal("openrouter"),
+        z.literal("deepseek"),
+        z.literal("together"),
         z.literal("zai"),
         z.literal("qwen"),
         z.literal("qwen-chat-template"),
+        z.literal("string-thinking"),
+        z.literal("ant-ling"),
       ])
       .optional(),
     requiresToolResultName: z.boolean().optional(),

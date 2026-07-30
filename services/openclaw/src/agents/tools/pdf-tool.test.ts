@@ -23,8 +23,8 @@ async function importPdfToolModule(): Promise<PdfToolModule> {
     return await pdfToolModulePromise;
   }
   vi.resetModules();
-  vi.doMock("@mariozechner/pi-ai", async (importOriginal) => {
-    const actual = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+  vi.doMock("@earendil-works/pi-ai", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("@earendil-works/pi-ai")>();
     return {
       ...actual,
       complete: completeMock,

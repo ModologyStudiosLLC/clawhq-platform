@@ -1,4 +1,4 @@
-import type { Skill } from "@mariozechner/pi-coding-agent";
+import type { Skill } from "@earendil-works/pi-coding-agent";
 import { validateRegistryNpmSpec } from "../../infra/npm-registry-spec.js";
 import { parseFrontmatterBlock } from "../../markdown/frontmatter.js";
 import {

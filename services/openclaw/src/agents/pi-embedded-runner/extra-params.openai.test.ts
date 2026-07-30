@@ -1,4 +1,4 @@
-import type { Model } from "@mariozechner/pi-ai";
+import type { Model } from "@earendil-works/pi-ai";
 import { afterEach, describe, expect, it } from "vitest";
 import { captureEnv } from "../../test-utils/env.js";
 import { runExtraParamsCase } from "./extra-params.test-support.js";

@@ -1,4 +1,4 @@
-import type { AssistantMessage } from "@mariozechner/pi-ai";
+import type { AssistantMessage } from "@earendil-works/pi-ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { __testing as pluginLoaderTesting } from "../../plugins/loader.js";
@@ -8,24 +8,24 @@ import type { SpeechProviderPlugin } from "../../plugins/types.js";
 import { withEnv } from "../../test-utils/env.js";
 import * as tts from "../../tts/tts.js";
 
-let completeSimple: typeof import("@mariozechner/pi-ai").completeSimple;
+let completeSimple: typeof import("@earendil-works/pi-ai").completeSimple;
 let getApiKeyForModelMock: typeof import("../../agents/model-auth.js").getApiKeyForModel;
 let requireApiKeyMock: typeof import("../../agents/model-auth.js").requireApiKey;
 let resolveModelAsyncMock: typeof import("../../agents/pi-embedded-runner/model.js").resolveModelAsync;
 let ensureCustomApiRegisteredMock: typeof import("../../agents/custom-api-registry.js").ensureCustomApiRegistered;
 let prepareModelForSimpleCompletionMock: typeof import("../../agents/simple-completion-transport.js").prepareModelForSimpleCompletion;
 
-vi.mock("@mariozechner/pi-ai", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+vi.mock("@earendil-works/pi-ai", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@earendil-works/pi-ai")>();
   return {
     ...original,
     completeSimple: vi.fn(),
   };
 });
 
-vi.mock("@mariozechner/pi-ai/oauth", async () => {
-  const actual = await vi.importActual<typeof import("@mariozechner/pi-ai/oauth")>(
-    "@mariozechner/pi-ai/oauth",
+vi.mock("@earendil-works/pi-ai/oauth", async () => {
+  const actual = await vi.importActual<typeof import("@earendil-works/pi-ai/oauth")>(
+    "@earendil-works/pi-ai/oauth",
   );
   return {
     ...actual,
@@ -331,7 +331,7 @@ function buildTestElevenLabsSpeechProvider(): SpeechProviderPlugin {
 
 describe("tts", () => {
   beforeEach(async () => {
-    ({ completeSimple } = await import("@mariozechner/pi-ai"));
+    ({ completeSimple } = await import("@earendil-works/pi-ai"));
     ({ getApiKeyForModel: getApiKeyForModelMock, requireApiKey: requireApiKeyMock } =
       await import("../../agents/model-auth.js"));
     ({ resolveModelAsync: resolveModelAsyncMock } =

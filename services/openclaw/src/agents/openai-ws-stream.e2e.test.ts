@@ -19,7 +19,7 @@ import type {
   AssistantMessageEvent,
   AssistantMessageEventStream,
   Context,
-} from "@mariozechner/pi-ai";
+} from "@earendil-works/pi-ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isLiveTestEnabled } from "./live-test-helpers.js";
 import type { OutputItem, ResponseObject } from "./openai-ws-connection.js";
@@ -181,8 +181,8 @@ function freshSession(name: string): string {
 describe("OpenAI WebSocket e2e", () => {
   beforeEach(async () => {
     vi.resetModules();
-    vi.doMock("@mariozechner/pi-ai", async (importOriginal) => {
-      const actual = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+    vi.doMock("@earendil-works/pi-ai", async (importOriginal) => {
+      const actual = await importOriginal<typeof import("@earendil-works/pi-ai")>();
       return {
         ...actual,
         createAssistantMessageEventStream: actual.createAssistantMessageEventStream,

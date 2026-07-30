@@ -1,5 +1,5 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import { getApiProvider, unregisterApiProviders } from "@mariozechner/pi-ai";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
+import { getApiProvider, unregisterApiProviders } from "@earendil-works/pi-ai";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { getCustomApiRegistrySourceId } from "../custom-api-registry.js";
 import {

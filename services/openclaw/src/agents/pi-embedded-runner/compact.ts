@@ -1,12 +1,13 @@
 import fs from "node:fs/promises";
 import os from "node:os";
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
+import type { ModelCompatConfig } from "../../config/types.models.js";
 import {
   createAgentSession,
   DefaultResourceLoader,
   estimateTokens,
   SessionManager,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { resolveHeartbeatPrompt } from "../../auto-reply/heartbeat.js";
 import type { ReasoningLevel, ThinkLevel } from "../../auto-reply/thinking.js";
 import { resolveChannelCapabilities } from "../../config/channel-capabilities.js";
@@ -479,7 +480,7 @@ export async function compactEmbeddedPiSessionDirect(
       abortSignal: runAbortController.signal,
       modelProvider: model.provider,
       modelId,
-      modelCompat: effectiveModel.compat,
+      modelCompat: effectiveModel.compat as ModelCompatConfig | undefined,
       modelContextWindowTokens: ctxInfo.tokens,
       modelAuthMode: resolveModelAuthMode(model.provider, params.config),
     });
@@ -511,7 +512,12 @@ export async function compactEmbeddedPiSessionDirect(
       ...(bundleLspRuntime?.tools ?? []),
     ];
     const allowedToolNames = collectAllowedToolNames({ tools: effectiveTools });
-    logToolSchemasForGoogle({ tools: effectiveTools, provider });
+    // effectiveTools mixes tools from multiple runtimes (bundle MCP/LSP) whose TSchema
+    // generics don't structurally unify; this is a diagnostic log call only.
+    logToolSchemasForGoogle({
+      tools: effectiveTools as unknown as Parameters<typeof logToolSchemasForGoogle>[0]["tools"],
+      provider,
+    });
     const machineName = await getMachineDisplayName();
     const runtimeChannel = normalizeMessageChannel(params.messageChannel ?? params.messageProvider);
     let runtimeCapabilities = runtimeChannel
@@ -750,7 +756,7 @@ export async function compactEmbeddedPiSessionDirect(
           : validatedGemini;
         // Apply validated transcript to the live session even when no history limit is configured,
         // so compaction and hook metrics are based on the same message set.
-        session.agent.replaceMessages(validated);
+        session.agent.state.messages = validated;
         // "Original" compaction metrics should describe the validated transcript that enters
         // limiting/compaction, not the raw on-disk session snapshot.
         const originalMessages = session.messages.slice();
@@ -767,7 +773,7 @@ export async function compactEmbeddedPiSessionDirect(
             })
           : truncated;
         if (limited.length > 0) {
-          session.agent.replaceMessages(limited);
+          session.agent.state.messages = limited;
         }
         const hookRunner = asCompactionHookRunner(getGlobalHookRunner());
         const observedTokenCount = normalizeObservedTokenCount(params.currentTokenCount);

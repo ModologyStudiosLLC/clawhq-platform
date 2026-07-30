@@ -5,7 +5,7 @@
  * Config resolution is in auto-topic-label-config.ts (lightweight, testable).
  * The actual topic rename call is channel-specific and handled by the caller.
  */
-import { completeSimple, type TextContent } from "@mariozechner/pi-ai";
+import { completeSimple, type TextContent } from "@earendil-works/pi-ai";
 import { getApiKeyForModel, requireApiKey } from "../../agents/model-auth.js";
 import { resolveDefaultModelForAgent } from "../../agents/model-selection.js";
 import { resolveModelAsync } from "../../agents/pi-embedded-runner/model.js";

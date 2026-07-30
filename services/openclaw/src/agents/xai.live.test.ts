@@ -1,4 +1,4 @@
-import { completeSimple, getModel, streamSimple } from "@mariozechner/pi-ai";
+import { completeSimple, getModel, streamSimple } from "@earendil-works/pi-ai";
 import { Type } from "@sinclair/typebox";
 import { describe, expect, it } from "vitest";
 import {
@@ -26,7 +26,9 @@ type AssistantLikeMessage = {
 };
 
 function resolveLiveXaiModel() {
-  return getModel("xai", "grok-4-1-fast-reasoning" as never) ?? getModel("xai", "grok-4");
+  return (
+    getModel("xai", "grok-4-1-fast-reasoning" as never) ?? getModel("xai", "grok-4" as never)
+  );
 }
 
 async function collectDoneMessage(

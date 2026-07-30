@@ -1,4 +1,4 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import { delegateCompactionToRuntime } from "./delegate.js";
 import { registerContextEngineForOwner } from "./registry.js";
 import type {

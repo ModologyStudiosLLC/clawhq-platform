@@ -1,4 +1,4 @@
-import { completeSimple, getModel } from "@mariozechner/pi-ai";
+import { completeSimple, getModel } from "@earendil-works/pi-ai";
 import { describe, expect, it } from "vitest";
 import {
   createSingleUserPromptMessage,
@@ -12,7 +12,7 @@ const LIVE = isLiveTestEnabled(["ZAI_LIVE_TEST"]);
 const describeLive = LIVE && ZAI_KEY ? describe : describe.skip;
 
 async function expectModelReturnsAssistantText(modelId: "glm-5" | "glm-4.7") {
-  const model = getModel("zai", modelId);
+  const model = getModel("zai", modelId as never);
   const res = await completeSimple(
     model,
     {

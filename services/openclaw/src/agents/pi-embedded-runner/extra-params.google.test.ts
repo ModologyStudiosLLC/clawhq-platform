@@ -1,10 +1,10 @@
-import type { Model } from "@mariozechner/pi-ai";
+import type { Model } from "@earendil-works/pi-ai";
 import { describe, expect, it, vi } from "vitest";
 import { createPiAiStreamSimpleMock } from "./extra-params.pi-ai-mock.js";
 import { runExtraParamsCase } from "./extra-params.test-support.js";
 
-vi.mock("@mariozechner/pi-ai", async (importOriginal) =>
-  createPiAiStreamSimpleMock(() => importOriginal<typeof import("@mariozechner/pi-ai")>()),
+vi.mock("@earendil-works/pi-ai", async (importOriginal) =>
+  createPiAiStreamSimpleMock(() => importOriginal<typeof import("@earendil-works/pi-ai")>()),
 );
 
 describe("extra-params: Google thinking payload compatibility", () => {

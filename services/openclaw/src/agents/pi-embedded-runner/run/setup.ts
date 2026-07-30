@@ -1,4 +1,4 @@
-import type { Api, Model } from "@mariozechner/pi-ai";
+import type { Api, Model } from "@earendil-works/pi-ai";
 import type { OpenClawConfig } from "../../../config/config.js";
 import type { PluginHookBeforeAgentStartResult } from "../../../plugins/types.js";
 import {

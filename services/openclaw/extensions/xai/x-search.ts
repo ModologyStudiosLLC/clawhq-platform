@@ -225,7 +225,8 @@ export function createXSearchTool(options?: {
         Type.Boolean({ description: "Allow xAI to inspect videos attached to matching posts." }),
       ),
     }),
-    execute: async (_toolCallId: string, args: Record<string, unknown>) => {
+    execute: async (_toolCallId: string, rawArgs: unknown) => {
+      const args = rawArgs as Record<string, unknown>;
       const apiKey = resolveXSearchApiKey({
         sourceConfig: options?.config,
         runtimeConfig: runtimeConfig ?? undefined,

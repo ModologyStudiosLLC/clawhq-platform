@@ -1,4 +1,4 @@
-import { completeSimple, type Model } from "@mariozechner/pi-ai";
+import { completeSimple, type Model } from "@earendil-works/pi-ai";
 import { describe, expect, it } from "vitest";
 import { BYTEPLUS_CODING_BASE_URL, BYTEPLUS_DEFAULT_COST } from "./byteplus-models.js";
 import {

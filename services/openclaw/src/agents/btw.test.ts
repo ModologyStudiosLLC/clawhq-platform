@@ -16,15 +16,15 @@ const resolveSessionAuthProfileOverrideMock = vi.fn();
 const getActiveEmbeddedRunSnapshotMock = vi.fn();
 const diagDebugMock = vi.fn();
 
-vi.mock("@mariozechner/pi-ai", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+vi.mock("@earendil-works/pi-ai", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@earendil-works/pi-ai")>();
   return {
     ...original,
     streamSimple: (...args: unknown[]) => streamSimpleMock(...args),
   };
 });
 
-vi.mock("@mariozechner/pi-coding-agent", () => ({
+vi.mock("@earendil-works/pi-coding-agent", () => ({
   SessionManager: {
     open: () => ({
       getLeafEntry: getLeafEntryMock,

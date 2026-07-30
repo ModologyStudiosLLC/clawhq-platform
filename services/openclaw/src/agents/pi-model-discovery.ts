@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Api, Model } from "@mariozechner/pi-ai";
-import * as PiCodingAgent from "@mariozechner/pi-coding-agent";
+import type { Api, Model } from "@earendil-works/pi-ai";
+import * as PiCodingAgent from "@earendil-works/pi-coding-agent";
 import type {
   AuthStorage as PiAuthStorage,
   ModelRegistry as PiModelRegistry,
-} from "@mariozechner/pi-coding-agent";
+} from "@earendil-works/pi-coding-agent";
 import { normalizeModelCompat } from "../plugins/provider-model-compat.js";
 import {
   applyProviderResolvedModelCompatWithPlugins,
@@ -102,26 +102,32 @@ function normalizeRegistryModel<T>(value: T, agentDir: string): T {
   return normalizeModelCompat(transportNormalized as Model<Api>) as T;
 }
 
-class OpenClawModelRegistry extends PiModelRegistryClass {
-  constructor(
-    authStorage: PiAuthStorage,
-    modelsJsonPath: string,
-    private readonly agentDir: string,
-  ) {
-    super(authStorage, modelsJsonPath);
-  }
-
-  override getAll(): Array<Model<Api>> {
-    return super.getAll().map((entry) => normalizeRegistryModel(entry, this.agentDir));
-  }
-
-  override getAvailable(): Array<Model<Api>> {
-    return super.getAvailable().map((entry) => normalizeRegistryModel(entry, this.agentDir));
-  }
-
-  override find(provider: string, modelId: string): Model<Api> | undefined {
-    return normalizeRegistryModel(super.find(provider, modelId), this.agentDir);
-  }
+// ModelRegistry's constructor is private (use ModelRegistry.create/.inMemory), so we can no
+// longer subclass it. Wrap an instance instead and override getAll/getAvailable/find via a
+// Proxy, forwarding everything else untouched.
+function createOpenClawModelRegistry(
+  authStorage: PiAuthStorage,
+  modelsJsonPath: string,
+  agentDir: string,
+): PiModelRegistry {
+  const inner = PiModelRegistryClass.create(authStorage, modelsJsonPath);
+  const overrides: Partial<PiModelRegistry> = {
+    getAll: (): Array<Model<Api>> =>
+      inner.getAll().map((entry) => normalizeRegistryModel(entry, agentDir)),
+    getAvailable: (): Array<Model<Api>> =>
+      inner.getAvailable().map((entry) => normalizeRegistryModel(entry, agentDir)),
+    find: (provider: string, modelId: string): Model<Api> | undefined =>
+      normalizeRegistryModel(inner.find(provider, modelId), agentDir),
+  };
+  return new Proxy(inner, {
+    get(target, prop, receiver) {
+      if (prop in overrides) {
+        return overrides[prop as keyof PiModelRegistry];
+      }
+      const value = Reflect.get(target, prop, receiver);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
 }
 
 function scrubLegacyStaticAuthJsonEntries(pathname: string): void {
@@ -243,5 +249,5 @@ export function discoverAuthStorage(agentDir: string): PiAuthStorage {
 }
 
 export function discoverModels(authStorage: PiAuthStorage, agentDir: string): PiModelRegistry {
-  return new OpenClawModelRegistry(authStorage, path.join(agentDir, "models.json"), agentDir);
+  return createOpenClawModelRegistry(authStorage, path.join(agentDir, "models.json"), agentDir);
 }

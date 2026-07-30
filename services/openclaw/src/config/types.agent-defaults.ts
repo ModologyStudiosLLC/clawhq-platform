@@ -293,6 +293,11 @@ export type AgentDefaultsConfig = {
   };
   /** Optional sandbox settings for non-main sessions. */
   sandbox?: AgentSandboxConfig;
+  /** Monthly spend cap tracking (see src/utils/model-router.ts readBudgetUsedPercent). */
+  budget?: {
+    /** Monthly spend cap in dollars, used to compute usage percentage. */
+    monthlyCap?: number;
+  };
 };
 
 export type AgentCompactionMode = "default" | "safeguard";

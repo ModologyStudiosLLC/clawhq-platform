@@ -1,5 +1,5 @@
 import type { Activity, UpdatePresenceData } from "@buape/carbon/gateway";
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import { getGateway } from "../monitor/gateway-registry.js";
 import {
   type ActionGate,

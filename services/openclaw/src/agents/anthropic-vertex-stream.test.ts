@@ -1,4 +1,4 @@
-import type { Model } from "@mariozechner/pi-ai";
+import type { Model } from "@earendil-works/pi-ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => {
@@ -13,8 +13,8 @@ const hoisted = vi.hoisted(() => {
   };
 });
 
-vi.mock("@mariozechner/pi-ai", async (importOriginal) => {
-  const original = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+vi.mock("@earendil-works/pi-ai", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@earendil-works/pi-ai")>();
   return {
     ...original,
     streamAnthropic: (model: unknown, context: unknown, options: unknown) =>
@@ -39,8 +39,8 @@ let createAnthropicVertexStreamFnForModel: typeof import("./anthropic-vertex-str
 
 async function loadFreshAnthropicVertexStreamModuleForTest() {
   vi.resetModules();
-  vi.doMock("@mariozechner/pi-ai", async (importOriginal) => {
-    const original = await importOriginal<typeof import("@mariozechner/pi-ai")>();
+  vi.doMock("@earendil-works/pi-ai", async (importOriginal) => {
+    const original = await importOriginal<typeof import("@earendil-works/pi-ai")>();
     return {
       ...original,
       streamAnthropic: (model: unknown, context: unknown, options: unknown) =>

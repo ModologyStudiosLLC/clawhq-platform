@@ -1,6 +1,6 @@
-import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { SimpleStreamOptions } from "@mariozechner/pi-ai";
-import { streamSimple } from "@mariozechner/pi-ai";
+import type { StreamFn } from "@earendil-works/pi-agent-core";
+import type { SimpleStreamOptions } from "@earendil-works/pi-ai";
+import { streamSimple } from "@earendil-works/pi-ai";
 import { resolveProviderAttributionHeaders } from "../provider-attribution.js";
 import { log } from "./logger.js";
 import { streamWithPayloadPatch } from "./stream-payload-utils.js";
@@ -299,9 +299,21 @@ export function createOpenAIResponsesContextManagementWrapper(
 ): StreamFn {
   const underlying = baseStreamFn ?? streamSimple;
   return (model, context, options) => {
-    const forceStore = shouldForceResponsesStore(model);
-    const useServerCompaction = shouldEnableOpenAIResponsesServerCompaction(model, extraParams);
-    const stripStore = shouldStripResponsesStore(model, forceStore);
+    // model.compat is a per-API union upstream (Anthropic/OpenAI Completions/Responses each
+    // have distinct compat shapes); these helpers only ever read the OpenAI-specific
+    // supportsStore flag, so narrow it structurally at the boundary.
+    const modelForCompatCheck = model as unknown as {
+      api?: unknown;
+      provider?: unknown;
+      baseUrl?: unknown;
+      compat?: { supportsStore?: boolean };
+    };
+    const forceStore = shouldForceResponsesStore(modelForCompatCheck);
+    const useServerCompaction = shouldEnableOpenAIResponsesServerCompaction(
+      modelForCompatCheck,
+      extraParams,
+    );
+    const stripStore = shouldStripResponsesStore(modelForCompatCheck, forceStore);
     const stripPromptCache = shouldStripResponsesPromptCache(model);
     if (!forceStore && !useServerCompaction && !stripStore && !stripPromptCache) {
       return underlying(model, context, options);

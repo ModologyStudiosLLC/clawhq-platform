@@ -1,4 +1,4 @@
-import { type Api, type Model } from "@mariozechner/pi-ai";
+import { type Api, type Model } from "@earendil-works/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
 import { appendLocalMediaParentRoots } from "../../media/local-roots.js";
 import { getDefaultLocalRoots } from "../../media/web-media.js";
