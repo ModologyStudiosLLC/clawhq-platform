@@ -9,6 +9,7 @@
  *   FAIL  — hardcoded-secret : API keys, tokens, or credentials found in pack text
  *   FAIL  — dangerous-no-hitl: high-risk tools declared without hitl enabled
  *   WARN  — external-url     : HTTP(S) URLs in task/instructions (data exfil risk)
+ *   WARN  — prompt-injection : hidden Unicode chars or "ignore previous instructions"-style phrases
  *   WARN  — semver           : version field is not valid semver
  *   WARN  — no-tags          : pack declares no tags (discoverability + audit trail)
  *   INFO  — tool-summary     : lists all tools the pack requests
@@ -59,6 +60,17 @@ const SECRET_PATTERNS: Array<{ label: string; re: RegExp }> = [
 
 const SEMVER_RE = /^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?(\+[A-Za-z0-9.-]+)?$/;
 const REQUIRED_API_VERSION = "paperclip.ai/v1";
+
+/** Zero-width / invisible Unicode used to hide text from human reviewers. */
+const HIDDEN_UNICODE_RE = /[\u200B\u200C\u200D\u2060\uFEFF]/;
+
+/** Common hidden-instruction / prompt-injection phrasing. */
+const INJECTION_PHRASE_PATTERNS: RegExp[] = [
+  /ignore (all )?(previous|prior|above) instructions/i,
+  /disregard (all )?(previous|prior|the above)/i,
+  /reveal (your|the) (system prompt|instructions)/i,
+  /new instructions\s*:/i,
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -206,6 +218,26 @@ export function vetPack(packId: string, yaml: string, opts: VetOptions = {}): Ve
       message: `Pack references ${urls.length} external URL(s) in prompts — ` +
         `verify these are intentional and not data exfiltration vectors: ${urls.slice(0, 3).join(", ")}${urls.length > 3 ? " …" : ""}`,
     });
+  }
+
+  // ── Prompt injection / hidden instructions ─────────────────────────────────
+
+  if (HIDDEN_UNICODE_RE.test(yaml)) {
+    checks.push({
+      id: "prompt-injection",
+      level: "warn",
+      message: "Pack text contains zero-width/invisible Unicode characters — verify nothing is hidden from human review",
+    });
+  }
+  for (const re of INJECTION_PHRASE_PATTERNS) {
+    if (re.test(yaml)) {
+      checks.push({
+        id: "prompt-injection",
+        level: "warn",
+        message: `Pack text contains hidden-instruction-style phrasing (matched "${re.source}") — verify this is intentional`,
+      });
+      break;
+    }
   }
 
   // ── Tags ───────────────────────────────────────────────────────────────────
