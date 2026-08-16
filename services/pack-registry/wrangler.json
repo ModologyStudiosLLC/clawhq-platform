@@ -8,8 +8,5 @@
   ],
   "kv_namespaces": [
     { "binding": "LICENSES", "id": "fdffb9df97cf41478e43c62679cc971a", "preview_id": "3cd963ff830240e7be98036fae8fabb2" }
-  ],
-  "vars": {
-    "ADMIN_TOKEN": "4feb161005fc2465b513e4b8bd21becfc7ee7729cf2a105e9adb143eba98f631"
-  }
+  ]
 }
