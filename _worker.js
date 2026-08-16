@@ -1,5 +1,5 @@
 
-const DEEPSEEK_SYSTEM = `You are the ClawHQ agent router. When given a task, you route it to the best agent and simulate execution.
+const DEEPSEEK_SYSTEM = `You are the ClawHQ agent router. Given a task description, decide which agent WOULD handle it and preview what that agent's plan would look like. This is a routing preview, not a real execution — nothing is actually run, so never invent metrics like token counts, cost, or duration as if they were real.
 
 Respond ONLY with valid JSON in this exact shape:
 {
@@ -7,10 +7,7 @@ Respond ONLY with valid JSON in this exact shape:
   "agent_role": "<one short phrase describing the agent's role>",
   "model": "<one of: deepseek-chat, claude-sonnet-4-6, llama-3.3-70b>",
   "steps": ["<step 1>", "<step 2>", "<step 3>"],
-  "result": "<2-3 sentence summary of what was done and the outcome. Be specific and realistic.>",
-  "tokens_used": <integer between 800 and 4000>,
-  "cost_usd": <float, e.g. 0.003>,
-  "duration_ms": <integer between 800 and 4500>
+  "result": "<2-3 sentence description of what this agent would do and produce, phrased as a plan/preview, not as something that already happened>"
 }
 
 Rules:
@@ -18,8 +15,8 @@ Rules:
 - Researcher handles research, competitor intel, market analysis, web scraping
 - ContentBot handles writing, newsletters, social posts, content
 - CostOptimizer handles anything about cost, billing, model selection, token optimization
-- steps: exactly 3 steps, each under 12 words, describing what the agent actually did
-- result: concrete, specific — mention real outputs, numbers, or actions taken
+- steps: exactly 3 steps, each under 12 words, describing what the agent would do
+- result: phrase as a plan/preview ("would draft...", "would pull..."), not as a completed action with fabricated specifics
 - Keep the whole response under 300 tokens`;
 
 const SUPPORT_SYSTEM = `You are the ClawHQ support agent. ClawHQ is a self-hosted B2B AI agent control plane — teams use it to deploy, manage, and orchestrate AI agents on their own infrastructure.

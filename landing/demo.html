@@ -514,10 +514,11 @@
 
     <!-- ── Run a Task ── -->
     <div class="tab-panel" id="tab-run">
-      <p class="section-label">Live Agent Execution</p>
+      <p class="section-label">Agent Routing Preview</p>
       <div class="card mb-4" style="max-width:680px">
         <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6">
-          Type any task below. ClawHQ will route it to the right agent, run it, and show you the execution trace.
+          Type any task below. ClawHQ will show you which agent it would route to and preview that agent's plan —
+          this is a routing preview, not a live execution.
         </p>
 
         <!-- Suggestion chips -->
@@ -548,7 +549,7 @@
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
               <span id="run-agent-name"></span>
-              <span class="badge" style="background:var(--green-dim);color:var(--green)">running</span>
+              <span class="badge" style="background:var(--green-dim);color:var(--green)">would route here</span>
             </div>
             <div style="font-size:11px;color:var(--text-3);margin-top:2px" id="run-agent-role"></div>
           </div>
@@ -559,30 +560,14 @@
 
         <!-- Steps -->
         <div class="card mb-3">
-          <p class="section-label" style="margin-bottom:10px">Execution trace</p>
+          <p class="section-label" style="margin-bottom:10px">Planned steps</p>
           <div id="run-steps" class="stack"></div>
         </div>
 
         <!-- Result -->
         <div class="card mb-3">
-          <p class="section-label" style="margin-bottom:8px">Result</p>
+          <p class="section-label" style="margin-bottom:8px">Preview</p>
           <p id="run-result" style="font-size:13px;color:var(--text-2);line-height:1.6"></p>
-        </div>
-
-        <!-- Metrics -->
-        <div class="card-grid-3">
-          <div class="card stat-card">
-            <div class="stat-label"><span>Tokens used</span></div>
-            <div class="stat-value" id="run-tokens" style="font-size:20px"></div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-label"><span>Cost</span></div>
-            <div class="stat-value" id="run-cost" style="font-size:20px;color:var(--green)"></div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-label"><span>Duration</span></div>
-            <div class="stat-value" id="run-duration" style="font-size:20px"></div>
-          </div>
         </div>
 
         <div style="text-align:center;margin-top:20px">
@@ -889,8 +874,7 @@ document.getElementById("banner-dismiss").addEventListener("click", () => {
   const loadingPhrases = [
     "Routing task to agent...",
     "Selecting optimal model...",
-    "Executing task...",
-    "Processing result...",
+    "Previewing agent plan...",
   ];
   let loadTimer;
 
@@ -899,7 +883,7 @@ document.getElementById("banner-dismiss").addEventListener("click", () => {
     errEl.style.display   = "none";
     loading.style.display = "block";
     btn.disabled = true;
-    btn.textContent = "Running...";
+    btn.textContent = "Routing...";
     let i = 0;
     loadTxt.textContent = loadingPhrases[0];
     loadTimer = setInterval(() => {
@@ -946,9 +930,6 @@ document.getElementById("banner-dismiss").addEventListener("click", () => {
       </div>`).join("");
 
     document.getElementById("run-result").textContent   = data.result || "";
-    document.getElementById("run-tokens").textContent   = (data.tokens_used || 0).toLocaleString();
-    document.getElementById("run-cost").textContent     = "$" + (data.cost_usd || 0).toFixed(4);
-    document.getElementById("run-duration").textContent = (data.duration_ms || 0).toLocaleString() + "ms";
 
     output.style.display = "block";
     output.scrollIntoView({ behavior: "smooth", block: "start" });
