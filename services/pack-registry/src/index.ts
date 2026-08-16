@@ -132,7 +132,7 @@ async function sendLicenseEmail(
 
 function isAdmin(request: Request, env: Env): boolean {
   const auth = request.headers.get("Authorization") ?? "";
-  return auth === `Bearer ${env.ADMIN_TOKEN}`;
+  return !!env.ADMIN_TOKEN && auth === `Bearer ${env.ADMIN_TOKEN}`;
 }
 
 // Stripe webhook signature verification using Web Crypto API
